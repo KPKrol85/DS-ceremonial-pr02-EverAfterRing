@@ -1,0 +1,20 @@
+/* Badges */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-nano);
+  line-height: var(--line-height-compact);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-badge);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.badge--outline {
+  background: transparent;
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-muted);
+}

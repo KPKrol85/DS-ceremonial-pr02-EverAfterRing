@@ -1,0 +1,20 @@
+/* Callout Section */
+
+.callout {
+  background: var(--color-callout-bg);
+  color: var(--color-callout-text);
+  padding: var(--space-7) 0;
+}
+
+.callout p {
+  color: var(--color-callout-muted);
+}
+
+.callout__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+

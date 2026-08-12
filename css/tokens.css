@@ -1,0 +1,151 @@
+:root {
+  color-scheme: light;
+
+  /* Base Colors */
+  --color-ivory: #faf7f2;
+  --color-champagne: #f2e7da;
+  --color-blush: #f5e1e6;
+  --color-rosewood: #6c4a4a;
+  --color-ink: #2a2422;
+  --color-gold: #c6a77a;
+  --color-white: #ffffff;
+  --color-muted: #6f6864;
+  --color-border: #e5dbcf;
+  --color-success: #2f6b4f;
+  --color-error: #8f3c3c;
+
+  /* Core Colors */
+  --color-page-bg: var(--color-ivory);
+  --color-page-bg-muted: var(--color-champagne);
+  --color-surface: var(--color-white);
+  --color-surface-alt: var(--color-champagne);
+  --color-surface-elevated: var(--color-white);
+  --color-text: var(--color-ink);
+  --color-text-strong: var(--color-ink);
+  --color-text-muted: var(--color-muted);
+  --color-accent: var(--color-rosewood);
+  --color-accent-strong: #583b3b;
+  --color-accent-soft: var(--color-blush);
+  --color-accent-contrast: var(--color-white);
+  --color-border-subtle: var(--color-border);
+  --color-header-bg: rgba(250, 247, 242, 0.95);
+  --color-header-border: rgba(229, 219, 207, 0.5);
+  --color-header-shadow: rgba(42, 36, 34, 0.04);
+  --color-footer-bg: var(--color-ink);
+  --color-footer-text: rgba(255, 255, 255, 0.75);
+  --color-footer-heading: var(--color-white);
+  --color-footer-border: rgba(255, 255, 255, 0.16);
+  --color-callout-bg: var(--color-rosewood);
+  --color-callout-text: var(--color-white);
+  --color-callout-muted: rgba(255, 255, 255, 0.8);
+  --color-hero-glow: rgba(245, 225, 230, 0.4);
+  --color-hero-sheen: rgba(255, 255, 255, 0.3);
+  --color-hero-border: rgba(198, 167, 122, 0.2);
+
+  /* Typography */
+  --font-serif: "Cormorant Garamond", "Times New Roman", Georgia, serif;
+  --font-sans: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+
+  /* Font Sizes */
+  --font-size-nano: 0.6rem;
+  --font-size-xxs: 0.7rem;
+  --font-size-xs: 0.85rem;
+  --font-size-sm: 0.95rem;
+  --font-size-base: 1rem;
+  --font-size-md: 1.1rem;
+  --font-size-lg: 1.4rem;
+  --font-size-xl: 1.6rem;
+  --font-size-xxl: 2rem;
+  --font-size-3xl: 2.8rem;
+
+  /* Logo Sizes */
+  --logo-size-sm: 2.5rem;
+  --logo-size-md: 3rem;
+  --logo-size-lg: 5rem;
+
+  /* Line Heights */
+  --line-height-tight: 1.2;
+  --line-height-compact: 1.4;
+  --line-height-base: 1.6;
+  --line-height-relaxed: 1.7;
+
+  /* Letter Spacing */
+  --letter-spacing-tight: -0.01em;
+  --letter-spacing-wide: 0.04em;
+  --letter-spacing-badge: 0.08em;
+
+  /* Font Weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 28px;
+  --radius-pill: 9999px;
+
+  /* Shadows */
+  --shadow-soft: 0 20px 40px rgba(42, 36, 34, 0.08);
+  --shadow-card: 0 12px 24px rgba(42, 36, 34, 0.1);
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 240ms ease;
+
+  /* Container */
+  --container-width: 1100px;
+
+  /* Section spacing */
+  --section-space: 6rem;
+
+  /* Focus Ring */
+  --focus-ring: 0 0 0 3px rgba(198, 167, 122, 0.5);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-page-bg: #171311;
+  --color-page-bg-muted: #211b18;
+  --color-surface: #241d1a;
+  --color-surface-alt: #2d2521;
+  --color-surface-elevated: #332a25;
+  --color-text: #f8efe6;
+  --color-text-strong: #fffaf4;
+  --color-text-muted: #cbbbae;
+  --color-accent: #d9bd8f;
+  --color-accent-strong: #ead2a5;
+  --color-accent-soft: rgba(217, 189, 143, 0.16);
+  --color-accent-contrast: #1f1714;
+  --color-border-subtle: rgba(242, 231, 218, 0.18);
+  --color-header-bg: rgba(23, 19, 17, 0.94);
+  --color-header-border: rgba(242, 231, 218, 0.14);
+  --color-header-shadow: rgba(0, 0, 0, 0.24);
+  --color-footer-bg: #100d0c;
+  --color-footer-text: rgba(248, 239, 230, 0.72);
+  --color-footer-heading: #fffaf4;
+  --color-footer-border: rgba(248, 239, 230, 0.14);
+  --color-callout-bg: #3a2724;
+  --color-callout-text: #fffaf4;
+  --color-callout-muted: rgba(248, 239, 230, 0.78);
+  --color-hero-glow: rgba(217, 189, 143, 0.14);
+  --color-hero-sheen: rgba(248, 239, 230, 0.08);
+  --color-hero-border: rgba(217, 189, 143, 0.28);
+  --color-success: #72b692;
+  --color-error: #e08a8a;
+
+  --shadow-soft: 0 20px 44px rgba(0, 0, 0, 0.28);
+  --shadow-card: 0 14px 30px rgba(0, 0, 0, 0.32);
+  --focus-ring: 0 0 0 3px rgba(217, 189, 143, 0.5);
+}

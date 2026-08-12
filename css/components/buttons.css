@@ -1,0 +1,65 @@
+/* Buttons */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  transition:
+    color var(--transition-base),
+    background-color var(--transition-base),
+    border-color var(--transition-base);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-xxs);
+}
+
+/* Button primary */
+.button--primary {
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+}
+.button--primary:hover {
+  color: var(--color-accent-contrast);
+  background: var(--color-accent-strong);
+}
+
+/* Button ghost */
+.button--ghost {
+  background: transparent;
+  color: var(--color-text);
+  border-color: color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
+.button--ghost:hover {
+  color: var(--color-accent-contrast);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+/* Button light */
+.button--light {
+  background: var(--color-surface);
+  color: var(--color-accent);
+  box-shadow: 0 0.25rem 0.75rem rgba(44, 24, 16, 0.08);
+  transition:
+    background-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+.button--light:hover {
+  background: var(--color-surface-elevated);
+  box-shadow:
+    0 0.75rem 1.5rem rgba(44, 24, 16, 0.16),
+    0 0.25rem 0.625rem rgba(44, 24, 16, 0.1);
+  transform: translateY(-1px);
+}
+.button--light:active {
+  transform: translateY(0);
+}
+
+/* Button block */
+.button--block {
+  width: 100%;
+}

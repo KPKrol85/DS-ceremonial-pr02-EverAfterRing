@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://ceremonial-pr02-everafterring.netlify.app/sitemap.xml

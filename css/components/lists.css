@@ -1,0 +1,20 @@
+.list {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  padding-left: var(--space-4);
+  list-style: disc;
+  font-size: var(--font-size-xs);
+}
+
+.list li {
+  list-style: disc;
+}
+
+.list--ordered {
+  list-style: decimal;
+}
+
+.list--ordered li {
+  list-style: decimal;
+}

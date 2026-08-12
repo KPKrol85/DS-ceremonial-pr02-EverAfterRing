@@ -1,0 +1,88 @@
+{
+  "name": "EverAfter Ring",
+  "short_name": "EverAfter",
+  "description": "Premium wedding planning and ceremonial services for elegant celebrations.",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#faf7f2",
+  "theme_color": "#faf7f2",
+
+  "icons": [
+    {
+      "src": "favicon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+
+  "shortcuts": [
+    {
+      "name": "Oferta",
+      "description": "Poznaj ofertę kompleksowej organizacji uroczystości.",
+      "url": "/oferta.html",
+      "icons": [
+        {
+          "src": "shortcut-offer.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Realizacje",
+      "description": "Zobacz wybrane realizacje i inspiracje ślubne.",
+      "url": "/realizacje.html",
+      "icons": [
+        {
+          "src": "shortcut-portfolio.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Kontakt",
+      "description": "Skontaktuj się w sprawie planowania uroczystości.",
+      "url": "/kontakt.html",
+      "icons": [
+        {
+          "src": "shortcut-contact.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+
+  "screenshots": [
+    {
+      "src": "screenshot-desktop.png",
+      "sizes": "1440x900",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+.project-notice {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: rgb(12 10 9 / 0.58);
+  backdrop-filter: blur(8px);
+}
+
+.project-notice[hidden] {
+  display: none;
+}
+
+.project-notice__backdrop {
+  position: absolute;
+  inset: 0;
+}
+
+.project-notice__dialog {
+  position: relative;
+  width: min(100%, 31rem);
+  padding: clamp(var(--space-4), 4vw, var(--space-6));
+  border: 1px solid rgb(255 255 255 / 0.72);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 24px 70px rgb(23 19 17 / 0.18),
+    0 8px 24px rgb(23 19 17 / 0.1);
+  text-align: center;
+}
+
+.project-notice .project-notice__title {
+  margin: 0 0 var(--space-3);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+}
+
+.project-notice .project-notice__text {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+
+.project-notice .project-notice__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+}
+.project-notice .project-notice__links a {
+  color: inherit;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+.project-notice .project-notice__links a:hover {
+  text-decoration: underline;
+  color: var(--color-accent);
+}
+
+.project-notice .project-notice__button {
+  margin-top: var(--space-4);
+  font-size: var(--font-size-xs);
+  background-color: var(--color-callout-bg);
+  color: var(--color-white);
+  letter-spacing: var(--letter-spacing-wide);
+  padding-inline: var(--space-6);
+}
+.project-notice .project-notice__button:hover {
+  background-color: color-mix(in srgb, var(--color-callout-bg) 88%, black);
+}
+
+body.is-project-notice-open {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .project-notice {
+    animation: project-notice-fade 180ms ease-out;
+  }
+
+  .project-notice__dialog {
+    animation: project-notice-enter 220ms ease-out;
+  }
+}
+
+@keyframes project-notice-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes project-notice-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem) scale(0.98);
+  }
+}
