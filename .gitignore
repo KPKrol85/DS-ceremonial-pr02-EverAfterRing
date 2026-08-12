@@ -1,0 +1,75 @@
+# ─────────────────────────────────────────────
+# EverAfter Ring — KP_Code Digital Studio
+# ─────────────────────────────────────────────
+
+# Dependencies
+
+node_modules/
+
+# Generated production output
+
+/dist/
+
+# Test, report and coverage output
+
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/coverage/
+
+# Tool caches
+
+.cache/
+.eslintcache
+.stylelintcache
+
+# Netlify local files
+
+.netlify/
+
+# Environment files
+
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Logs
+
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor and IDE files
+
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+.history/
+
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Operating system files
+
+.DS_Store
+Thumbs.db
+Desktop.ini
+*:Zone.Identifier
+
+# ─────────────────────────────────────────────
+# Intentionally tracked — do not ignore:
+#
+# assets/
+# package-lock.json
+# .codex/environments/environment.toml
+# ─────────────────────────────────────────────
