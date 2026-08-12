@@ -104,10 +104,9 @@
               Studio.
             </p>
             <p>Dokument ma charakter informacyjny i wyjaśnia mechanizmy związane z zapisywaniem oraz odczytywaniem informacji na urządzeniu końcowym Użytkownika podczas korzystania z Serwisu.</p>
-            <p>
-              Serwis ma charakter prezentacyjny i nie prowadzi rzeczywistej działalności wedding planning ani sprzedaży. Opisane mechanizmy mogą być stosowane w projektach komercyjnych realizowanych
-              przez Operatora.
-            </p>
+            <p>Operatorem Serwisu jest KP_Code Digital Studio (dalej: „Operator”).</p>
+            <p>Serwis ma charakter prezentacyjny i przedstawia fikcyjną ofertę wedding planning. Nie prowadzi rzeczywistej sprzedaży, rezerwacji ani płatności związanych z prezentowaną ofertą.</p>
+            <p>Opisane w tym dokumencie mechanizmy odpowiadają wyłącznie technologiom używanym w aktualnej wersji Serwisu.</p>
             <p>
               W zakresie nieuregulowanym niniejszą Polityką cookies zastosowanie mają postanowienia dokumentów:
               <a href="polityka-prywatnosci.html">Polityka prywatności</a>
@@ -119,99 +118,90 @@
           <!-- Czym są pliki cookies i podobne technologie -->
           <article class="stack">
             <h2>2. Czym są pliki cookies i podobne technologie</h2>
-            <p>
-              Pliki cookies (tzw. „ciasteczka”) to niewielkie informacje tekstowe zapisywane na urządzeniu końcowym Użytkownika podczas korzystania z Serwisu. Umożliwiają one prawidłowe funkcjonowanie
-              strony oraz dostosowanie jej działania do wybranych ustawień i preferencji.
-            </p>
-            <p>
-              Cookies mogą być odczytywane przez Serwis przy kolejnych wizytach Użytkownika, co pozwala na zachowanie spójności działania interfejsu oraz zapewnienie bezpieczeństwa i stabilności
-              technicznej.
-            </p>
-            <p>
-              Oprócz plików cookies Serwis może wykorzystywać również inne technologie o podobnym charakterze, w szczególności mechanizmy przechowywania danych w przeglądarce (np. localStorage,
-              sessionStorage) lub inne rozwiązania umożliwiające zapisywanie informacji na urządzeniu końcowym.
-            </p>
+            <p>Pliki cookies to niewielkie informacje tekstowe zapisywane na urządzeniu końcowym Użytkownika. Podobną funkcję mogą pełnić inne mechanizmy pamięci przeglądarki, w tym <code>localStorage</code>.</p>
+            <p>W tym dokumencie „technologie przechowywania danych” oznaczają klasyczne pliki cookies oraz podobne mechanizmy zapisu lub odczytu informacji na urządzeniu Użytkownika.</p>
+            <p>Aktualna wersja Serwisu nie zapisuje własnych klasycznych plików cookies. Nie korzysta także z <code>sessionStorage</code>, Cache Storage, Service Workera ani lokalnej bazy danych przeglądarki.</p>
           </article>
-          <!-- Rodzaje plików cookies -->
+          <!-- Wykaz technologii -->
           <article class="stack">
-            <h2>3. Rodzaje plików cookies</h2>
-            <p>W ramach Serwisu mogą być stosowane różne rodzaje plików cookies, w zależności od ich funkcji oraz czasu przechowywania na urządzeniu końcowym Użytkownika.</p>
-            <ul class="list">
-              <li>Cookies niezbędne (techniczne) – umożliwiają prawidłowe funkcjonowanie Serwisu oraz korzystanie z jego podstawowych funkcjonalności. Ich stosowanie nie wymaga zgody Użytkownika.</li>
-              <li>Cookies funkcjonalne – pozwalają na zapamiętanie wybranych ustawień Użytkownika (np. preferencji interfejsu), w celu zapewnienia bardziej spersonalizowanego działania Serwisu.</li>
-              <li>Cookies analityczne – służą do zbierania informacji statystycznych dotyczących sposobu korzystania z Serwisu, co umożliwia jego optymalizację i rozwój.</li>
-            </ul>
-            <p>Ze względu na czas przechowywania pliki cookies mogą mieć charakter:</p>
-            <ul class="list">
-              <li>Sesyjny – przechowywane na urządzeniu Użytkownika do momentu zakończenia sesji przeglądarki.</li>
-              <li>Trwały – przechowywane przez określony czas lub do momentu ich usunięcia przez Użytkownika.</li>
-            </ul>
+            <h2>3. Wykaz technologii stosowanych w Serwisie</h2>
+            <p>Aktualna wersja Serwisu używa wyłącznie następujących wpisów <code>localStorage</code>:</p>
+            <div role="region" aria-label="Wykaz technologii przechowywania danych" tabindex="0">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">Klucz</th>
+                    <th scope="col">Technologia</th>
+                    <th scope="col">Dostawca</th>
+                    <th scope="col">Cel</th>
+                    <th scope="col">Okres przechowywania</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>everafterring-theme</code></td>
+                    <td><code>localStorage</code></td>
+                    <td>Operator</td>
+                    <td>Zapamiętanie motywu jasnego albo ciemnego wybranego przez Użytkownika.</td>
+                    <td>Do usunięcia danych witryny przez Użytkownika.</td>
+                  </tr>
+                  <tr>
+                    <td><code>everafterringProjectNoticeAccepted</code></td>
+                    <td><code>localStorage</code></td>
+                    <td>Operator</td>
+                    <td>Zapamiętanie potwierdzenia zamknięcia komunikatu o demonstracyjnym charakterze Projektu.</td>
+                    <td>Do usunięcia danych witryny przez Użytkownika.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p>Wpisy mają charakter trwały w rozumieniu pamięci przeglądarki: kod Serwisu nie wyznacza dla nich daty wygaśnięcia ani ich nie usuwa automatycznie.</p>
           </article>
-          <!-- Cele wykorzystywania plików cookies -->
+          <!-- Cele -->
           <article class="stack">
-            <h2>4. Cele wykorzystywania plików cookies</h2>
-            <p>Pliki cookies mogą być wykorzystywane w Serwisie w następujących celach:</p>
+            <h2>4. Cele wykorzystywania technologii przechowywania danych</h2>
+            <p>Wpisy wskazane w wykazie służą wyłącznie do:</p>
             <ul class="list">
-              <li>zapewnienia prawidłowego funkcjonowania Serwisu oraz jego podstawowych mechanizmów technicznych,</li>
-              <li>utrzymania bezpieczeństwa oraz stabilności działania strony,</li>
-              <li>zapamiętania wybranych ustawień i preferencji Użytkownika (np. ustawień interfejsu),</li>
-              <li>prowadzenia analiz statystycznych dotyczących sposobu korzystania z Serwisu, w celu jego optymalizacji i rozwoju,</li>
-              <li>realizacji obowiązków wynikających z przepisów prawa, jeżeli zastosowanie określonych technologii jest wymagane.</li>
+              <li>utrzymania motywu interfejsu wybranego przez Użytkownika,</li>
+              <li>nieponownego wyświetlania komunikatu po jego potwierdzeniu przez Użytkownika.</li>
             </ul>
-            <p>Zakres stosowanych plików cookies może różnić się w zależności od aktualnych funkcjonalności wdrożonych w ramach projektu demonstracyjnego.</p>
+            <p>Wpisy nie służą do analityki, reklamy, śledzenia aktywności ani profilowania Użytkownika.</p>
           </article>
           <!-- Podstawy prawne stosowania plików cookies -->
           <article class="stack">
             <h2>5. Podstawy prawne stosowania plików cookies</h2>
-            <p>
-              Stosowanie plików cookies odbywa się zgodnie z obowiązującymi przepisami prawa, w szczególności z Rozporządzeniem Parlamentu Europejskiego i Rady (UE) 2016/679 (RODO) oraz właściwymi
-              przepisami dotyczącymi ochrony prywatności w łączności elektronicznej.
-            </p>
-            <p>
-              W przypadku plików cookies niezbędnych do prawidłowego funkcjonowania Serwisu podstawą prawną jest prawnie uzasadniony interes Administratora polegający na zapewnieniu bezpieczeństwa i
-              poprawnego działania strony.
-            </p>
-            <p>W przypadku plików cookies innych niż niezbędne (np. analitycznych lub funkcjonalnych) podstawą prawną jest zgoda Użytkownika wyrażona przed ich zapisaniem na urządzeniu końcowym.</p>
-            <p>Użytkownik ma prawo w dowolnym momencie wycofać zgodę na stosowanie plików cookies, bez wpływu na zgodność z prawem przetwarzania dokonanego przed jej cofnięciem.</p>
+            <p>Stosowanie technologii przechowywania danych odbywa się zgodnie z obowiązującymi przepisami, w tym ustawą z dnia 12 lipca 2024 r. – Prawo komunikacji elektronicznej oraz RODO, gdy technologia wiąże się z przetwarzaniem danych osobowych.</p>
+            <p>Wpisy <code>localStorage</code> są wykorzystywane wyłącznie do dostarczenia funkcjonalności wyraźnie uruchomionych przez Użytkownika: zmiany motywu albo potwierdzenia zamknięcia komunikatu.</p>
+            <p>Serwis nie uruchamia technologii analitycznych ani marketingowych i nie udostępnia mechanizmu zarządzania zgodami, ponieważ takich technologii własnych nie wykorzystuje.</p>
           </article>
           <!-- Zarządzanie ustawieniami cookies -->
           <article class="stack">
             <h2>6. Zarządzanie ustawieniami cookies</h2>
-            <p>
-              Użytkownik może w każdej chwili zmienić ustawienia dotyczące plików cookies za pośrednictwem ustawień swojej przeglądarki internetowej lub – jeżeli zostało to wdrożone – poprzez
-              odpowiedni mechanizm zarządzania zgodą dostępny w Serwisie.
-            </p>
-            <p>Użytkownik może w szczególności:</p>
+            <p>Użytkownik może zarządzać danymi witryny w ustawieniach używanej przeglądarki. Może w szczególności:</p>
             <ul class="list">
-              <li>ograniczyć zapisywanie plików cookies,</li>
-              <li>zablokować określone kategorie plików cookies,</li>
-              <li>usunąć zapisane wcześniej pliki cookies z urządzenia końcowego.</li>
+              <li>usunąć dane witryny zapisane w <code>localStorage</code>,</li>
+              <li>zablokować zapisywanie danych witryny, jeżeli obsługuje to przeglądarka,</li>
+              <li>usunąć dane podmiotów trzecich, w tym dane związane z osadzoną mapą Google Maps.</li>
             </ul>
-            <p>Ograniczenie stosowania plików cookies może wpłynąć na niektóre funkcjonalności Serwisu lub jego prawidłowe działanie.</p>
+            <p>Usunięcie wpisu motywu przywróci domyślny wybór po następnym odwiedzeniu strony, a usunięcie wpisu komunikatu spowoduje jego ponowne wyświetlenie. Ograniczenie pamięci przeglądarki może ograniczyć te funkcjonalności.</p>
           </article>
-          <!-- Pliki cookies podmiotów trzecich -->
+          <!-- Usługi podmiotów trzecich -->
           <article class="stack">
-            <h2>7. Pliki cookies podmiotów trzecich</h2>
-            <p>
-              Serwis może wykorzystywać rozwiązania techniczne dostarczane przez podmioty trzecie, które mogą zapisywać pliki cookies na urządzeniu końcowym Użytkownika lub uzyskiwać do nich dostęp.
-            </p>
-            <p>Dotyczyć to może w szczególności:</p>
+            <h2>7. Technologie i usługi podmiotów trzecich</h2>
+            <p>Serwis korzysta z dwóch rzeczywistych integracji zewnętrznych:</p>
             <ul class="list">
-              <li>dostawców usług hostingowych oraz infrastruktury IT,</li>
-              <li>dostawców narzędzi analitycznych lub statystycznych,</li>
-              <li>dostawców usług wspierających funkcjonalność interfejsu (np. mapy, osadzone treści, czcionki zewnętrzne).</li>
+              <li><strong>Netlify</strong> obsługuje hosting i aktywny formularz kontaktowy; sam formularz nie zapisuje wpisu w pamięci przeglądarki Serwisu.</li>
+              <li><strong>Google Maps</strong> jest osadzone na stronie kontaktowej. Przy załadowaniu iframe Google może otrzymywać informacje techniczne i stosować własne technologie zgodnie ze swoją dokumentacją.</li>
             </ul>
-            <p>
-              Zasady przetwarzania danych przez podmioty trzecie określane są w ich odrębnych politykach prywatności oraz regulaminach. Operator nie ponosi odpowiedzialności za treść ani praktyki
-              stosowane przez te podmioty.
-            </p>
+            <p>Serwis nie deklaruje konkretnych identyfikatorów ani plików cookies Google, ponieważ nie są one ustawiane ani zarządzane przez kod Serwisu. Zasady ich działania określa Google.</p>
+            <p>Zwykłe odnośniki w stopce prowadzące do zewnętrznych stron nie powodują załadowania ich zasobów przed wybraniem odnośnika przez Użytkownika.</p>
           </article>
           <!-- Zmiany Polityki cookies -->
           <article class="stack">
             <h2>8. Zmiany Polityki cookies</h2>
             <p>
-              Operator zastrzega sobie prawo do wprowadzania zmian w niniejszej Polityce cookies w szczególności w przypadku zmian przepisów prawa, aktualizacji funkcjonalności Serwisu lub zmiany
-              stosowanych technologii.
+              Operator może wprowadzać zmiany w niniejszej Polityce cookies w szczególności w przypadku zmian przepisów, aktualizacji funkcjonalności Serwisu, zmiany stosowanych technologii lub
+              wdrożenia albo usunięcia usług podmiotów trzecich.
             </p>
             <p>Aktualna wersja Polityki cookies publikowana jest w Serwisie. Zmiany wchodzą w życie z dniem ich opublikowania, o ile nie wskazano innego terminu obowiązywania.</p>
           </article>
@@ -227,7 +217,7 @@
           <!-- Data ostatniej aktualizacji -->
           <p>
             <strong>Data ostatniej aktualizacji:</strong>
-            30.04.2026
+            12.08.2026
           </p>
         </div>
       </section>
