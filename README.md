@@ -203,7 +203,7 @@ Zakres nie obejmuje formalnego audytu zgodności — powyższe punkty opisują z
 
 - Wszystkie dziesięć stron ma własny `title`, `meta name="description"` i `link rel="canonical"`.
 - Każda strona zawiera pełny zestaw metadanych Open Graph (wraz z wymiarami i typem obrazu) oraz Twitter Card `summary_large_image`.
-- Każda strona zawiera dwa bloki JSON-LD: `LocalBusiness` i `WebSite`.
+- Każda strona zawiera dwa bloki JSON-LD: `WebPage` z adresem kanonicznym strony, powiązany przez `isPartOf` ze wspólnym blokiem `WebSite`, którego opis wskazuje demonstracyjny charakter projektu. Dane strukturalne nie deklarują działającego podmiotu gospodarczego ani danych kontaktowych.
 - `robots.txt` zezwala na indeksowanie całego serwisu i wskazuje `sitemap.xml`.
 - `sitemap.xml` zawiera dziewięć adresów — wszystkie strony poza `dziekujemy.html`.
 - Żadna strona nie używa `meta name="robots"`, więc indeksowanie zależy wyłącznie od `robots.txt` i decyzji wyszukiwarki.
@@ -457,7 +457,7 @@ A formal conformance audit is out of scope — the points above describe impleme
 
 - All ten pages have their own `title`, `meta name="description"`, and `link rel="canonical"`.
 - Every page includes a complete Open Graph metadata set (including image type and dimensions) and a Twitter Card of type `summary_large_image`.
-- Every page includes two JSON-LD blocks: `LocalBusiness` and `WebSite`.
+- Every page includes two JSON-LD blocks: a `WebPage` carrying the page's canonical URL, linked through `isPartOf` to the shared `WebSite` block whose description states the project's demonstration character. The structured data declares no operating business and no contact details.
 - `robots.txt` allows indexing of the whole site and points to `sitemap.xml`.
 - `sitemap.xml` lists nine URLs — every page except `dziekujemy.html`.
 - No page uses `meta name="robots"`, so indexing depends solely on `robots.txt` and search engine decisions.
