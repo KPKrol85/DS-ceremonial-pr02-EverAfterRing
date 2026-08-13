@@ -1,0 +1,41 @@
+/* Data Table */
+
+.table-scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.table-scroll:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* min-width is the scrolled width; below it the sentence columns wrap to unreadable slivers */
+.table {
+  width: 100%;
+  min-width: 54rem;
+  border-collapse: collapse;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.table th,
+.table td {
+  padding: var(--space-3);
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.table thead th {
+  color: var(--color-text-strong);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-compact);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
