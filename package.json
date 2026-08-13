@@ -21,7 +21,7 @@
     "build:js": "node scripts/build.mjs js",
     "build:html": "node scripts/build.mjs html",
     "build:assets": "node scripts/build.mjs assets",
-    "build": "npm run optimize:images && node scripts/build.mjs build"
+    "build": "node scripts/build.mjs build"
   },
   "devDependencies": {
     "esbuild": "^0.28.0",

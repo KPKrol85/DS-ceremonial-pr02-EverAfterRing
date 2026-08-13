@@ -158,7 +158,7 @@ Podgląd jest dostępny pod adresem `http://localhost:8181/`. Serwer HTTP jest w
 | `npm run build:js` | Bundluje i minifikuje `js/app.js` oraz `js/theme-bootstrap.js` do `dist/js/`. |
 | `npm run build:html` | Wstawia partiale i podmienia odwołania do plików produkcyjnych. |
 | `npm run build:assets` | Kopiuje `assets/` (bez `img-src/`), `robots.txt` i `sitemap.xml` do `dist/`. |
-| `npm run build` | Uruchamia optymalizację obrazów, a następnie pełny build. |
+| `npm run build` | Buduje wersję produkcyjną do `dist/`. Nie generuje obrazów. |
 
 ### Build produkcyjny
 
@@ -168,16 +168,15 @@ npm run build
 
 Przebieg pełnego builda:
 
-1. Generowanie wariantów obrazów w szerokościach 400, 800 i 1200 px (oraz w szerokości źródłowej, jeśli jest mniejsza) w formatach JPG, WebP i AVIF.
-2. Usunięcie katalogu `dist/`.
-3. Bundlowanie i minifikacja CSS do `dist/css/main.min.css`.
-4. Bundlowanie i minifikacja JavaScriptu do `dist/js/app.min.js` (ESM) oraz `dist/js/theme-bootstrap.min.js` (IIFE).
-5. Wstawienie partiali do dziesięciu stron HTML i podmiana odwołań `css/main.css`, `js/app.js` i `js/theme-bootstrap.js` na pliki `.min`.
-6. Skopiowanie assetów oraz `robots.txt` i `sitemap.xml` do `dist/`.
+1. Usunięcie katalogu `dist/`.
+2. Bundlowanie i minifikacja CSS do `dist/css/main.min.css`.
+3. Bundlowanie i minifikacja JavaScriptu do `dist/js/app.min.js` (ESM) oraz `dist/js/theme-bootstrap.min.js` (IIFE).
+4. Wstawienie partiali do dziesięciu stron HTML i podmiana odwołań `css/main.css`, `js/app.js` i `js/theme-bootstrap.js` na pliki `.min`.
+5. Skopiowanie assetów oraz `robots.txt` i `sitemap.xml` do `dist/`.
 
 Etap HTML zawiera własne kontrole spójności i przerywa build błędem, gdy w pliku źródłowym brakuje hosta partiala lub gdy na stronie należącej do nawigacji głównej nie ma dokładnie jednego linku `nav__link` z `aria-current="page"`.
 
-Build nie był uruchamiany w ramach przygotowania tego dokumentu, ponieważ `npm run build` nadpisuje wersjonowane pliki w `assets/img/`.
+Generowanie obrazów nie jest częścią builda. `npm run build` nie modyfikuje wersjonowanych plików w `assets/img/` — warianty obrazów powstają wyłącznie po jawnym uruchomieniu `npm run optimize:images`.
 
 ### Wdrożenie
 
@@ -413,7 +412,7 @@ The preview is available at `http://localhost:8181/`. An HTTP server is required
 | `npm run build:js` | Bundles and minifies `js/app.js` and `js/theme-bootstrap.js` into `dist/js/`. |
 | `npm run build:html` | Inlines the partials and switches references to the production files. |
 | `npm run build:assets` | Copies `assets/` (excluding `img-src/`), `robots.txt`, and `sitemap.xml` into `dist/`. |
-| `npm run build` | Runs image optimization and then the full build. |
+| `npm run build` | Builds the production version into `dist/`. Does not generate images. |
 
 ### Production Build
 
@@ -423,16 +422,15 @@ npm run build
 
 Full build sequence:
 
-1. Generating image variants at 400, 800, and 1200 px widths (plus the source width when it is smaller) in JPG, WebP, and AVIF.
-2. Removing the `dist/` directory.
-3. Bundling and minifying CSS into `dist/css/main.min.css`.
-4. Bundling and minifying JavaScript into `dist/js/app.min.js` (ESM) and `dist/js/theme-bootstrap.min.js` (IIFE).
-5. Inlining the partials into the ten HTML pages and rewriting `css/main.css`, `js/app.js`, and `js/theme-bootstrap.js` references to the `.min` files.
-6. Copying the assets plus `robots.txt` and `sitemap.xml` into `dist/`.
+1. Removing the `dist/` directory.
+2. Bundling and minifying CSS into `dist/css/main.min.css`.
+3. Bundling and minifying JavaScript into `dist/js/app.min.js` (ESM) and `dist/js/theme-bootstrap.min.js` (IIFE).
+4. Inlining the partials into the ten HTML pages and rewriting `css/main.css`, `js/app.js`, and `js/theme-bootstrap.js` references to the `.min` files.
+5. Copying the assets plus `robots.txt` and `sitemap.xml` into `dist/`.
 
 The HTML stage includes its own consistency checks and fails the build when a partial host is missing from a source file, or when a page belonging to the primary navigation does not contain exactly one `nav__link` with `aria-current="page"`.
 
-The build was not executed while this document was prepared, because `npm run build` overwrites version-controlled files in `assets/img/`.
+Image generation is not part of the build. `npm run build` does not modify version-controlled files in `assets/img/` — image variants are produced only by explicitly running `npm run optimize:images`.
 
 ### Deployment
 
