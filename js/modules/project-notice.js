@@ -2,6 +2,24 @@ import { trapFocus } from "../utils.js";
 
 const STORAGE_KEY = "everafterringProjectNoticeAccepted";
 
+// Storage access throws when the browser blocks site data, so both entry points are guarded the same
+// way as `js/modules/theme.js`. An unreadable store means no acceptance, so the notice still renders.
+const hasStoredAcceptance = () => {
+  try {
+    return window.localStorage.getItem(STORAGE_KEY) === "true";
+  } catch {
+    return false;
+  }
+};
+
+const storeAcceptance = () => {
+  try {
+    window.localStorage.setItem(STORAGE_KEY, "true");
+  } catch {
+    // The dismissal should still hold for the current page if storage is unavailable.
+  }
+};
+
 export function initProjectNotice() {
   const notice = document.querySelector("[data-project-notice]");
 
@@ -20,7 +38,7 @@ export function initProjectNotice() {
     return;
   }
 
-  if (localStorage.getItem(STORAGE_KEY) === "true") {
+  if (hasStoredAcceptance()) {
     return;
   }
 
@@ -68,10 +86,11 @@ export function initProjectNotice() {
     releaseFocusTrap?.();
     releaseFocusTrap = null;
     document.removeEventListener("keydown", handleEscape);
-    localStorage.setItem(STORAGE_KEY, "true");
     releaseFocus();
     notice.hidden = true;
     document.body.classList.remove("is-project-notice-open");
+    // Persisted last so the close path — focus, handlers, scroll lock — never depends on the write
+    storeAcceptance();
   };
 
   acceptButton.addEventListener("click", closeNotice);
