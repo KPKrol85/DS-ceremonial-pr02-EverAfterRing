@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "A static portfolio reference website for a premium wedding and ceremonial services brand.",
   "private": true,
-  "author": "Kamil Król",
-  "license": "UNLICENSED",
+  "author": "KP_Code Digital Studio",
+  "license": "LICENSE",
   "type": "module",
   "keywords": [
     "portfolio",
