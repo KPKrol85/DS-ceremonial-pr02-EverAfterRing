@@ -14,52 +14,57 @@
 
 ## Current priorities
 
-1. `PH1-01` — Establish a line-ending normalisation policy so subsequent changes produce reviewable diffs.
-2. `PH1-02` — Separate image generation from the deployment build so `npm run build` writes only to `dist/`.
-3. `PH2-02` — Make the closed state the mobile navigation default in markup and CSS.
-4. `PH2-01` — Resolve the theme fallback in one place shared by the bootstrap and the runtime module.
-5. `PH2-03` — Complete the project-notice dialog against its declared modality.
+1. `PH2-03` — Complete the project-notice dialog against its declared modality.
+2. `PH3-01` — Guard storage access in the project-notice module.
+3. `PH3-04` — Align structured data with the project's demonstration character.
+4. `PH3-02` — Resolve the cookies table scroll-region contract.
+5. `PH4-01` — Synchronise `README.md` with the delivered implementation.
 
 ## Phase 1 — Verifiable repository and build baseline
 
 **Goal:** Make working-tree diffs reviewable and make the documented production build runnable without side effects, so every later change can be verified.
 
-- [ ] **PH1-01 — Establish a line-ending normalisation policy** — **Priority:** Medium
-  - [ ] add a root `.gitattributes` declaring text detection and the normalised committed form (no `.gitattributes` currently exists in the repository)
-  - [ ] renormalise the index so the eight files that currently differ from `HEAD` only by carriage returns no longer report whole-file diffs (`.gitignore`, `LICENSE`, `cookies.html`, `css/components/project-notice.css`, `js/modules/hero.js`, `js/modules/project-notice.js`, `polityka-prywatnosci.html`, `regulamin.html`)
-  - [ ] resolve the mixed line endings inside `js/modules/hero.js`, which currently contains a single CRLF line among LF lines
-  - [ ] re-check `git status` and `git diff --stat` after normalisation
+- [x] **PH1-01 — Establish a line-ending normalisation policy** — **Priority:** Medium
+  - [x] add a root `.gitattributes` declaring text detection and the normalised committed form (no `.gitattributes` currently exists in the repository)
+  - [x] renormalise the index so the eight files that currently differ from `HEAD` only by carriage returns no longer report whole-file diffs (`.gitignore`, `LICENSE`, `cookies.html`, `css/components/project-notice.css`, `js/modules/hero.js`, `js/modules/project-notice.js`, `polityka-prywatnosci.html`, `regulamin.html`)
+  - [x] resolve the mixed line endings inside `js/modules/hero.js`, which currently contains a single CRLF line among LF lines
+  - [x] re-check `git status` and `git diff --stat` after normalisation
   - **Source:** `AUDIT.md` — P2-03
   - **Completion condition:** editing one line in a source file produces a one-line diff, and `git diff --ignore-cr-at-eol --stat` and `git diff --stat` agree
   - **Note:** `css/components/project-notice.css` and `js/modules/project-notice.js` are also touched by `PH2-03`, so this item runs first to keep that review readable
+  - **Delivered:** `054c1c9`. `.gitattributes` declares `* text=auto eol=lf` plus explicit `binary` for `.avif`, `.ico`, `.jpg`, `.png`, `.webp`, `.woff2`. `git ls-files --eol` reports `i/lf w/lf` for all eight files and no CRLF or mixed entry anywhere in the repository; `js/modules/hero.js` contains no carriage return; `git status` and `git diff --stat` are both clean, so `git diff --stat` and `git diff --ignore-cr-at-eol --stat` agree.
 
-- [ ] **PH1-02 — Separate image generation from the deployment build** — **Priority:** Medium
-  - [ ] change the `build` script in `package.json` so the deployment build no longer chains `optimize:images`
-  - [ ] keep `npm run optimize:images` as the explicit step run when sources under `assets/img-src/` change
-  - [ ] update the build sequence described in `README.md` ("Build produkcyjny" / "Production Build") to match the new script contract
-  - [ ] run the build once with dependencies installed and confirm it writes only into the ignored `dist/` directory
+- [x] **PH1-02 — Separate image generation from the deployment build** — **Priority:** Medium
+  - [x] change the `build` script in `package.json` so the deployment build no longer chains `optimize:images`
+  - [x] keep `npm run optimize:images` as the explicit step run when sources under `assets/img-src/` change
+  - [x] update the build sequence described in `README.md` ("Build produkcyjny" / "Production Build") to match the new script contract
+  - [x] run the build once with dependencies installed and confirm it writes only into the ignored `dist/` directory
   - **Source:** `AUDIT.md` — P2-05
   - **Completion condition:** `npm run build` completes and `git status` remains clean afterwards
   - **Depends on:** `PH1-01`
+  - **Delivered:** `85dc8e2`. `package.json` — `scripts.build` is now `node scripts/build.mjs build`; `optimize:images` is retained as a standalone script. Both language sections of `README.md` describe the five-step build and state that image generation is no longer part of it, replacing the note that the build was never run because it overwrote `assets/img/`. The implementing task ran `npm run build` against the new contract with dependencies installed: it completed, produced `dist/`, did not run image optimisation, and left `assets/img/` and `package-lock.json` untouched, so `git status` stayed clean. `scripts/build.mjs` writes only beneath `distRoot`, and `.gitignore:11` ignores `/dist/`.
 
 ## Phase 2 — Interaction-state defects
 
 **Goal:** Correct the four implemented behaviours that do not match the contract the project documents, establishing correct defaults instead of relying on JavaScript to repair them.
 
-- [ ] **PH2-01 — Resolve theme fallback in one shared place** — **Priority:** High
-  - [ ] remove the duplicated resolution: `js/theme-bootstrap.js` resolves stored value → `prefers-color-scheme: dark` → `light`, while `resolveTheme()` in `js/modules/theme.js` resolves stored value → `light` and `initTheme()` applies it unconditionally
-  - [ ] either share one fallback chain between both entry points or have `initTheme()` adopt the value already present on `<html data-theme>`
-  - [ ] confirm the toggle's `aria-pressed` and `aria-label` report the effective theme after load
+- [x] **PH2-01 — Resolve theme fallback in one shared place** — **Priority:** High
+  - [x] remove the duplicated resolution: `js/theme-bootstrap.js` resolves stored value → `prefers-color-scheme: dark` → `light`, while `resolveTheme()` in `js/modules/theme.js` resolves stored value → `light` and `initTheme()` applies it unconditionally
+  - [x] either share one fallback chain between both entry points or have `initTheme()` adopt the value already present on `<html data-theme>`
+  - [x] confirm the toggle's `aria-pressed` and `aria-label` report the effective theme after load
   - **Source:** `AUDIT.md` — P1-01
   - **Completion condition:** with no `everafterring-theme` entry and a system dark preference, `<html data-theme>` stays `dark` after load and the toggle reports the dark state, matching the fallback documented in `README.md`
+  - **Delivered:** `e5997f5`. The second resolution was removed by adoption rather than duplication: `resolveTheme()` in `js/modules/theme.js:34` is now `getStoredTheme() || getDocumentTheme() || "light"`, where `getDocumentTheme()` (`js/modules/theme.js:27-30`) reads and validates `<html data-theme>` — the value the bootstrap already wrote. `applyTheme()` routes through `updateToggle()` (`js/modules/theme.js:36-42`), so `aria-pressed` and `aria-label` are set from the effective theme. `js/theme-bootstrap.js:25-26` records the contract without changing its behaviour.
 
-- [ ] **PH2-02 — Make the closed state the mobile navigation default** — **Priority:** High
-  - [ ] author `[data-nav-panel]` in `partials/header.html` so it is closed by default at the mobile breakpoint
-  - [ ] correct the rule in `css/components/nav.css` where `.nav__panel:not([hidden])` resolves the base `translateX(-100%)` back to `translateX(0)`, making the open position the default below 1024 px
-  - [ ] reduce `initPanelState()` in `js/modules/nav.js` to managing ARIA state and the desktop case, so JavaScript is only required to open the panel
-  - [ ] verify the desktop breakpoint and the existing resize handling still expose the navigation correctly
+- [x] **PH2-02 — Make the closed state the mobile navigation default** — **Priority:** High
+  - [x] author `[data-nav-panel]` in `partials/header.html` so it is closed by default at the mobile breakpoint
+  - [x] correct the rule in `css/components/nav.css` where `.nav__panel:not([hidden])` resolves the base `translateX(-100%)` back to `translateX(0)`, making the open position the default below 1024 px
+  - [x] reduce `initPanelState()` in `js/modules/nav.js` to managing ARIA state and the desktop case, so JavaScript is only required to open the panel
+  - [x] verify the desktop breakpoint and the existing resize handling still expose the navigation correctly
   - **Source:** `AUDIT.md` — P1-02
   - **Completion condition:** a built page loaded at 375 px width with JavaScript disabled shows page content with no full-screen panel overlay, and with JavaScript enabled there is no open-panel frame before initialisation
+  - **Delivered:** `c047695`. `partials/header.html:12` authors the panel with `hidden`; `.nav__panel:not([hidden])` is gone from both the mobile and the desktop selector list in `css/components/nav.css`, leaving `translateX(0)` to `[data-open="true"]` only, so the mobile default resolves to the base `translateX(-100%)`. `initPanelState()` (`js/modules/nav.js:24-32`) now only exposes the panel above the breakpoint and syncs `aria-expanded`. The desktop media query still neutralises `.nav__panel[hidden]`, and the resize, `Escape`, focus-trap and link-close paths (`js/modules/nav.js:36-102`) are unchanged.
+  - **Note:** the breakpoint and resize behaviour were checked in the implementing task; this documentation pass re-confirmed the markup and cascade rather than repeating those checks.
 
 - [ ] **PH2-03 — Complete the project-notice dialog against its declared modality** — **Priority:** High
   - [ ] route the existing `data-project-notice-close` backdrop in `partials/footer.html` to a defined close path, or remove the attribute so no dismiss affordance is implied
@@ -70,12 +75,13 @@
   - **Completion condition:** while the notice is open, `Tab` and `Shift+Tab` cycle only within the dialog, `Escape` closes it, and the backdrop either closes it or carries no close-intent attribute
   - **Depends on:** `PH1-01`
 
-- [ ] **PH2-04 — Derive the select indicator colour from a theme token** — **Priority:** High
-  - [ ] replace the hardcoded `%23f4e7d2` stroke in the inline SVG chevron in `css/components/forms.css` with a value derived from `css/tokens.css`, so it inverts with the theme
-  - [ ] confirm this removes the only raw colour literal in the component layer
-  - [ ] check the indicator against `var(--color-surface)` in both themes
+- [x] **PH2-04 — Derive the select indicator colour from a theme token** — **Priority:** High
+  - [x] replace the hardcoded `%23f4e7d2` stroke in the inline SVG chevron in `css/components/forms.css` with a value derived from `css/tokens.css`, so it inverts with the theme
+  - [x] establish what this actually removes from the component layer: it clears the last raw hex literal outside `css/tokens.css`, but not every raw colour value — the `rgb()`/`rgba()` shadow and backdrop tints in `css/components/buttons.css` and `css/components/project-notice.css` predate this task and are outside its scope
+  - [x] check the indicator against `var(--color-surface)` in both themes
   - **Source:** `AUDIT.md` — P1-04
   - **Completion condition:** the dropdown indicator on both required `<select>` fields in `kontakt.html` is clearly distinguishable against the field background in `data-theme="light"` and `data-theme="dark"`
+  - **Delivered:** `0e19ea8`. The data URI was dropped rather than recoloured — a data URI is a separate document and cannot read a custom property, so the chevron is now drawn as two `linear-gradient` strokes that consume `var(--color-text-muted)` directly (`css/components/forms.css:71-99`). The indicator therefore inverts with `data-theme` on its own. Against `var(--color-surface)` the pair resolves to `#6f6864` on `#ffffff` in light and `#cbbbae` on `#241d1a` in dark — the token pairs already measured in `AUDIT.md` section 3 at 5.47:1 and 8.90:1, against the previous 1.22:1 in light.
 
 ## Phase 3 — Resilience and content integrity
 
@@ -114,7 +120,7 @@
 **Goal:** Keep the documented contracts accurate once the implementation changes land.
 
 - [ ] **PH4-01 — Synchronise `README.md` with the delivered implementation** — **Priority:** Medium
-  - [ ] update the build documentation, including the statement that the build was not run because `npm run build` overwrites versioned files in `assets/img/`, once `PH1-02` changes that contract
+  - [x] update the build documentation, including the statement that the build was not run because `npm run build` overwrites versioned files in `assets/img/`, once `PH1-02` changes that contract — delivered with `PH1-02` in `85dc8e2`
   - [ ] re-check the theme description ("przy braku zapisanego wyboru bierze pod uwagę `prefers-color-scheme`" / its EN counterpart) against the resolution unified in `PH2-01`
   - [ ] re-check the accessibility section's claim about the project-notice modal against the behaviour delivered in `PH2-03`
   - [ ] add `AUDIT.md` and `PLAN.md` to the project structure trees in both language sections, which currently list `CHANGELOG.md` and `LICENSE` only

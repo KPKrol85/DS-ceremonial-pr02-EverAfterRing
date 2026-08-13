@@ -14,6 +14,9 @@ portfolio repository and is not reconstructed here.
 ### Fixed
 
 - Fixed the privacy policy, cookie policy, and terms pages to describe the functionality the site actually implements, including contact form submission through Netlify Forms, the two browser-local `localStorage` entries used for the theme choice and the project notice, and the embedded Google Maps frame on the contact page, while keeping the demonstration-project framing.
+- Fixed the theme runtime so it keeps the theme resolved before the first paint. With no saved choice, a visitor whose system prefers dark now stays on the dark theme after the page loads instead of reverting to light, and the theme toggle reports the theme actually in effect.
+- Fixed the mobile navigation so the panel is closed by default in the markup and the stylesheet. It no longer covers the page when JavaScript is unavailable or has not run yet, and scripting is required only to open it.
+- Fixed the dropdown indicator on the contact form so it follows the active theme. The chevron on both required select fields is now clearly visible in the light theme, where it was previously almost indistinguishable from the field background.
 
 ### Documentation
 
@@ -23,3 +26,5 @@ portfolio repository and is not reconstructed here.
 
 - Added repository ignore rules for dependencies, the generated `dist/` output, test and coverage output, tool caches, environment files, logs, and editor or operating system artifacts, while keeping `assets/`, `package-lock.json`, and the Codex environment configuration tracked.
 - Added a Codex environment configuration that installs dependencies with `npm ci` during worktree setup.
+- Added a repository line-ending policy in `.gitattributes` that stores tracked text files with LF and keeps binary image and font formats out of line-ending conversion, so a one-line source edit produces a one-line diff regardless of the contributor's platform.
+- Changed `npm run build` to produce the deployment output in `dist/` without generating images, so the documented build no longer rewrites version-controlled files under `assets/img/`. Image variants are now produced only by running `npm run optimize:images` explicitly, and the build documentation in `README.md` describes the new sequence.
