@@ -1,0 +1,25 @@
+# ─────────────────────────────────────────────
+# EverAfter Ring — KP_Code Digital Studio
+# Line-ending normalisation policy
+# ─────────────────────────────────────────────
+
+# Default
+#
+# Git detects which files are text and stores every one of them with LF in the
+# repository, then checks them out with LF as well. The committed form no longer
+# depends on the contributor's core.autocrlf setting, so a one-line source edit
+# produces a one-line diff instead of a whole-file diff.
+
+* text=auto eol=lf
+
+# Binary assets
+#
+# Declared explicitly rather than left to content detection, so images and fonts
+# are never eligible for text or line-ending conversion.
+
+*.avif  binary
+*.ico   binary
+*.jpg   binary
+*.png   binary
+*.webp  binary
+*.woff2 binary
