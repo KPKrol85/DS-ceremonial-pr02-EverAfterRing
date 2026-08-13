@@ -32,6 +32,14 @@ export const trapFocus = (container) => {
 
     if (!first || !last) return;
 
+    // A container focused programmatically (tabindex="-1") is outside the cycle,
+    // so enter it from the matching end instead of letting the browser step out
+    if (document.activeElement === container) {
+      event.preventDefault();
+      (event.shiftKey ? last : first).focus();
+      return;
+    }
+
     if (event.shiftKey && document.activeElement === first) {
       event.preventDefault();
       last.focus();
