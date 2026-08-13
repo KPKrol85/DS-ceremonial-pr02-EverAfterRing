@@ -68,11 +68,32 @@
   color: var(--color-accent);
 }
 
+/* The chevron is drawn from two 45-degree gradient strokes instead of an inline
+   SVG: a data URI is a separate document, so it cannot read a custom property
+   and its colour would have to be hardcoded per theme. Gradients are plain CSS
+   values, so the indicator reads var(--color-text-muted) from css/tokens.css and
+   inverts with data-theme on its own. Each layer paints one arm of the V. */
 .form select {
   appearance: none;
   padding-right: var(--space-8);
-  background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 7.5L10 12.5L15 7.5' fill='none' stroke='%23f4e7d2' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image:
+    linear-gradient(
+      45deg,
+      transparent calc(50% - 0.75px),
+      var(--color-text-muted) calc(50% - 0.35px),
+      var(--color-text-muted) calc(50% + 0.35px),
+      transparent calc(50% + 0.75px)
+    ),
+    linear-gradient(
+      -45deg,
+      transparent calc(50% - 0.75px),
+      var(--color-text-muted) calc(50% - 0.35px),
+      var(--color-text-muted) calc(50% + 0.35px),
+      transparent calc(50% + 0.75px)
+    );
   background-repeat: no-repeat;
-  background-position: right var(--space-4) center;
-  background-size: 0.875rem;
+  background-position:
+    right calc(var(--space-4) + 0.5rem) center,
+    right calc(var(--space-4) + 0.25rem) center;
+  background-size: 0.25rem 0.5rem;
 }
