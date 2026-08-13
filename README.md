@@ -118,8 +118,10 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych wszystkich stron, w `r
 ├── sitemap.xml
 ├── start-local-preview.bat
 ├── package.json
+├── AUDIT.md
 ├── CHANGELOG.md
-└── LICENSE
+├── LICENSE
+└── PLAN.md
 ```
 
 ### Instalacja
@@ -189,7 +191,8 @@ Generowanie obrazów nie jest częścią builda. `npm run build` nie modyfikuje 
 - Layout korzysta z semantycznych elementów `header`, `nav`, `main` i `footer`; grupy linków w stopce mają własne etykiety `aria-label`.
 - Przycisk nawigacji używa `aria-expanded` i `aria-controls`, a aktywna pozycja menu jest oznaczana `aria-current="page"`.
 - Otwarty panel nawigacji mobilnej przenosi fokus na pierwszy element interaktywny i utrzymuje go w pułapce fokusa (`js/utils.js`), a zamknięcie przywraca fokus na przycisk.
-- Modal informacji o projekcie ma `role="dialog"`, `aria-modal="true"`, powiązany tytuł i opis oraz przywraca poprzedni fokus.
+- Modal informacji o projekcie ma `role="dialog"`, `aria-modal="true"` oraz powiązany tytuł i opis (`aria-labelledby`, `aria-describedby`).
+- Otwarty modal przenosi fokus na kontener dialogu (`tabindex="-1"`) i utrzymuje go w pułapce fokusa (`js/utils.js`); zamknięcie klawiszem `Escape`, przyciskiem akceptacji lub kliknięciem tła zwalnia pułapkę i przywraca fokus na wcześniej aktywny element, jeśli nadal istnieje poza modalem.
 - `css/base.css` definiuje wspólny styl `:focus-visible` dla linków, przycisków i pól formularza.
 - Redukcja ruchu jest obsługiwana zarówno w CSS (`css/base.css`, `css/components/nav.css`, `css/components/project-notice.css`), jak i w module hero, który nasłuchuje zmian `prefers-reduced-motion`.
 - Formularz kontaktowy używa powiązanych etykiet, `aria-describedby` dla komunikatów błędów i regionu statusu `aria-live="polite"`.
@@ -370,8 +373,10 @@ This address is declared as canonical in the metadata of every page, in `robots.
 ├── sitemap.xml
 ├── start-local-preview.bat
 ├── package.json
+├── AUDIT.md
 ├── CHANGELOG.md
-└── LICENSE
+├── LICENSE
+└── PLAN.md
 ```
 
 ### Installation
@@ -441,7 +446,8 @@ Image generation is not part of the build. `npm run build` does not modify versi
 - The layout uses semantic `header`, `nav`, `main`, and `footer` elements; footer link groups carry their own `aria-label`.
 - The navigation button uses `aria-expanded` and `aria-controls`, and the active menu item is marked with `aria-current="page"`.
 - The open mobile navigation panel moves focus to the first interactive element and keeps it in a focus trap (`js/utils.js`), and closing restores focus to the button.
-- The project notice modal uses `role="dialog"`, `aria-modal="true"`, an associated title and description, and restores the previous focus.
+- The project notice modal uses `role="dialog"`, `aria-modal="true"`, and an associated title and description (`aria-labelledby`, `aria-describedby`).
+- The open modal moves focus to the dialog container (`tabindex="-1"`) and keeps it in a focus trap (`js/utils.js`); closing via `Escape`, the accept button, or a backdrop click releases the trap and restores focus to the previously focused element when it still exists outside the modal.
 - `css/base.css` defines a shared `:focus-visible` style for links, buttons, and form fields.
 - Reduced motion is handled both in CSS (`css/base.css`, `css/components/nav.css`, `css/components/project-notice.css`) and in the hero module, which listens for `prefers-reduced-motion` changes.
 - The contact form uses associated labels, `aria-describedby` for error messages, and an `aria-live="polite"` status region.

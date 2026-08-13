@@ -2,7 +2,7 @@
 
 **Last reviewed:** 2026-08-13
 **Project type:** Static multi-page website in Polish (HTML, CSS, Vanilla JavaScript ES modules) with a Node-based production build into `dist/`; no runtime dependencies, no backend
-**Plan status:** Active
+**Plan status:** Required scope complete — only optional items remain
 
 ## Planning principles
 
@@ -13,9 +13,11 @@
 - Findings referenced as `AUDIT.md — P1-xx` / `P2-xx` were re-verified against the current source before being entered here.
 - `AUDIT.md` lists only findings that are still open; a `Source:` reference to a finding no longer listed there means the finding is resolved and the change is recorded in `CHANGELOG.md`.
 
-## Current priorities
+## Current status
 
-1. `PH4-01` — Synchronise `README.md` with the delivered implementation.
+All required work in Phases 1–4 is complete; no required item remains open, and `AUDIT.md` lists no open `P0`, `P1` or `P2` finding.
+
+The only unchecked entries left in this plan are `O-01`, `O-02` and `O-03` under "Optional future improvements". They are non-blocking refinements rather than outstanding remediation work, and none of them is scheduled.
 
 ## Phase 1 — Verifiable repository and build baseline
 
@@ -120,13 +122,14 @@
 
 **Goal:** Keep the documented contracts accurate once the implementation changes land.
 
-- [ ] **PH4-01 — Synchronise `README.md` with the delivered implementation** — **Priority:** Medium
+- [x] **PH4-01 — Synchronise `README.md` with the delivered implementation** — **Priority:** Medium
   - [x] update the build documentation, including the statement that the build was not run because `npm run build` overwrites versioned files in `assets/img/`, once `PH1-02` changes that contract — delivered with `PH1-02` in `85dc8e2`
   - [x] re-check the theme description ("przy braku zapisanego wyboru bierze pod uwagę `prefers-color-scheme`" / its EN counterpart) against the resolution unified in `PH2-01` — re-checked against the current source; the description matches the effective behaviour and needs no change
-  - [ ] re-check the accessibility section's claim about the project-notice modal against the behaviour delivered in `PH2-03`
-  - [ ] add `AUDIT.md` and `PLAN.md` to the project structure trees in both language sections, which currently list `CHANGELOG.md` and `LICENSE` only
+  - [x] re-check the accessibility section's claim about the project-notice modal against the behaviour delivered in `PH2-03`
+  - [x] add `AUDIT.md` and `PLAN.md` to the project structure trees in both language sections, which currently list `CHANGELOG.md` and `LICENSE` only
   - **Depends on:** `PH1-02`, `PH2-01`, `PH2-03`
   - **Completion condition:** every mechanism described in `README.md` matches the current implementation, and the documented structure lists the tracked root documents
+  - **Delivered:** The single accessibility bullet that described the notice as restoring the previous focus was replaced, in both language sections, by two bullets covering the dialog as `PH2-03` delivers it: `role="dialog"` and `aria-modal="true"` with the associated title and description, initial focus moved to the `tabindex="-1"` dialog container, `trapFocus` from `js/utils.js` held for the lifetime of the dialog, and a close path — `Escape`, the accept button, or the `[data-project-notice-close]` backdrop — that releases the trap and restores focus to the previously focused element when it is still connected and outside the notice. Every claim was read back from `js/modules/project-notice.js`, `js/utils.js` and `partials/footer.html` before being written; no behaviour was documented that the source does not implement. Both project structure trees now list `AUDIT.md` and `PLAN.md` alongside `CHANGELOG.md` and `LICENSE`, keeping the root documents in the alphabetical order the trees already used. The key-features entry for the modal was re-checked and left unchanged — its `role`, `aria-modal`, storage-key and focus-restore statements all still match the source.
 
 - [x] **PH4-02 — Record completed changes in `CHANGELOG.md`** — **Priority:** Low
   - [x] add entries under `[Unreleased]` for the Phase 1–3 changes that meet the changelog significance standard
@@ -136,6 +139,8 @@
   - **Note:** `PH3-03` was the last Phase 1–3 item to land and now carries its own entry, so every completed Phase 1–3 change is recorded.
 
 ## Optional future improvements
+
+These items sit outside the required Phase 1–4 remediation scope and were never part of it. They stay unchecked by design: none of them corrects a defect, none is required for the plan's completion, and none is scheduled.
 
 - [ ] **O-01 — Add a custom 404 page**
   - **Value:** an unknown path lands on a page consistent with the site's own design and navigation instead of the hosting platform's default, reusing the existing partial hosts and the `htmlPages` list in `scripts/build.mjs`
