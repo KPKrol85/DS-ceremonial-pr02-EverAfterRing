@@ -22,6 +22,8 @@
     theme = "dark";
   }
 
+  // This resolution is the shared fallback contract: `js/modules/theme.js` adopts the theme written
+  // here instead of resolving `prefers-color-scheme` a second time.
   const activeTheme = theme || "light";
   const themeColor = document.querySelector('meta[name="theme-color"][data-theme-color]');
 

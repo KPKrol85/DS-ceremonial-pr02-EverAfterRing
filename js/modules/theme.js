@@ -24,7 +24,14 @@ const setStoredTheme = (theme) => {
   }
 };
 
-const resolveTheme = () => getStoredTheme() || "light";
+const getDocumentTheme = () => {
+  const documentTheme = document.documentElement.dataset.theme;
+  return isValidTheme(documentTheme) ? documentTheme : null;
+};
+
+// `js/theme-bootstrap.js` already resolved stored preference -> prefers-color-scheme -> light before
+// first paint, so the theme on <html> carries that result. Recomputing it here would drop system dark.
+const resolveTheme = () => getStoredTheme() || getDocumentTheme() || "light";
 
 const updateToggle = (toggle, theme) => {
   if (!toggle) return;
