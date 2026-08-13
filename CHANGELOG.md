@@ -11,6 +11,10 @@ portfolio repository and is not reconstructed here.
 
 - Added the EverAfter Ring static multi-page site as an independent repository, including the HTML pages, the shared header and footer in `partials/`, the CSS and JavaScript sources, project assets, and the Node-based production build pipeline in `scripts/build.mjs` and `scripts/optimize-images.mjs`.
 
+### Removed
+
+- Removed eight unused files from the asset tree: the six standalone theme and social icons in `assets/svg/`, the raster `assets/logo/logo.png`, and `assets/placeholders/placeholder.jpg`. None was referenced by any page, stylesheet, script, or the web app manifest, and each duplicated something the project already provides — the icons are maintained inline in the shared header and footer, which is the copy the site renders, the logo ships as `assets/logo/logo.svg`, and the social share image as `assets/og-img/og-img.jpg`. Every deployment is roughly half a megabyte smaller as a result.
+
 ### Fixed
 
 - Fixed the privacy policy, cookie policy, and terms pages to describe the functionality the site actually implements, including contact form submission through Netlify Forms, the two browser-local `localStorage` entries used for the theme choice and the project notice, and the embedded Google Maps frame on the contact page, while keeping the demonstration-project framing.

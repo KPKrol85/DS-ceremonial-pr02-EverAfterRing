@@ -16,7 +16,6 @@
 ## Current priorities
 
 1. `PH4-01` — Synchronise `README.md` with the delivered implementation.
-2. `PH3-03` — Resolve ownership of unreferenced assets.
 
 ## Phase 1 — Verifiable repository and build baseline
 
@@ -101,12 +100,13 @@
   - **Completion condition:** at 360 px width the table content is reachable within its own region without horizontal page overflow, and the focus stop performs an actual scroll or is removed
   - **Delivered:** `589e5a9`. The region was kept and made real: `css/components/table.css` gives `.table-scroll` `overflow-x: auto` with a `:focus-visible` state, and styles `.table`, `th` and `td` in the component layer; `cookies.html:126-127` carries the `.table-scroll` and `.table` classes, and `css/main.css:13` imports the new file.
 
-- [ ] **PH3-03 — Resolve ownership of unreferenced assets** — **Priority:** Low
-  - [ ] decide per file whether to remove or document: `assets/svg/sun.svg`, `assets/svg/moon.svg`, `assets/svg/facebook.svg`, `assets/svg/x.svg`, `assets/svg/linkedin.svg`, `assets/svg/github.svg`, `assets/logo/logo.png`, `assets/placeholders/placeholder.jpg` — none is referenced from any HTML, CSS, JS, `assets/favicon/site.webmanifest`, or build script
-  - [ ] state which icon copy is authoritative, given that the theme and social icons also exist inline in `partials/header.html` and `partials/footer.html`
-  - [ ] record the decision in `README.md` if any file is retained
+- [x] **PH3-03 — Resolve ownership of unreferenced assets** — **Priority:** Low
+  - [x] decide per file whether to remove or document: `assets/svg/sun.svg`, `assets/svg/moon.svg`, `assets/svg/facebook.svg`, `assets/svg/x.svg`, `assets/svg/linkedin.svg`, `assets/svg/github.svg`, `assets/logo/logo.png`, `assets/placeholders/placeholder.jpg` — none is referenced from any HTML, CSS, JS, `assets/favicon/site.webmanifest`, or build script
+  - [x] state which icon copy is authoritative, given that the theme and social icons also exist inline in `partials/header.html` and `partials/footer.html`
+  - [x] record the decision in `README.md` if any file is retained
   - **Source:** `AUDIT.md` — P2-04
   - **Completion condition:** every file under `assets/` outside `img-src/` is either referenced from source or documented as intentionally retained
+  - **Delivered:** All eight candidates were removed; none was retained, so no retention record was needed. The inline copy is authoritative for both icon sets: the six standalone SVGs carried path data byte-identical to the icons in `partials/header.html:41-54` and `partials/footer.html:44-78`, and the inline form is what the implementation requires — the theme toggle shows and hides its two icons through `css/components/nav.css:183-199`, and the social icons inherit `currentColor` from the footer link. `assets/logo/logo.png` was a 512×512 raster twin of the referenced `assets/logo/logo.svg`, with every raster size the project actually uses already provided by `assets/favicon/`; `assets/placeholders/placeholder.jpg` was a 1200×900 key visual superseded by the 1200×630 `assets/og-img/og-img.jpg` that every page's `og:image` and `twitter:image` point to, and no fallback path exists anywhere in the source that could consume it. `assets/svg/` and `assets/placeholders/` are gone, so the `README.md` structure trees no longer list them. Verified after removal: 383 local references across the pages, partials, CSS, and the manifest all resolve; `npm run build` passes both of its contract assertions; and the copied payload drops from 161 files (18 750 KB) to 153 (18 240 KB), with no `assets/svg`, `assets/placeholders`, `logo.png`, or `placeholder.jpg` anywhere in `dist/`.
 
 - [x] **PH3-04 — Align structured data with the project's demonstration character** — **Priority:** Medium
   - [x] review the `LocalBusiness` JSON-LD block that all ten pages publish with real contact details, while the demonstration framing appears only in `partials/footer.html` and the legal pages
@@ -133,7 +133,7 @@
   - [x] keep pending plan items out of the changelog
   - **Depends on:** `PH1-02`, `PH2-04`, `PH3-04`
   - **Completion condition:** `CHANGELOG.md` describes the delivered changes and contains no entry for work that is still open in this plan
-  - **Note:** `PH3-03` is the one Phase 1–3 item still open; it carries no entry until it is delivered.
+  - **Note:** `PH3-03` was the last Phase 1–3 item to land and now carries its own entry, so every completed Phase 1–3 change is recorded.
 
 ## Optional future improvements
 

@@ -82,10 +82,8 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych wszystkich stron, w `r
 │   ├── fonts/              # lokalne subsety WOFF2
 │   ├── img/                # wygenerowane warianty obrazów (JPG, WebP, AVIF)
 │   ├── img-src/            # źródłowe obrazy hero i portfolio
-│   ├── logo/
-│   ├── og-img/
-│   ├── placeholders/
-│   └── svg/
+│   ├── logo/               # logo.svg używane w nagłówku i stopce
+│   └── og-img/             # og-img.jpg używany w metadanych Open Graph i Twitter Card
 ├── css/
 │   ├── components/         # nav, buttons, cards, forms, footer, badges, lists, project-notice
 │   ├── sections/           # hero, process, testimonials, callout
@@ -336,10 +334,8 @@ This address is declared as canonical in the metadata of every page, in `robots.
 │   ├── fonts/              # local WOFF2 subsets
 │   ├── img/                # generated image variants (JPG, WebP, AVIF)
 │   ├── img-src/            # hero and portfolio image sources
-│   ├── logo/
-│   ├── og-img/
-│   ├── placeholders/
-│   └── svg/
+│   ├── logo/               # logo.svg used in the header and the footer
+│   └── og-img/             # og-img.jpg used in the Open Graph and Twitter Card metadata
 ├── css/
 │   ├── components/         # nav, buttons, cards, forms, footer, badges, lists, project-notice
 │   ├── sections/           # hero, process, testimonials, callout
