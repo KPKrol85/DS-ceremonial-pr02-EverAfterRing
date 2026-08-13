@@ -1,18 +1,16 @@
 # EverAfter Ring — Final Technical Front-End Audit
 
 **Audit date:** 2026-08-13
-**Status re-verified:** 2026-08-13, against the `PH1-01`, `PH1-02`, `PH2-01`, `PH2-02` and `PH2-04` implementation commits
+**Status re-verified:** 2026-08-13, against the current source and Git history
 **Project type:** Static multi-page website in Polish (HTML, CSS, Vanilla JavaScript ES modules) with a Node-based production build into `dist/`; no runtime dependencies, no backend
 **Audit mode:** Final repository and implementation review
-**Current readiness:** Needs important fixes — 1 of the 4 P1 findings and 4 of the 6 P2 findings remain open
+**Active findings:** 1 — no P0, no open P1, one open P2 (`P2-04`)
 
 ## 1. Executive assessment
 
-The repository is coherent and well-maintained. Architecture boundaries are explicit: `css/main.css` is the single stylesheet entry point, `js/app.js` is the single application entry point with a fixed module order, `partials/` holds the only copy of the shared shell, and `scripts/build.mjs` owns the production output. Every one of the 322 local asset and route references in the HTML, CSS, and partials resolves to a file that exists; no page contains duplicate IDs, broken `aria-describedby`/`aria-labelledby`/`aria-controls`/`for` targets, or an `<img>` without `alt`. Documentation is unusually accurate: `README.md` describes the delivered mechanisms rather than aspirations, and the legal pages describe the two `localStorage` entries, the Netlify Forms submission path, and the embedded Google Maps frame that the code actually implements.
+The repository is coherent and well-maintained. Architecture boundaries are explicit: `css/main.css` is the single stylesheet entry point, `js/app.js` is the single application entry point with a fixed module order, `partials/` holds the only copy of the shared shell, and `scripts/build.mjs` owns the production output. Documentation is unusually accurate: `README.md` describes the delivered mechanisms rather than aspirations, and the legal pages describe the two `localStorage` entries, the Netlify Forms submission path, and the embedded Google Maps frame that the code actually implements.
 
-The risk this audit identified was concentrated in client-side interaction state rather than in structure, content, or tooling. Four implemented behaviours did not match their own contract: the pre-paint theme bootstrap's `prefers-color-scheme` fallback was discarded once `js/modules/theme.js` initialised; the mobile navigation panel's default state in markup and CSS was *open*, so JavaScript was required to close it rather than to open it; the project-notice dialog declares `aria-modal="true"` but has no focus containment, no `Escape` handling, and an inert backdrop that carries a close-intent attribute; and the custom `<select>` indicator was drawn with a hardcoded colour that was effectively invisible in the default light theme. None broke the site systemically, and there were no P0 findings, but each degraded an interaction the project explicitly claims to support. Three of the four have since been resolved — P1-01, P1-02 and P1-04 — leaving the project-notice dialog (P1-03) as the one open P1.
-
-Build and deployment mechanics are sound in design. The one workflow conflict recorded here — `npm run build` running image optimisation that rewrote tracked files under `assets/img/`, so the documented production build could not be executed without dirtying the working tree — has since been separated out (P2-05), as has the absent line-ending policy (P2-03). The project is suitable for continued development and close to presentable, but P1-03 should be resolved before it is used as a final portfolio reference.
+The risk this audit identified was concentrated in client-side interaction state rather than in structure, content, or tooling, alongside two build- and repository-workflow items. Those findings have since been delivered; the completed changes are recorded in `CHANGELOG.md` and their tasks in `PLAN.md`. One finding remains open here: unreferenced assets are still copied into the production output (`P2-04`).
 
 ## 2. Audit scope and verification
 
@@ -35,22 +33,19 @@ Build and deployment mechanics are sound in design. The one workflow conflict re
 - Duplicate-ID and ARIA/label reference check per page with `partials/header.html` and `partials/footer.html` injected — executed and passed; no duplicates, no dangling references
 - `<img>` alternative-text presence check across all pages and partials — executed and passed
 - Read-only in-memory simulation of the `build:html` stage contract (partial-host regex match, single-`aria-current` assertion, `.min` asset reference substitution) for all 10 pages — executed, all 10 would pass; no files written
-- Contrast computation (WCAG 2.x relative luminance) for deterministic token pairs in both themes, including alpha compositing for the footer and callout — executed; see P1-04 for the one failing pair
+- Contrast computation (WCAG 2.x relative luminance) for deterministic token pairs in both themes, including alpha compositing for the footer and callout — executed
 - Image dimension check: all `assets/img-src/` sources and generated variants against the `width`/`height` attributes in markup — executed and passed (hero 1080×720, portfolio 1200×900)
 - Generated-variant completeness: `assets/img/hero` (54 files) and `assets/img/portfolio-img` (81 files) match 6 and 9 sources × 3 widths × 3 formats — executed and passed
 - Lockfile consistency against `package.json` devDependencies — executed and passed (esbuild 0.28.0, lightningcss 1.32.0, sharp 0.34.5)
-- `git status`, `git diff --stat`, `git diff --ignore-cr-at-eol --stat` — executed; see P2-03
 - Unreferenced-asset scan across HTML, CSS, JS, manifest, and build scripts — executed; see P2-04
 - `TODO`/`FIXME`/`HACK`/`debugger`/`console.log` scan of shipped source — executed; none found outside the build scripts' intended CLI output
 
 ### Verification limitations
 
 - No browser or assistive-technology verification was performed. Findings about rendered layout, paint order, and focus behaviour are derived from the cascade and script sequence in the source; they are labelled accordingly.
-- `npm run build` and `npm run optimize:images` were not executed. Dependencies are not installed (`node_modules/` absent) and installing them was out of scope; `npm run build` additionally rewrites tracked files (see P2-05). The build was therefore verified statically and through the read-only contract simulation above, not by producing `dist/`.
 - No deployment URL was supplied for this audit, so no live environment was inspected and no claim is made about whether the project is currently deployed. The origin declared in `robots.txt`, `sitemap.xml`, and the per-page canonical/`og:url` metadata is treated as configuration, not as evidence of an active deployment.
 - The repository contains no automated test suite, so no test results are reported.
 - Contrast was assessed only for deterministic token pairs. Surfaces composed with `color-mix()` over the modal backdrop and the hero gradient overlays were not evaluated.
-- The 2026-08-13 status re-verification that produced the **Status**, **Resolution** and **Correction** entries below was carried out by static inspection of the current source plus Git history. It re-confirmed what each change did to the code; it did not repeat the behavioural checks already performed by the tasks that delivered those changes, which are recorded against the corresponding items in `PLAN.md`. The build-execution limitation recorded above was lifted by `PH1-02`, which ran `npm run build` against the revised contract — see P2-05.
 
 ## 3. Verified strengths
 
@@ -71,99 +66,14 @@ None detected.
 
 ## 5. P1 — Important issues worth fixing next
 
-**Open:** P1-03. **Resolved:** P1-01, P1-02, P1-04.
-
-Every finding in this section and in section 6 carries a **Status** line. Where a finding is resolved, its *Current behavior*, *Impact* and *Recommended direction* entries are left as written on the audit date, so the original problem stays on record, and a closing **Resolution** entry states what changed and where.
-
-### [P1-01] Theme bootstrap's `prefers-color-scheme` fallback is discarded when the runtime theme module initialises
-
-- **Status:** Resolved in `e5997f5`; re-verified 2026-08-13 (`PLAN.md` — PH2-01)
-- **Classification:** Defect
-- **Affected area:** Theming, first paint, accessible state of the theme toggle
-- **Evidence:** `js/theme-bootstrap.js:19-28`; `js/modules/theme.js:27`; `js/modules/theme.js:49-53`
-- **Current behavior:** The synchronous bootstrap resolves the theme as stored value, then `prefers-color-scheme: dark`, then `light`, and writes the result to `<html data-theme>`. The runtime module resolves it as `getStoredTheme() || "light"` — the system-preference branch is absent — and `initTheme()` applies that result unconditionally on `DOMContentLoaded`, overwriting whatever the bootstrap set.
-- **Impact:** A visitor whose system prefers dark and who has no stored choice gets a dark first paint that reverts to light once `js/app.js` runs, and the toggle then reports `aria-pressed="false"` for a page the bootstrap had resolved as dark. The system-preference fallback documented in `README.md` is not the effective behaviour of the site.
-- **Recommended direction:** Resolve "no stored theme" in one place. Either share the same fallback chain between the bootstrap and `js/modules/theme.js`, or have `initTheme()` adopt the value already present on `<html data-theme>` instead of recomputing it.
-- **Verification criteria:** With no `everafterring-theme` entry and a system dark preference, `<html data-theme>` remains `dark` after load and the toggle reports the dark state.
-- **Resolution:** The runtime now adopts the bootstrap's result instead of recomputing it. `resolveTheme()` is `getStoredTheme() || getDocumentTheme() || "light"` (`js/modules/theme.js:34`), where `getDocumentTheme()` reads and validates `<html data-theme>` (`js/modules/theme.js:27-30`) — the value `js/theme-bootstrap.js` wrote before first paint. With no stored entry and a system dark preference the bootstrap resolves `dark`, `getStoredTheme()` returns `null`, and `getDocumentTheme()` returns `dark`, so `applyTheme()` re-applies `dark` rather than overwriting it with `light`. The same call sets the toggle's `aria-pressed` and `aria-label` from the effective theme (`js/modules/theme.js:36-42`, `js/modules/theme.js:49-54`). `js/theme-bootstrap.js:25-26` documents the shared contract; its resolution is unchanged. The effective-theme and toggle-state behaviour was verified by the implementing task (`PLAN.md` — PH2-01).
-
-### [P1-02] Mobile navigation panel's default state is open, so JavaScript is required to close it
-
-- **Status:** Resolved in `c047695`; re-verified 2026-08-13 (`PLAN.md` — PH2-02)
-- **Classification:** Defect
-- **Affected area:** Navigation, mobile layout, progressive enhancement
-- **Evidence:** `partials/header.html:12`; `css/components/nav.css:205-231`; `js/modules/nav.js:24-37`; `js/app.js:9-16`
-- **Current behavior:** The panel is authored without a `hidden` attribute. Below the 1024 px breakpoint `.nav__panel` is `position: fixed; inset: 0; height: 100vh` with an opaque `var(--color-surface)` background, and the rule `.nav__panel:not([hidden])` — higher specificity and later in the file than the base `translateX(-100%)` — resolves the transform to `translateX(0)`. The panel only becomes hidden when `initPanelState()` adds the `hidden` attribute, which happens after `DOMContentLoaded` inside the deferred module entry.
-- **Impact:** In the production build the partial is inlined into the HTML, so on viewports at or below 1024 px the full-screen panel is in the open position from first paint until the module executes. If JavaScript is unavailable or `js/app.js` fails to load, it stays there and covers the page content. In source mode the same markup is open for the interval between partial injection and `initNav()`.
-- **Recommended direction:** Make "closed" the default in the markup and CSS for the mobile breakpoint, so JavaScript is only needed to open the panel and to manage its ARIA state, never to hide it on load.
-- **Verification criteria:** Loading a built page at 375 px width with JavaScript disabled shows the page content with no full-screen panel overlay; with JavaScript enabled there is no open-panel frame before initialisation.
-- **Resolution:** The closed state is now authored rather than applied. `partials/header.html:12` carries `hidden` on `[data-nav-panel]`, and the `.nav__panel:not([hidden])` selector was removed from both the mobile and the desktop rule in `css/components/nav.css`, so `translateX(0)` is reachable only through `[data-open="true"]` and the mobile default resolves to the base `translateX(-100%)` — off-canvas, not overlaying. `initPanelState()` (`js/modules/nav.js:24-32`) no longer hides anything: it exposes the panel above the breakpoint and syncs `aria-expanded`, so JavaScript is required only to open. The desktop media query still neutralises `.nav__panel[hidden]`, so the navigation stays visible above 1024 px without scripting, and the resize, `Escape`, focus-trap and link-close paths (`js/modules/nav.js:36-102`) are unchanged. The breakpoint and resize behaviour was verified by the implementing task (`PLAN.md` — PH2-02).
-
-### [P1-03] Project-notice dialog has no focus containment, no `Escape` handling, and an inert backdrop that implies a close action
-
-- **Status:** Open
-- **Classification:** Defect
-- **Affected area:** Accessibility, modal interaction
-- **Evidence:** `partials/footer.html:96-99`; `js/modules/project-notice.js:22-41`; compare `js/utils.js:9-46` as used by `js/modules/nav.js:15`
-- **Current behavior:** The dialog is declared `role="dialog" aria-modal="true"` and opens on every first visit, gating the page. The module binds a click handler only to `[data-project-notice-accept]`. The element carrying `data-project-notice-close` is present in the markup but is never queried in JavaScript — the attribute has no reference anywhere in the repository outside `partials/footer.html:97`. There is no `keydown`/`Escape` handler and no focus trap, although the project already implements one in `js/utils.js` and applies it to the mobile navigation.
-- **Impact:** Three separate consequences of one incomplete dialog implementation: the backdrop looks and is annotated like a dismiss target but performs no action; `Escape` does not close a modal that blocks the page; and keyboard and screen-reader users can move focus out of a dialog declared `aria-modal="true"` into background content that is neither inert nor hidden, contradicting the declared modality.
-- **Recommended direction:** Complete the dialog against the pattern the project already uses for navigation: route the existing `data-project-notice-close` host to a defined close path (or remove the attribute so no dismiss affordance is implied), add `Escape` handling, and reuse `trapFocus` from `js/utils.js` while the dialog is open.
-- **Verification criteria:** While the notice is open, `Tab` and `Shift+Tab` cycle only within the dialog, `Escape` closes it, and the backdrop either closes it or carries no close-intent attribute.
-
-### [P1-04] Custom `<select>` indicator is drawn with a hardcoded colour that is invisible in the default light theme
-
-- **Status:** Resolved in `0e19ea8`; re-verified 2026-08-13 (`PLAN.md` — PH2-04)
-- **Classification:** Defect
-- **Affected area:** Contact form, theming, non-text contrast
-- **Evidence:** `css/components/forms.css:71-77`; `css/components/forms.css:28-37`; `css/tokens.css:11`, `css/tokens.css:20`
-- **Current behavior:** `.form select` sets `appearance: none`, removing the native dropdown indicator, and replaces it with an inline SVG chevron whose stroke is the hardcoded literal `#f4e7d2`. The control's background comes from `var(--color-surface)`, which is `#ffffff` in the light theme and `#241d1a` in the dark theme. Computed contrast for the chevron against its own background is 1.22:1 in light and 13.60:1 in dark.
-- **Impact:** In the default theme the two required `<select>` fields on the contact page (`kontakt.html:159-165`, `kontakt.html:172-177`) lose their only visual indication that they are dropdowns and read as plain text inputs. It is the one measured contrast failure in this audit.
-- **Recommended direction:** Derive the chevron colour from an existing theme token so it inverts with the theme, in line with how the rest of the component layer consumes `css/tokens.css`.
-- **Verification criteria:** The dropdown indicator is clearly distinguishable against the field background in both `data-theme="light"` and `data-theme="dark"`.
-- **Correction (2026-08-13):** the *Impact* entry originally also stated that this was "the one place in the stylesheet where a raw colour value escapes the token system". Re-verification does not support that claim as written, and it has been withdrawn. `#f4e7d2` was the last raw *hex* literal outside `css/tokens.css`, but raw `rgb()`/`rgba()` colour values were already present in the component layer on the audit date and remain there: `css/components/buttons.css:45`, `:54`, `:55` (button shadow tint) and `css/components/project-notice.css:8`, `:25`, `:30`, `:31` (backdrop, border, shadow) — confirmed against the audit commit `a8610ab`. Those are shadow and overlay tints rather than a control indicator, they carry no contrast requirement of their own, and they are outside this finding's scope.
-- **Resolution:** The data URI was removed rather than recoloured: a data URI is a separate document and cannot read a custom property, so any colour inside it would still have to be hardcoded per theme. The chevron is now drawn as two `linear-gradient` strokes that consume `var(--color-text-muted)` directly (`css/components/forms.css:71-99`), so it inverts with `data-theme` without JavaScript or a second asset. Against `var(--color-surface)` the pair is `#6f6864` on `#ffffff` in light and `#cbbbae` on `#241d1a` in dark — the token pairs already measured in section 3 at 5.47:1 and 8.90:1, replacing the 1.22:1 light-theme failure. After this change no raw hex literal remains anywhere under `css/` outside `css/tokens.css`.
+None open. Resolved findings are recorded in `CHANGELOG.md`.
 
 ## 6. P2 — Minor refinements
 
-**Open:** P2-01, P2-02, P2-04, P2-06. **Resolved:** P2-03, P2-05.
-
-### [P2-01] `initProjectNotice` accesses `localStorage` without the guard used everywhere else in the project
-
-- **Status:** Open
-- **Classification:** Source-visible risk
-- **Affected area:** Project notice, runtime resilience
-- **Evidence:** `js/modules/project-notice.js:18`; `js/modules/project-notice.js:30`; compare `js/modules/theme.js:10-25` and `js/theme-bootstrap.js:10-17`
-- **Current behavior:** Both the read and the write of `everafterringProjectNoticeAccepted` are unguarded, while the two theme entry points wrap equivalent access in `try`/`catch` with an explicit comment about storage being unavailable.
-- **Impact:** In a browser configured to block site data, storage access throws. The read at line 18 runs before the notice is shown, so the notice would not appear and the rejection would propagate out of the `onReady` callback in `js/app.js:9-16` as an unhandled error. Because this module is invoked last, the other modules are unaffected — the impact is a silently missing disclosure and a console error, not a broken page.
-- **Recommended direction:** Apply the same defensive storage-access pattern already established in the theme modules.
-- **Verification criteria:** With site data blocked, the notice still renders, dismissal still works for the current page, and no uncaught error is logged.
-
-### [P2-02] Cookies table is wrapped in a scroll region that no CSS makes scrollable
-
-- **Status:** Open
-- **Classification:** Source-visible risk
-- **Affected area:** Legal page layout, keyboard navigation, responsive behaviour
-- **Evidence:** `cookies.html:129`; no `table` or `overflow` declaration exists anywhere under `css/` for this pattern (`css/components/`, `css/sections/`, `css/base.css`, `css/layout.css` all checked)
-- **Current behavior:** The five-column technology table is wrapped in `<div role="region" aria-label="…" tabindex="0">`, the standard markup for a keyboard-scrollable table container. The stylesheet contains no rule for `table`, `th`, `td`, or for this wrapper, so it has no `overflow` behaviour and the table has no width containment.
-- **Impact:** The wrapper adds a keyboard focus stop that cannot scroll anything, and on narrow viewports the table has no defined behaviour when its content exceeds the container width. This is the only table in the project, so the gap is contained to one page.
-- **Recommended direction:** Either give the region the overflow behaviour its semantics promise, together with minimal table styling consistent with the component layer, or drop the region and `tabindex` so no scroll affordance is announced.
-- **Verification criteria:** At 360 px width the table content is reachable within its own region without horizontal page overflow, and the focus stop performs an actual scroll.
-
-### [P2-03] Working tree carries line-ending-only changes and the repository has no normalisation policy
-
-- **Status:** Resolved in `054c1c9`; re-verified 2026-08-13 (`PLAN.md` — PH1-01)
-- **Classification:** Maintenance risk
-- **Affected area:** Repository hygiene, reviewability
-- **Evidence:** `git diff --stat` reports 1628 insertions and 1628 deletions across 8 files while `git diff --ignore-cr-at-eol --stat` is empty; `js/modules/hero.js` currently contains exactly one CRLF line among LF lines; no `.gitattributes` exists in the repository
-- **Current behavior:** Eight tracked files — `.gitignore`, `LICENSE`, `cookies.html`, `css/components/project-notice.css`, `js/modules/hero.js`, `js/modules/project-notice.js`, `polityka-prywatnosci.html`, `regulamin.html` — differ from `HEAD` only by carriage returns. One file has been partially converted, leaving mixed line endings inside a single source file.
-- **Impact:** Whole-file diffs conceal real changes during review, and a commit made from this state would record 1628 changed lines that carry no content. Without a normalisation policy this will recur on every checkout and edit cycle on Windows.
-- **Recommended direction:** Add a line-ending normalisation policy to the repository so the index stores one consistent form, then re-check the working tree.
-- **Verification criteria:** On a fresh checkout `git status` is clean, and editing one line in a source file produces a one-line diff.
-- **Resolution:** A root `.gitattributes` now declares `* text=auto eol=lf`, so Git stores every detected text file with LF regardless of the contributor's `core.autocrlf` setting, and declares `.avif`, `.ico`, `.jpg`, `.png`, `.webp` and `.woff2` as `binary` so images and fonts are never eligible for conversion. `git ls-files --eol` reports `i/lf w/lf attr/text=auto eol=lf` for all eight files named above and no CRLF or mixed entry anywhere in the repository; `js/modules/hero.js` no longer contains a carriage return. `git status` and `git diff --stat` are clean, so `git diff --stat` and `git diff --ignore-cr-at-eol --stat` now agree.
+**Open:** P2-04.
 
 ### [P2-04] Unreferenced assets are shipped into the production output
 
-- **Status:** Open
 - **Classification:** Maintenance risk
 - **Affected area:** Asset ownership, deployment payload
 - **Evidence:** `assets/svg/sun.svg`, `assets/svg/moon.svg`, `assets/svg/facebook.svg`, `assets/svg/x.svg`, `assets/svg/linkedin.svg`, `assets/svg/github.svg`, `assets/logo/logo.png` (152 KB), `assets/placeholders/placeholder.jpg` (352 KB) — none referenced by any HTML, CSS, JS, `assets/favicon/site.webmanifest`, or build script; `scripts/build.mjs:153-166` copies the whole `assets/` tree except `img-src/` into `dist/`
@@ -171,29 +81,6 @@ Every finding in this section and in section 6 carries a **Status** line. Where 
 - **Impact:** Roughly half a megabyte of unused files is copied into every deployment, and the duplicated icon sources create ambiguity about which copy a maintainer should edit when changing an icon.
 - **Recommended direction:** Remove the unreferenced files, or document in `README.md` why they are retained and which copy is authoritative for the icons.
 - **Verification criteria:** Every file under `assets/` outside `img-src/` is either referenced from source or explicitly documented as intentionally retained.
-
-### [P2-05] The documented production build rewrites tracked files as a side effect
-
-- **Status:** Resolved in `85dc8e2`; re-verified 2026-08-13 (`PLAN.md` — PH1-02)
-- **Classification:** Contract mismatch
-- **Affected area:** Build workflow, verifiability
-- **Evidence:** `package.json` — `scripts.build` (`npm run optimize:images && node scripts/build.mjs build`); `scripts/optimize-images.mjs:10` and `scripts/optimize-images.mjs:86-97`; `.gitignore` ignores `/dist/` only and lists `assets/` as intentionally tracked; `README.md` — "Build produkcyjny" section
-- **Current behavior:** `npm run build` regenerates every variant under the tracked `assets/img/` directory before producing `dist/`. `README.md` already records that the build was not run while the document was prepared, for exactly this reason.
-- **Impact:** The single documented command for producing the deployment artifact cannot be run without dirtying the working tree, which is why the build's real output could not be verified in this audit either. Over time this discourages running the build and increases the chance that `dist/` diverges from source in ways nobody observes.
-- **Recommended direction:** Separate asset generation from the deployment build so that `npm run build` writes only to the ignored `dist/` directory, and keep `optimize:images` as the explicit step run when source images change.
-- **Verification criteria:** `npm run build` completes and `git status` remains clean afterwards.
-- **Resolution:** `scripts.build` in `package.json` is now `node scripts/build.mjs build`; the `npm run optimize:images && …` chain is gone, and `optimize:images` remains as the explicit step for when sources under `assets/img-src/` change. `scripts/build.mjs` writes only beneath `distRoot` — every `writeFileSync`, `mkdirSync`, `cpSync` destination and esbuild `outfile` is rooted there — and `.gitignore:11` ignores `/dist/`. `npm run build` was executed against the new contract during the implementing task: it completed, produced `dist/`, skipped image optimisation, and left `assets/img/` and `package-lock.json` unmodified, so `git status` remained clean — closing the verification criteria above and the build-execution limitation this audit recorded in section 2. Both language sections of `README.md` were updated to the five-step sequence and now state that image generation is not part of the build.
-
-### [P2-06] Structured data presents the demonstration site as an operating local business
-
-- **Status:** Open
-- **Classification:** Content integrity risk
-- **Affected area:** SEO metadata, public disclosure consistency
-- **Evidence:** `index.html:45-63` and the identical `LocalBusiness` block on all 10 pages; `robots.txt`; the demonstration framing appears only in `partials/footer.html:96-104` and in the legal pages (for example `cookies.html`, section 1)
-- **Current behavior:** Every page publishes a `LocalBusiness` entity with `name`, `telephone`, `email`, and a full `PostalAddress`, carrying the studio's real contact details. `robots.txt` allows the whole site to be indexed. The statement that this is a portfolio project with a fictional offer exists in the interface and in the legal documents, but not in the structured data.
-- **Impact:** The machine-readable claim is consumed independently of the interface, so the one channel that search engines and aggregators read directly is also the one channel that carries no qualification — while the surrounding pages state that the business does not operate. Enquiries generated from it would reach real contact details for a service that the project itself declares fictional.
-- **Recommended direction:** Bring the structured data into line with the project's stated character — for example by relying on the `WebSite` block that every page already carries, or by qualifying the business entity — so that the disclosure is consistent across interface, legal pages, and metadata.
-- **Verification criteria:** No page publishes structured data asserting an operating business that the project's own documents state does not exist.
 
 ## 7. Extra quality improvements
 
@@ -214,24 +101,24 @@ Every finding in this section and in section 6 carries a **Status** line. Where 
 ### Promote the build's existing consistency checks into a standalone check command
 
 - **Relevant area:** Verification tooling (`scripts/build.mjs:105-117`, `scripts/build.mjs:119-133`, `package.json` scripts).
-- **Current evidence:** The build already asserts partial-host presence and single-`aria-current` correctness, but those assertions can only run as part of a build that also rewrites tracked image assets (P2-05). The repository has no command that validates the pages without producing output.
+- **Current evidence:** The build already asserts partial-host presence and single-`aria-current` correctness, but those assertions can only run as part of a build that produces `dist/`. The repository has no command that validates the pages without producing output.
 - **Potential value:** The same guarantees plus cheap additions such as local-reference resolution could be run routinely and quickly, without writing any files — the checks this audit performed ad hoc would become repeatable.
 - **Scope boundary:** Optional. This proposes reusing logic that already exists rather than introducing a test framework or new dependencies.
 
 ## 8. Current readiness conclusion
 
-**Status:** Needs important fixes
+**Status:** No P0 and no open P1 findings; one P2 maintenance item remains.
 
-No finding blocks the project from being built, served, or read: content, structure, metadata, references, and documentation are in good order, and there are no P0 risks. Four P1 findings were raised, because each one concerns a behaviour the project explicitly documents as working — the system-preference theme fallback, the mobile navigation's closed default state, the modal dialog's declared modality, and the visibility of a form control's indicator in the default theme. All four were contained fixes within the existing architecture; none required restructuring, new dependencies, or a redesign.
-
-Three have since been delivered: P1-01, P1-02 and P1-04. **P1-03 — the project-notice dialog's declared modality — remains open, and it alone holds this status at "Needs important fixes".** Of the P2 items, P2-03 and P2-05 are resolved; P2-01, P2-02, P2-04 and P2-06 are housekeeping that can be scheduled independently, with P2-01 best taken together with P1-03 since both sit in the same module.
+No finding blocks the project from being built, served, or read: content, structure, metadata, references, and documentation are in good order. What remains is asset ownership — roughly half a megabyte of unreferenced files copied into every deployment (P2-04) — which is housekeeping and can be scheduled independently of any other work.
 
 This status is a repository-state assessment. It is not an accessibility certification, a security assessment, a guarantee of browser or assistive-technology behaviour, or a performance measurement — none of which were performed, as recorded in the verification limitations.
 
 ## 9. Senior rating
 
-**Rating:** 7/10 — as assessed on the audit date; not re-scored, see below
+**Rating:** 8/10 — reassessed 2026-08-13 against the current repository state (7/10 on the audit date)
 
-The fundamentals are strong for a static multi-page site in this scope: clean source-of-truth boundaries, a build that validates its own contracts rather than trusting them, complete and correct reference integrity across ten pages, disciplined image and font delivery, colour tokens that hold up under measurement, and documentation and legal pages that describe the implementation accurately instead of over-claiming — an area where comparable projects usually lose points. The rating was held at 7 by four P1 defects that all sat in the same layer: interaction state that depends on JavaScript to correct a default rather than establishing the correct default up front, and one hardcoded colour literal outside the token system. The verification limitations also matter — the production build and all runtime behaviour were assessed statically, so the assessment could not be raised on the strength of observed behaviour.
+**Active findings behind this rating:** P0 — 0. P1 — 0. P2 — 1 open (P2-04).
 
-**Not re-scored.** Three of those four defects have since been resolved (P1-01, P1-02, P1-04), together with P2-03 and P2-05 — the latter also lifting the build-execution limitation that constrained this rating. No revised rating is issued here: P1-03 is still open, and this documentation pass re-confirmed the delivered resolutions rather than conducting the fresh end-to-end review a new score would require. A revised rating belongs with the next audit pass, once P1-03 is closed.
+The current source supports the raise. The interaction layer that held the previous rating now establishes its own defaults instead of depending on scripting to repair them: the theme resolved before first paint survives runtime initialisation, the mobile navigation panel is closed in markup and CSS below the breakpoint, the project-notice dialog contains focus and closes on `Escape` and on the backdrop, and no raw hex literal remains anywhere under `css/` outside `css/tokens.css`. The build contract is verifiable as documented — `npm run build` writes only into the ignored `dist/` — and `.gitattributes` keeps diffs reviewable. The structural strengths recorded in section 3 are unchanged.
+
+Three current-state factors hold it below a higher score: one finding is still open (P2-04, unreferenced files in the deployment payload); the repository has no automated test suite and no output-free check command, so the build's own contract assertions can only run as part of a build; and runtime, browser, and assistive-technology behaviour remain unverified in this document, as recorded in the verification limitations. A rating above this range needs observed behaviour and repeatable checks, not further source-level fixes.

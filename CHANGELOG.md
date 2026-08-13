@@ -17,6 +17,10 @@ portfolio repository and is not reconstructed here.
 - Fixed the theme runtime so it keeps the theme resolved before the first paint. With no saved choice, a visitor whose system prefers dark now stays on the dark theme after the page loads instead of reverting to light, and the theme toggle reports the theme actually in effect.
 - Fixed the mobile navigation so the panel is closed by default in the markup and the stylesheet. It no longer covers the page when JavaScript is unavailable or has not run yet, and scripting is required only to open it.
 - Fixed the dropdown indicator on the contact form so it follows the active theme. The chevron on both required select fields is now clearly visible in the light theme, where it was previously almost indistinguishable from the field background.
+- Fixed the project notice modal so it behaves as the modal dialog it declares itself to be: keyboard focus stays inside it while it is open, `Escape` closes it, clicking the backdrop dismisses it, and focus returns to where it was before the notice appeared.
+- Fixed the technology table on the cookie policy page so it scrolls horizontally within its own region on narrow screens, with a visible keyboard focus state, instead of overflowing the page.
+- Fixed the project notice so it still appears and can be dismissed in a browser that blocks site data. A failed read or write of the stored acceptance no longer surfaces as an uncaught error.
+- Fixed the structured data on all ten pages so it no longer presents the demonstration site as an operating local business. The `LocalBusiness` block with real contact details was replaced by linked `WebPage` and `WebSite` data stating the project's demonstration character, matching the framing already used in the interface and the legal pages, and `README.md` describes the new contract.
 
 ### Documentation
 
