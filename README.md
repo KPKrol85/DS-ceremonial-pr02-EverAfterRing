@@ -247,7 +247,7 @@ Repozytorium nie zawiera wyników pomiarów wydajności, dlatego powyższe punkt
 
 ### Licencja
 
-Projekt jest objęty własnościową licencją KP_Code (wersja 1.0) opisaną w [LICENSE](LICENSE). Nie jest to licencja open source ani przekazanie do domeny publicznej; `package.json` deklaruje `UNLICENSED`.
+Projekt jest objęty własnościową licencją KP_Code (wersja 1.0) opisaną w [LICENSE](LICENSE). Nie jest to licencja open source ani przekazanie do domeny publicznej; `package.json` deklaruje `SEE LICENSE IN LICENSE`.
 
 Licencja jest dwujęzyczna, a w razie rozbieżności rozstrzygająca jest wersja polska. Właścicielem praw jest Kamil Król — KP_Code.
 
@@ -502,7 +502,7 @@ The repository contains no performance measurements, so the points above describ
 
 ### License
 
-The project is covered by the KP_Code proprietary project license (version 1.0) described in [LICENSE](LICENSE). It is not open-source software and not a dedication to the public domain; `package.json` declares `UNLICENSED`.
+The project is covered by the KP_Code proprietary project license (version 1.0) described in [LICENSE](LICENSE). It is not open-source software and not a dedication to the public domain; `package.json` declares `SEE LICENSE IN LICENSE`.
 
 The license is bilingual, and the Polish version prevails in case of divergence. The rights owner is Kamil Król — KP_Code.
 
