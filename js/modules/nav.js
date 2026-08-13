@@ -20,18 +20,15 @@ export const initNav = () => {
     releaseFocusTrap = null;
   };
 
-  // Initialize panel state based on screen size
+  // Sync toggle state and expose the panel on desktop; the mobile closed state is authored in the markup
   const initPanelState = () => {
     releaseNavFocusTrap();
 
-    if (isMobileNav()) {
-      navPanel?.setAttribute("hidden", "");
-      navPanel?.removeAttribute("data-open");
-      setExpanded(navToggle, false);
-    } else {
+    if (!isMobileNav()) {
       navPanel?.removeAttribute("hidden");
-      setExpanded(navToggle, false);
     }
+
+    setExpanded(navToggle, false);
   };
 
   initPanelState();

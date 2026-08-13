@@ -220,8 +220,7 @@
   transition: transform var(--transition-base);
 }
 
-.nav__panel[data-open="true"],
-.nav__panel:not([hidden]) {
+.nav__panel[data-open="true"] {
   transform: translateX(0);
 }
 
@@ -335,8 +334,7 @@
 
   .nav__panel,
   .nav__panel[hidden],
-  .nav__panel[data-open="true"],
-  .nav__panel:not([hidden]) {
+  .nav__panel[data-open="true"] {
     position: static;
     inset: auto;
     display: flex;
