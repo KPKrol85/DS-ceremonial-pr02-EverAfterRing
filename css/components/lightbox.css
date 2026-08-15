@@ -1,0 +1,166 @@
+.lightbox {
+  inset: 0;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  margin: 0;
+  padding: clamp(var(--space-4), 4vw, var(--space-6));
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  overflow: hidden;
+  opacity: 0;
+}
+
+/* The closed state stays the browser's own `display: none`, so only the open state is styled.
+   The panel is centred as a flex item so its `max-height` resolves against this box, which the
+   dialog sizes to the viewport, instead of against a content-sized track. */
+.lightbox[open] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+}
+
+.lightbox::backdrop {
+  background: rgb(12 10 9 / 0.72);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+}
+
+.lightbox[open]::backdrop {
+  opacity: 1;
+}
+
+.lightbox__figure {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: var(--space-4);
+  flex: 0 1 auto;
+  width: min(1100px, 100%);
+  max-height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: clamp(var(--space-3), 2vw, var(--space-5));
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-soft);
+}
+
+.lightbox__media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+/* The enlarged copy is the card's own `picture`; taking it out of the layout lets the image
+   itself resolve its height against the media row instead of an auto-sized wrapper. */
+.lightbox__media picture {
+  display: contents;
+}
+
+.lightbox__media img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+}
+
+.lightbox__caption {
+  max-width: 62ch;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.lightbox .lightbox__title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-lg);
+  color: var(--color-text);
+}
+
+.lightbox .lightbox__description {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+
+.lightbox__close {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  color: var(--color-text);
+  backdrop-filter: blur(6px);
+  transition: color var(--transition-fast);
+}
+
+.lightbox__close:hover {
+  color: var(--color-accent);
+}
+
+.lightbox__close-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+body.is-lightbox-open {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* `display` and `overlay` are carried along so the closing state stays rendered
+     for the length of the fade instead of disappearing at once. */
+  .lightbox {
+    transition:
+      opacity var(--transition-fast),
+      display var(--transition-fast) allow-discrete,
+      overlay var(--transition-fast) allow-discrete;
+  }
+
+  .lightbox::backdrop {
+    transition:
+      opacity var(--transition-fast),
+      display var(--transition-fast) allow-discrete,
+      overlay var(--transition-fast) allow-discrete;
+  }
+
+  .lightbox__figure {
+    transition:
+      opacity var(--transition-base),
+      transform var(--transition-base);
+  }
+
+  @starting-style {
+    .lightbox[open],
+    .lightbox[open]::backdrop {
+      opacity: 0;
+    }
+
+    .lightbox[open] .lightbox__figure {
+      opacity: 0;
+      transform: translateY(0.75rem) scale(0.98);
+    }
+  }
+}

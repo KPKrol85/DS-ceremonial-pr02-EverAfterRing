@@ -6,6 +6,7 @@ import { initHero } from "./modules/hero.js";
 import { initTheme } from "./modules/theme.js";
 import { initHeaderScroll } from "./modules/header-scroll.js";
 import { initProjectNotice } from "./modules/project-notice.js";
+import { initLightbox } from "./modules/lightbox.js";
 onReady(async () => {
   await initPartials();
   initTheme();
@@ -14,4 +15,5 @@ onReady(async () => {
   initForm();
   initHero();
   initProjectNotice();
+  initLightbox();
 });

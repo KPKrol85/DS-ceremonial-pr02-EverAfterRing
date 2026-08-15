@@ -25,6 +25,7 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych stron indeksowanych, w
 - Osobny skrypt `js/theme-bootstrap.js` ładowany synchronicznie w `<head>` przed arkuszem stylów, ustawiający `data-theme` na `<html>`; przy braku zapisanego wyboru bierze pod uwagę `prefers-color-scheme`. W buildzie produkcyjnym jest minifikowany i wstawiany w to samo miejsce jako skrypt inline, żeby pozostał synchroniczny i wykonał się przed pierwszym malowaniem.
 - Formularz kontaktowy z walidacją po stronie klienta (`novalidate`, komunikaty per pole, fokus na pierwszym niepoprawnym polu) oraz statusem `aria-live="polite"`; wysyłka jest obsługiwana przez Netlify Forms z honeypotem i przekierowaniem na `dziekujemy.html`.
 - Modal informacji o projekcie (`role="dialog"`, `aria-modal="true"`) z zapisem akceptacji w `localStorage` pod kluczem `everafterringProjectNoticeAccepted` i przywróceniem wcześniejszego fokusa.
+- Lightbox portfolio na `realizacje.html`: dziewięć zdjęć realizacji otwiera się w jednym wspólnym natywnym oknie `dialog` — dwuklikiem myszą, pojedynczym dotknięciem na ekranach dotykowych oraz klawiszem `Enter` lub `Spacja`. Powiększona kopia jest klonem elementu `picture` z karty, więc korzysta z tych samych źródeł AVIF, WebP i JPG oraz z wariantu 1200 px tam, gdzie wymaga tego szerokość ekranu.
 - Zmiana stanu nagłówka przy przewijaniu z histerezą (klasa dodawana powyżej 96 px, usuwana poniżej 48 px), aktualizowana w `requestAnimationFrame`.
 - Ruch obrazu hero sterowany kursorem, uruchamiany i zatrzymywany zgodnie z aktualnym stanem `prefers-reduced-motion`.
 - Osadzona mapa Google Maps na stronie kontaktowej wraz z linkiem otwierającym tę samą lokalizację w nowej karcie.
@@ -73,7 +74,7 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych stron indeksowanych, w
 - **Strony** — każda strona to samodzielny plik HTML w katalogu głównym z pełnym zestawem metadanych i własną treścią; `main` jest celem linku pomijającego `#main`. Wyjątkiem jest `404.html`, które celowo ma ograniczony zestaw metadanych — opisuje to sekcja SEO.
 - **Partiale** — `header` i `footer` to hosty z atrybutami `data-partial` i `data-partial-src`. W trybie deweloperskim `js/modules/partials.js` pobiera je przez `fetch` i oznacza aktywny link, a serwer Vite wydaje pliki z `partials/` w niezmienionej postaci, bez traktowania ich jak samodzielnych stron. W buildzie produkcyjnym `scripts/html-shell.mjs` zastępuje te hosty gotowym markupem i statycznie ustawia `aria-current="page"`. Oznacza to, że tryb deweloperski wymaga serwera HTTP.
 - **CSS** — `css/main.css` jest jedynym punktem wejścia i importuje kolejno tokeny, fonty, bazę, layout, komponenty i sekcje. Wartości motywu są zdefiniowane jako właściwości custom w `css/tokens.css`, a wariant ciemny jako `:root[data-theme="dark"]`.
-- **JavaScript** — `js/app.js` jest punktem wejścia i po `DOMContentLoaded` uruchamia moduły w ustalonej kolejności: partiale, motyw, nagłówek, nawigacja, formularz, hero, modal projektu. Wspólne selektory są w `js/config.js`, pomocnicze funkcje DOM i pułapka fokusa w `js/utils.js`, a logika interakcji w `js/modules/`.
+- **JavaScript** — `js/app.js` jest punktem wejścia i po `DOMContentLoaded` uruchamia moduły w ustalonej kolejności: partiale, motyw, nagłówek, nawigacja, formularz, hero, modal projektu, lightbox portfolio. Każdy moduł sam sprawdza, czy jego markup istnieje, więc lightbox inicjalizuje się wyłącznie na `realizacje.html`. Wspólne selektory są w `js/config.js`, pomocnicze funkcje DOM i pułapka fokusa w `js/utils.js`, a logika interakcji w `js/modules/`.
 - **Dwa punkty wejścia JS** — `js/app.js` jest modułem ES bundlowanym przez Vite, a `js/theme-bootstrap.js` pozostaje osobnym plikiem poza bundlem: w trybie deweloperskim jest ładowany jako klasyczny skrypt, a w buildzie minifikowany i wstawiany inline w to samo miejsce, ponieważ musi wykonać się synchronicznie przed renderowaniem stylów.
 - **Obrazy** — pliki źródłowe znajdują się w `assets/img-src/`, a warianty generowane przez `scripts/optimize-images.mjs` w `assets/img/`. W markupie używany jest element `picture` z kolejnością AVIF, WebP i JPG.
 - **Build** — `vite.config.js` deklaruje jedenaście wejść HTML (`appType: "mpa"`), wtyczkę wspólnego shellu opartą o `scripts/html-shell.mjs` oraz kopiowanie plików statycznych z pominięciem `assets/img-src/`. Build generuje katalog `dist/`, który jest wykluczony z repozytorium przez `.gitignore` i nie powinien być edytowany ręcznie.
@@ -91,7 +92,7 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych stron indeksowanych, w
 │   ├── logo/               # logo.svg używane w nagłówku i stopce
 │   └── og-img/             # og-img.jpg używany w metadanych Open Graph i Twitter Card
 ├── css/
-│   ├── components/         # nav, buttons, cards, forms, footer, badges, lists, project-notice
+│   ├── components/         # nav, buttons, cards, forms, footer, badges, lists, project-notice, lightbox
 │   ├── sections/           # hero, process, testimonials, callout
 │   ├── base.css
 │   ├── fonts.css
@@ -102,7 +103,7 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych stron indeksowanych, w
 │   └── archive/
 │       └── plans/          # zarchiwizowane ukończone plany projektu (PLAN-2026-08-15.md)
 ├── js/
-│   ├── modules/            # partials, nav, theme, form, hero, header-scroll, project-notice, dom
+│   ├── modules/            # partials, nav, theme, form, hero, header-scroll, project-notice, lightbox, dom
 │   ├── app.js              # punkt wejścia ESM
 │   ├── config.js
 │   ├── theme-bootstrap.js  # osobny skrypt (IIFE) wstawiany inline w buildzie
@@ -226,7 +227,7 @@ Komenda nie zastępuje pozostałych: `npm run build` wymusza te same kontrakty s
 npm run test:smoke
 ```
 
-Komenda buduje `dist/`, uruchamia podgląd produkcyjny i wykonuje na nim dziesięć testów Playwright w przeglądarce Chromium. Testy działają na zbudowanych stronach, więc sprawdzają ten sam rozwiązany shell i wstawiony inline theme bootstrap, które trafiają na hosting. Host i port podglądu są ustalone na stałe, a testy nigdy nie podłączają się do serwera pozostawionego po wcześniejszym buildzie.
+Komenda buduje `dist/`, uruchamia podgląd produkcyjny i wykonuje na nim jedenaście testów Playwright w przeglądarce Chromium. Testy działają na zbudowanych stronach, więc sprawdzają ten sam rozwiązany shell i wstawiony inline theme bootstrap, które trafiają na hosting. Host i port podglądu są ustalone na stałe, a testy nigdy nie podłączają się do serwera pozostawionego po wcześniejszym buildzie.
 
 Zakres testów (`tests/`):
 
@@ -235,9 +236,10 @@ Zakres testów (`tests/`):
 - motyw: zapisany wybór ciemny zastosowany przed pierwszym malowaniem oraz przełączanie i utrwalanie wyboru po przeładowaniu,
 - nawigacja mobilna przy szerokości 390 px: otwarcie z przycisku, stan panelu, obsługa fokusa i zamknięcie klawiszem `Escape`,
 - modal informacji o projekcie: pierwsza wizyta oraz zapisana akceptacja,
-- formularz kontaktowy: wysyłka z pustymi polami wymaganymi — stan `aria-invalid`, fokus i komunikat pierwszego niepoprawnego pola oraz wyczyszczenie obu po wpisaniu poprawnej wartości.
+- formularz kontaktowy: wysyłka z pustymi polami wymaganymi — stan `aria-invalid`, fokus i komunikat pierwszego niepoprawnego pola oraz wyczyszczenie obu po wpisaniu poprawnej wartości,
+- lightbox portfolio na `realizacje.html`: otwarcie pierwszego zdjęcia dwuklikiem myszy, tytuł, opis i tekst alternatywny w otwartym oknie, dostępny przycisk zamknięcia z fokusem, zamknięcie klawiszem `Escape` i przyciskiem, powrót fokusa na wyzwalacz, ponowne otwarcie klawiszem `Enter` i `Spacja` oraz brak reakcji na pojedyncze kliknięcie myszą.
 
-Jest to celowo wąski zestaw smoke testów, a nie pełne pokrycie E2E. Z formularza kontaktowego obejmuje wyłącznie powyższą ścieżkę stanu niepoprawnego pola — nie obejmuje pozostałych pól walidowanych, pozostałych typów błędów ani wysyłki. Nie obejmuje też pozostałych stron, strony `404.html`, layoutu responsywnego, testów wizualnych, audytu dostępności ani silników przeglądarek innych niż Chromium.
+Jest to celowo wąski zestaw smoke testów, a nie pełne pokrycie E2E. Z formularza kontaktowego obejmuje wyłącznie powyższą ścieżkę stanu niepoprawnego pola — nie obejmuje pozostałych pól walidowanych, pozostałych typów błędów ani wysyłki. Z lightboxa obejmuje wyłącznie pierwszą kartę portfolio i wskazane wyżej ścieżki otwarcia oraz zamknięcia. Nie obejmuje też pozostałych stron, strony `404.html`, layoutu responsywnego, testów wizualnych, audytu dostępności ani silników przeglądarek innych niż Chromium.
 
 Playwright wymaga jednorazowego pobrania przeglądarki — `npm install` nie robi tego automatycznie:
 
@@ -260,8 +262,10 @@ npx playwright install chromium
 - Otwarty panel nawigacji mobilnej przenosi fokus na pierwszy element interaktywny i utrzymuje go w pułapce fokusa (`js/utils.js`), a zamknięcie przywraca fokus na przycisk.
 - Modal informacji o projekcie ma `role="dialog"`, `aria-modal="true"` oraz powiązany tytuł i opis (`aria-labelledby`, `aria-describedby`).
 - Otwarty modal przenosi fokus na kontener dialogu (`tabindex="-1"`) i utrzymuje go w pułapce fokusa (`js/utils.js`); zamknięcie klawiszem `Escape`, przyciskiem akceptacji lub kliknięciem tła zwalnia pułapkę i przywraca fokus na wcześniej aktywny element, jeśli nadal istnieje poza modalem.
+- Każde zdjęcie portfolio na `realizacje.html` jest opakowane w zwykły przycisk z etykietą `aria-label` nazywającą akcję i realizację (na przykład „Powiększ zdjęcie: Royal Classic”), z zachowanym tekstem alternatywnym obrazu, widocznym stanem `:focus-visible` i kursorem `zoom-in`.
+- Lightbox jest natywnym elementem `dialog` otwieranym przez `showModal()`, więc przeglądarka sama oznacza go jako modalny, utrzymuje w nim fokus i obsługuje `Escape`; tytuł i opis realizacji są z nim powiązane przez `aria-labelledby` i `aria-describedby`, a zamknięcie — klawiszem `Escape`, przyciskiem zamknięcia lub kliknięciem tła — przywraca fokus na zdjęcie, z którego został otwarty.
 - `css/base.css` definiuje wspólny styl `:focus-visible` dla linków, przycisków i pól formularza.
-- Redukcja ruchu jest obsługiwana zarówno w CSS (`css/base.css`, `css/components/nav.css`, `css/components/project-notice.css`), jak i w module hero, który nasłuchuje zmian `prefers-reduced-motion`.
+- Redukcja ruchu jest obsługiwana zarówno w CSS (`css/base.css`, `css/components/nav.css`, `css/components/project-notice.css`, `css/components/lightbox.css`), jak i w module hero, który nasłuchuje zmian `prefers-reduced-motion`.
 - Formularz kontaktowy używa powiązanych etykiet, `aria-describedby` dla komunikatów błędów i regionu statusu `aria-live="polite"`.
 - Pole walidowane, które nie przeszło walidacji, dostaje `aria-invalid="true"`; atrybut jest usuwany, gdy pole staje się poprawne — razem z komunikatem błędu.
 - Przełącznik motywu komunikuje stan przez `aria-pressed` i aktualizowaną etykietę `aria-label`.
@@ -349,6 +353,7 @@ This address is declared as canonical in the metadata of the indexable pages, in
 - A separate `js/theme-bootstrap.js` script loaded synchronously in `<head>` before the stylesheet, setting `data-theme` on `<html>`; with no stored choice it falls back to `prefers-color-scheme`. The production build minifies it and inlines it in the same position, so it stays synchronous and runs before the first paint.
 - Contact form with client-side validation (`novalidate`, per-field messages, focus on the first invalid field) and an `aria-live="polite"` status region; submission is handled by Netlify Forms with a honeypot and a redirect to `dziekujemy.html`.
 - Project notice modal (`role="dialog"`, `aria-modal="true"`) with acceptance stored in `localStorage` under the `everafterringProjectNoticeAccepted` key and previous focus restored.
+- Portfolio lightbox on `realizacje.html`: the nine portfolio images open in a single shared native `dialog` — from a mouse double-click, a single tap on touch screens, and `Enter` or `Space`. The enlarged copy is a clone of the card's own `picture` element, so it reuses the same AVIF, WebP, and JPG sources and the 1200 px variant where the viewport calls for it.
 - Header scroll state with hysteresis (class added above 96 px, removed below 48 px), updated inside `requestAnimationFrame`.
 - Pointer-driven hero image motion, started and stopped according to the current `prefers-reduced-motion` state.
 - Embedded Google Maps frame on the contact page, together with a link that opens the same location in a new tab.
@@ -397,7 +402,7 @@ This address is declared as canonical in the metadata of the indexable pages, in
 - **Pages** — each page is a standalone HTML file at the repository root with a full metadata set and its own content; `main` is the target of the `#main` skip link. `404.html` is the exception, carrying a deliberately reduced metadata set — see the SEO section.
 - **Partials** — `header` and `footer` are host elements carrying `data-partial` and `data-partial-src`. In development, `js/modules/partials.js` fetches them and marks the active link, and the Vite server serves the files under `partials/` verbatim instead of treating them as standalone entries. In the production build, `scripts/html-shell.mjs` replaces those hosts with the resolved markup and sets `aria-current="page"` statically. Development therefore requires an HTTP server.
 - **CSS** — `css/main.css` is the single entry point and imports tokens, fonts, base, layout, components, and sections in order. Theme values are defined as custom properties in `css/tokens.css`, with the dark variant under `:root[data-theme="dark"]`.
-- **JavaScript** — `js/app.js` is the entry point and, after `DOMContentLoaded`, runs the modules in a fixed order: partials, theme, header, navigation, form, hero, project notice. Shared selectors live in `js/config.js`, DOM helpers and the focus trap in `js/utils.js`, and interaction logic in `js/modules/`.
+- **JavaScript** — `js/app.js` is the entry point and, after `DOMContentLoaded`, runs the modules in a fixed order: partials, theme, header, navigation, form, hero, project notice, portfolio lightbox. Every module checks for its own markup first, so the lightbox initializes on `realizacje.html` only. Shared selectors live in `js/config.js`, DOM helpers and the focus trap in `js/utils.js`, and interaction logic in `js/modules/`.
 - **Two JS entry points** — `js/app.js` is an ES module bundled by Vite, while `js/theme-bootstrap.js` stays a separate file outside the bundle: development loads it as a classic script, and the build minifies it and inlines it in the same position, because it must run synchronously before styles render.
 - **Images** — source files live in `assets/img-src/`, and the variants generated by `scripts/optimize-images.mjs` in `assets/img/`. The markup uses the `picture` element with AVIF, WebP, and JPG in that order.
 - **Build** — `vite.config.js` declares the eleven HTML entries (`appType: "mpa"`), the shared-shell plugin backed by `scripts/html-shell.mjs`, and the static asset copy that excludes `assets/img-src/`. The build generates the `dist/` directory, which is excluded from the repository by `.gitignore` and should not be edited manually.
@@ -415,7 +420,7 @@ This address is declared as canonical in the metadata of the indexable pages, in
 │   ├── logo/               # logo.svg used in the header and the footer
 │   └── og-img/             # og-img.jpg used in the Open Graph and Twitter Card metadata
 ├── css/
-│   ├── components/         # nav, buttons, cards, forms, footer, badges, lists, project-notice
+│   ├── components/         # nav, buttons, cards, forms, footer, badges, lists, project-notice, lightbox
 │   ├── sections/           # hero, process, testimonials, callout
 │   ├── base.css
 │   ├── fonts.css
@@ -426,7 +431,7 @@ This address is declared as canonical in the metadata of the indexable pages, in
 │   └── archive/
 │       └── plans/          # archived completed project plans (PLAN-2026-08-15.md)
 ├── js/
-│   ├── modules/            # partials, nav, theme, form, hero, header-scroll, project-notice, dom
+│   ├── modules/            # partials, nav, theme, form, hero, header-scroll, project-notice, lightbox, dom
 │   ├── app.js              # ESM entry point
 │   ├── config.js
 │   ├── theme-bootstrap.js  # separate script (IIFE) inlined by the build
@@ -550,7 +555,7 @@ The command does not replace the others: `npm run build` enforces the same shell
 npm run test:smoke
 ```
 
-The command builds `dist/`, starts the production preview, and runs ten Playwright tests against it in Chromium. The tests run on the built pages, so they exercise the same resolved shell and inlined theme bootstrap that ship to hosting. The preview host and port are pinned, and the tests never attach to a server left running from an earlier build.
+The command builds `dist/`, starts the production preview, and runs eleven Playwright tests against it in Chromium. The tests run on the built pages, so they exercise the same resolved shell and inlined theme bootstrap that ship to hosting. The preview host and port are pinned, and the tests never attach to a server left running from an earlier build.
 
 Test scope (`tests/`):
 
@@ -559,9 +564,10 @@ Test scope (`tests/`):
 - the theme: a stored dark choice applied before the first paint, plus toggling and persisting the choice across a reload,
 - the mobile navigation at a width of 390 px: opening from the button, the panel state, focus handling, and closing with `Escape`,
 - the project notice modal: a first visit and a stored acceptance,
-- the contact form: a submit with the required fields empty — the `aria-invalid` state, focus, and message of the first invalid field, and both cleared once a valid value is entered.
+- the contact form: a submit with the required fields empty — the `aria-invalid` state, focus, and message of the first invalid field, and both cleared once a valid value is entered,
+- the portfolio lightbox on `realizacje.html`: opening the first image with a mouse double-click, the title, description, and alternative text in the open dialog, the focused and accessible close button, closing with `Escape` and with the button, focus returning to the trigger, reopening with `Enter` and `Space`, and a single mouse click leaving it closed.
 
-This is a deliberately narrow smoke suite, not full E2E coverage. Of the contact form it covers only the invalid-state path above — not the other validated fields, the remaining validity types, or the submission. It also does not cover the remaining pages, the `404.html` page, responsive layout, visual regression, accessibility auditing, or any browser engine other than Chromium.
+This is a deliberately narrow smoke suite, not full E2E coverage. Of the contact form it covers only the invalid-state path above — not the other validated fields, the remaining validity types, or the submission. Of the lightbox it covers only the first portfolio card and the open and close paths listed above. It also does not cover the remaining pages, the `404.html` page, responsive layout, visual regression, accessibility auditing, or any browser engine other than Chromium.
 
 Playwright requires a one-time browser download — `npm install` does not perform it:
 
@@ -584,8 +590,10 @@ npx playwright install chromium
 - The open mobile navigation panel moves focus to the first interactive element and keeps it in a focus trap (`js/utils.js`), and closing restores focus to the button.
 - The project notice modal uses `role="dialog"`, `aria-modal="true"`, and an associated title and description (`aria-labelledby`, `aria-describedby`).
 - The open modal moves focus to the dialog container (`tabindex="-1"`) and keeps it in a focus trap (`js/utils.js`); closing via `Escape`, the accept button, or a backdrop click releases the trap and restores focus to the previously focused element when it still exists outside the modal.
+- Every portfolio image on `realizacje.html` is wrapped in a plain button whose `aria-label` names the action and the portfolio item (for example "Powiększ zdjęcie: Royal Classic"), with the image's alternative text preserved, a visible `:focus-visible` state, and a `zoom-in` cursor.
+- The lightbox is a native `dialog` opened with `showModal()`, so the browser marks it modal, keeps focus inside it, and handles `Escape` itself; the portfolio title and description are associated through `aria-labelledby` and `aria-describedby`, and closing — with `Escape`, the close button, or a backdrop click — restores focus to the image it was opened from.
 - `css/base.css` defines a shared `:focus-visible` style for links, buttons, and form fields.
-- Reduced motion is handled both in CSS (`css/base.css`, `css/components/nav.css`, `css/components/project-notice.css`) and in the hero module, which listens for `prefers-reduced-motion` changes.
+- Reduced motion is handled both in CSS (`css/base.css`, `css/components/nav.css`, `css/components/project-notice.css`, `css/components/lightbox.css`) and in the hero module, which listens for `prefers-reduced-motion` changes.
 - The contact form uses associated labels, `aria-describedby` for error messages, and an `aria-live="polite"` status region.
 - A validated field that fails validation carries `aria-invalid="true"`; the attribute is removed once the field becomes valid, together with its error message.
 - The theme toggle communicates state through `aria-pressed` and an updated `aria-label`.

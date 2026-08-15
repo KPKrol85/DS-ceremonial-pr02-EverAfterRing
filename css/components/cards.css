@@ -54,6 +54,22 @@
   height: auto;
 }
 
+/* The portfolio images open in the shared lightbox, so the image itself is wrapped in a real
+   button. `.card__image` clips its content, which would swallow the shared outward focus ring,
+   so the focused state is drawn inside the image instead. */
+.card__image-trigger {
+  display: block;
+  width: 100%;
+  padding: 0;
+  cursor: zoom-in;
+}
+
+.card__image-trigger:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -4px;
+  box-shadow: none;
+}
+
 .card--outline {
   border-color: var(--color-border-subtle);
   box-shadow: none;
