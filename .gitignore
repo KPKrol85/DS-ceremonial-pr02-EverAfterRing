@@ -24,6 +24,11 @@ node_modules/
 .eslintcache
 .stylelintcache
 
+# Local agent worktrees
+
+.claude/
+.codex/
+
 # Netlify local files
 
 .netlify/
@@ -71,5 +76,4 @@ Desktop.ini
 #
 # assets/
 # package-lock.json
-# .codex/environments/environment.toml
 # ─────────────────────────────────────────────
