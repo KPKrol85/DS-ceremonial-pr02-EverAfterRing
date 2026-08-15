@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 
-// The ten maintained top-level documents. Every one of them is a real, independent
+// The eleven maintained top-level documents. Every one of them is a real, independent
 // production input; the list is the single source of truth for the Vite MPA entries.
 export const htmlPages = [
   "index.html",
@@ -18,7 +18,8 @@ export const htmlPages = [
   "dziekujemy.html",
   "polityka-prywatnosci.html",
   "regulamin.html",
-  "cookies.html"
+  "cookies.html",
+  "404.html"
 ];
 
 // Pages that own a primary-navigation link. Only these may receive `aria-current="page"`.
