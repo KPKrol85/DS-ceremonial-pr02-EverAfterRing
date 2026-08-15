@@ -11,7 +11,7 @@
 
 The repository is coherent and well-maintained. Architecture boundaries are explicit: `css/main.css` is the single stylesheet entry point, `js/app.js` is the single application entry point with a fixed module order, `partials/` holds the only copy of the shared shell, and the build configuration in `vite.config.js` together with `scripts/html-shell.mjs` owns the production output. Documentation is unusually accurate: `README.md` describes the delivered mechanisms rather than aspirations, and the legal pages describe the two `localStorage` entries, the Netlify Forms submission path, and the embedded Google Maps frame that the code actually implements.
 
-The risk this audit identified was concentrated in client-side interaction state rather than in structure, content, or tooling, alongside two build- and repository-workflow items. All of those findings have since been delivered; the completed changes are recorded in `CHANGELOG.md` and their tasks in `PLAN.md`. No finding remains open here.
+The risk this audit identified was concentrated in client-side interaction state rather than in structure, content, or tooling, alongside two build- and repository-workflow items. All of those findings have since been delivered; the completed changes are recorded in `CHANGELOG.md` and their tasks in `docs/archive/plans/PLAN-2026-08-15.md`. No finding remains open here.
 
 ## 2. Audit scope and verification
 

@@ -98,6 +98,9 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych stron indeksowanych, w
 │   ├── layout.css
 │   ├── main.css            # jedyny punkt wejścia CSS
 │   └── tokens.css
+├── docs/
+│   └── archive/
+│       └── plans/          # zarchiwizowane ukończone plany projektu (PLAN-2026-08-15.md)
 ├── js/
 │   ├── modules/            # partials, nav, theme, form, hero, header-scroll, project-notice, dom
 │   ├── app.js              # punkt wejścia ESM
@@ -133,8 +136,7 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych stron indeksowanych, w
 ├── vite.config.js
 ├── AUDIT.md
 ├── CHANGELOG.md
-├── LICENSE
-└── PLAN.md
+└── LICENSE
 ```
 
 ### Instalacja
@@ -420,6 +422,9 @@ This address is declared as canonical in the metadata of the indexable pages, in
 │   ├── layout.css
 │   ├── main.css            # single CSS entry point
 │   └── tokens.css
+├── docs/
+│   └── archive/
+│       └── plans/          # archived completed project plans (PLAN-2026-08-15.md)
 ├── js/
 │   ├── modules/            # partials, nav, theme, form, hero, header-scroll, project-notice, dom
 │   ├── app.js              # ESM entry point
@@ -455,8 +460,7 @@ This address is declared as canonical in the metadata of the indexable pages, in
 ├── vite.config.js
 ├── AUDIT.md
 ├── CHANGELOG.md
-├── LICENSE
-└── PLAN.md
+└── LICENSE
 ```
 
 ### Installation
