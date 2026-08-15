@@ -8,7 +8,7 @@
 
 - The plan reflects the current verified repository state.
 - A main item is checked only when all required subtasks are complete and its completion condition is satisfied.
-- Canonical sources are `partials/`, `css/main.css` and its imports, `js/app.js` and its modules, and `scripts/build.mjs`; `dist/` is generated output and is never edited directly.
+- Canonical sources are `partials/`, `css/main.css` and its imports, `js/app.js` and its modules, and the build configuration in `vite.config.js` with `scripts/html-shell.mjs`; `dist/` is generated output and is never edited directly.
 - Completed significant changes are recorded separately in `CHANGELOG.md`.
 - Findings referenced as `AUDIT.md — P1-xx` / `P2-xx` were re-verified against the current source before being entered here.
 - `AUDIT.md` lists only findings that are still open; a `Source:` reference to a finding no longer listed there means the finding is resolved and the change is recorded in `CHANGELOG.md`.
@@ -143,7 +143,7 @@ The only unchecked entries left in this plan are `O-01`, `O-02` and `O-03` under
 These items sit outside the required Phase 1–4 remediation scope and were never part of it. They stay unchecked by design: none of them corrects a defect, none is required for the plan's completion, and none is scheduled.
 
 - [ ] **O-01 — Add a custom 404 page**
-  - **Value:** an unknown path lands on a page consistent with the site's own design and navigation instead of the hosting platform's default, reusing the existing partial hosts and the `htmlPages` list in `scripts/build.mjs`
+  - **Value:** an unknown path lands on a page consistent with the site's own design and navigation instead of the hosting platform's default, reusing the existing partial hosts and the `htmlPages` list in `scripts/html-shell.mjs`
   - **Scope boundary:** non-blocking; current behaviour is not a defect and hosting configuration is intentionally maintained outside this repository
   - **Source:** `AUDIT.md` — section 7
 
@@ -153,7 +153,7 @@ These items sit outside the required Phase 1–4 remediation scope and were neve
   - **Source:** `AUDIT.md` — section 7
 
 - [ ] **O-03 — Promote the build's consistency checks into a standalone check command**
-  - **Value:** the partial-host and single-`aria-current` assertions in `scripts/build.mjs` could run without writing any output, together with cheap additions such as local-reference resolution
+  - **Value:** the partial-host and single-`aria-current` assertions in `scripts/html-shell.mjs` could run without writing any output, together with cheap additions such as local-reference resolution
   - **Scope boundary:** non-blocking; reuses logic that already exists and introduces no test framework or new dependency
   - **Source:** `AUDIT.md` — section 7
   - **Depends on:** `PH1-02`

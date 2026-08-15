@@ -8,7 +8,7 @@ EverAfter Ring to statyczny, wielostronicowy serwis w języku polskim, zbudowany
 
 Projekt jest realizacją referencyjną KP_Code Digital Studio przedstawiającą przykładowy serwis dla branży ślubnej. Charakter demonstracyjny jest zakomunikowany w samym interfejsie — modal „Informacja o projekcie” w `partials/footer.html` oraz strony prawne opisują serwis jako projekt portfolio, a nie działającą firmę.
 
-Wspólny nagłówek i stopka są utrzymywane jako partiale i mają dwa tryby dostarczania: w trybie źródłowym są pobierane przez `fetch`, a w buildzie produkcyjnym wstawiane bezpośrednio do plików HTML. Wersja produkcyjna jest generowana skryptami Node do katalogu `dist/`.
+Wspólny nagłówek i stopka są utrzymywane jako partiale i mają dwa tryby dostarczania: w trybie deweloperskim są pobierane przez `fetch`, a w buildzie produkcyjnym wstawiane bezpośrednio do plików HTML. Vite jest narzędziem developmentu, builda i podglądu — nie jest frameworkiem runtime — a wersja produkcyjna jest generowana do katalogu `dist/`.
 
 ### Wersja online
 
@@ -19,10 +19,10 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych wszystkich stron, w `r
 ### Kluczowe funkcje
 
 - Wielostronicowa struktura oparta na plikach HTML w katalogu głównym, bez routingu klienckiego.
-- Wspólny `header` i `footer` z `partials/`, z automatycznym oznaczaniem aktywnej strony przez `aria-current="page"` — w trybie źródłowym na podstawie `window.location`, a w buildzie na podstawie nazwy pliku.
+- Wspólny `header` i `footer` z `partials/`, z automatycznym oznaczaniem aktywnej strony przez `aria-current="page"` — w trybie deweloperskim na podstawie `window.location`, a w buildzie produkcyjnym na podstawie nazwy pliku.
 - Nawigacja mobilna poniżej progu 1024 px: `aria-expanded`, `aria-controls`, pułapka fokusa, zamykanie klawiszem `Escape`, kliknięciem linku i przy zmianie szerokości okna.
 - Przełącznik motywu jasnego i ciemnego zapisywany w `localStorage` pod kluczem `everafterring-theme`, z synchronizacją między kartami przez zdarzenie `storage` i aktualizacją `meta[name="theme-color"]`.
-- Osobny skrypt `js/theme-bootstrap.js` ładowany synchronicznie w `<head>` przed arkuszem stylów, ustawiający `data-theme` na `<html>`; przy braku zapisanego wyboru bierze pod uwagę `prefers-color-scheme`.
+- Osobny skrypt `js/theme-bootstrap.js` ładowany synchronicznie w `<head>` przed arkuszem stylów, ustawiający `data-theme` na `<html>`; przy braku zapisanego wyboru bierze pod uwagę `prefers-color-scheme`. W buildzie produkcyjnym jest minifikowany i wstawiany w to samo miejsce jako skrypt inline, żeby pozostał synchroniczny i wykonał się przed pierwszym malowaniem.
 - Formularz kontaktowy z walidacją po stronie klienta (`novalidate`, komunikaty per pole, fokus na pierwszym niepoprawnym polu) oraz statusem `aria-live="polite"`; wysyłka jest obsługiwana przez Netlify Forms z honeypotem i przekierowaniem na `dziekujemy.html`.
 - Modal informacji o projekcie (`role="dialog"`, `aria-modal="true"`) z zapisem akceptacji w `localStorage` pod kluczem `everafterringProjectNoticeAccepted` i przywróceniem wcześniejszego fokusa.
 - Zmiana stanu nagłówka przy przewijaniu z histerezą (klasa dodawana powyżej 96 px, usuwana poniżej 48 px), aktualizowana w `requestAnimationFrame`.
@@ -41,14 +41,17 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych wszystkich stron, w `r
 **Build tooling**
 
 - Node.js i npm
-- `esbuild` `^0.28.0`
-- `lightningcss` `^1.32.0`
-- `sharp` `^0.34.5`
-- własne skrypty `scripts/build.mjs` i `scripts/optimize-images.mjs`
+- `vite` `^8.2.1` — serwer deweloperski, build produkcyjny i podgląd builda
+- `sharp` `^0.34.5` — generowanie wariantów obrazów
+- `vite.config.js` — konfiguracja MPA oraz wtyczki builda specyficzne dla projektu
+- własne skrypty `scripts/html-shell.mjs` i `scripts/optimize-images.mjs`
 
-**Podgląd lokalny**
+`vite` i `sharp` to jedyne bezpośrednie zależności projektu; obie są zależnościami deweloperskimi.
 
-- `python -m http.server` uruchamiany przez `start-local-preview.bat`
+**Development i podgląd lokalny**
+
+- serwer deweloperski Vite na porcie 8181 (`npm run dev`, uruchamiany też przez `start-local-preview.bat`)
+- podgląd zbudowanego katalogu `dist/` na porcie 8182 (`npm run preview`)
 
 **Assety i metadane**
 
@@ -66,12 +69,13 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych wszystkich stron, w `r
 ### Architektura
 
 - **Strony** — każda strona to samodzielny plik HTML w katalogu głównym z pełnym zestawem metadanych i własną treścią; `main` jest celem linku pomijającego `#main`.
-- **Partiale** — `header` i `footer` to hosty z atrybutami `data-partial` i `data-partial-src`. `js/modules/partials.js` pobiera je przez `fetch` i oznacza aktywny link, a `scripts/build.mjs` zastępuje te hosty gotowym markupem podczas builda. Oznacza to, że tryb źródłowy wymaga serwera HTTP.
+- **Partiale** — `header` i `footer` to hosty z atrybutami `data-partial` i `data-partial-src`. W trybie deweloperskim `js/modules/partials.js` pobiera je przez `fetch` i oznacza aktywny link, a serwer Vite wydaje pliki z `partials/` w niezmienionej postaci, bez traktowania ich jak samodzielnych stron. W buildzie produkcyjnym `scripts/html-shell.mjs` zastępuje te hosty gotowym markupem i statycznie ustawia `aria-current="page"`. Oznacza to, że tryb deweloperski wymaga serwera HTTP.
 - **CSS** — `css/main.css` jest jedynym punktem wejścia i importuje kolejno tokeny, fonty, bazę, layout, komponenty i sekcje. Wartości motywu są zdefiniowane jako właściwości custom w `css/tokens.css`, a wariant ciemny jako `:root[data-theme="dark"]`.
 - **JavaScript** — `js/app.js` jest punktem wejścia i po `DOMContentLoaded` uruchamia moduły w ustalonej kolejności: partiale, motyw, nagłówek, nawigacja, formularz, hero, modal projektu. Wspólne selektory są w `js/config.js`, pomocnicze funkcje DOM i pułapka fokusa w `js/utils.js`, a logika interakcji w `js/modules/`.
-- **Dwa punkty wejścia JS** — `js/app.js` bundlowany jako ESM oraz `js/theme-bootstrap.js` bundlowany jako IIFE, ponieważ musi wykonać się synchronicznie przed renderowaniem stylów.
+- **Dwa punkty wejścia JS** — `js/app.js` jest modułem ES bundlowanym przez Vite, a `js/theme-bootstrap.js` pozostaje osobnym plikiem poza bundlem: w trybie deweloperskim jest ładowany jako klasyczny skrypt, a w buildzie minifikowany i wstawiany inline w to samo miejsce, ponieważ musi wykonać się synchronicznie przed renderowaniem stylów.
 - **Obrazy** — pliki źródłowe znajdują się w `assets/img-src/`, a warianty generowane przez `scripts/optimize-images.mjs` w `assets/img/`. W markupie używany jest element `picture` z kolejnością AVIF, WebP i JPG.
-- **Build** — `scripts/build.mjs` generuje katalog `dist/`, który jest wykluczony z repozytorium przez `.gitignore` i nie powinien być edytowany ręcznie.
+- **Build** — `vite.config.js` deklaruje dziesięć wejść HTML (`appType: "mpa"`), wtyczkę wspólnego shellu opartą o `scripts/html-shell.mjs` oraz kopiowanie plików statycznych z pominięciem `assets/img-src/`. Build generuje katalog `dist/`, który jest wykluczony z repozytorium przez `.gitignore` i nie powinien być edytowany ręcznie.
+- **Nazwy plików wynikowych** — bundlowany CSS i JavaScript trafiają do `dist/css/` i `dist/js/` z hashem treści w nazwie, natomiast pliki z `assets/` są kopiowane pod swoimi oryginalnymi ścieżkami, ponieważ odwołują się do nich `site.webmanifest`, bezwzględne adresy w metadanych i wygenerowane `srcset`.
 
 ### Struktura projektu
 
@@ -96,13 +100,13 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych wszystkich stron, w `r
 │   ├── modules/            # partials, nav, theme, form, hero, header-scroll, project-notice, dom
 │   ├── app.js              # punkt wejścia ESM
 │   ├── config.js
-│   ├── theme-bootstrap.js  # osobny punkt wejścia (IIFE)
+│   ├── theme-bootstrap.js  # osobny skrypt (IIFE) wstawiany inline w buildzie
 │   └── utils.js
 ├── partials/
 │   ├── footer.html         # stopka i modal informacji o projekcie
 │   └── header.html         # nagłówek, nawigacja, przełącznik motywu
 ├── scripts/
-│   ├── build.mjs           # clean, css, js, html, assets, build
+│   ├── html-shell.mjs      # wspólny shell, walidacja nawigacji, inline theme bootstrap
 │   └── optimize-images.mjs
 ├── index.html
 ├── oferta.html
@@ -118,6 +122,7 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych wszystkich stron, w `r
 ├── sitemap.xml
 ├── start-local-preview.bat
 ├── package.json
+├── vite.config.js
 ├── AUDIT.md
 ├── CHANGELOG.md
 ├── LICENSE
@@ -126,7 +131,7 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych wszystkich stron, w `r
 
 ### Instalacja
 
-Zależności są potrzebne wyłącznie do builda produkcyjnego i optymalizacji obrazów. Serwis w trybie źródłowym działa bez nich.
+Zależności są potrzebne do uruchomienia serwera deweloperskiego, builda produkcyjnego, podglądu builda i optymalizacji obrazów.
 
 ```bash
 npm install
@@ -143,22 +148,21 @@ start-local-preview.bat
 Skrypt uruchamia w katalogu projektu:
 
 ```bash
-python -m http.server 8181
+npm run dev
 ```
 
 Podgląd jest dostępny pod adresem `http://localhost:8181/`. Serwer HTTP jest wymagany, ponieważ moduły ES i partiale pobierane przez `fetch` nie działają przy otwarciu plików przez `file://`.
+
+W trybie deweloperskim strony są serwowane ze źródeł: partiale są pobierane przez `fetch`, a `js/theme-bootstrap.js` ładuje się jako osobny synchroniczny skrypt. Obie te rzeczy są rozwiązywane statycznie dopiero w buildzie produkcyjnym.
 
 ### Dostępne skrypty
 
 | Skrypt | Działanie |
 | --- | --- |
-| `npm run clean` | Usuwa katalog `dist/`. |
-| `npm run optimize:images` | Generuje warianty obrazów z `assets/img-src/` do `assets/img/`. |
-| `npm run build:css` | Bundluje i minifikuje `css/main.css` do `dist/css/main.min.css`. |
-| `npm run build:js` | Bundluje i minifikuje `js/app.js` oraz `js/theme-bootstrap.js` do `dist/js/`. |
-| `npm run build:html` | Wstawia partiale i podmienia odwołania do plików produkcyjnych. |
-| `npm run build:assets` | Kopiuje `assets/` (bez `img-src/`), `robots.txt` i `sitemap.xml` do `dist/`. |
+| `npm run dev` | Uruchamia serwer deweloperski Vite na porcie 8181. |
 | `npm run build` | Buduje wersję produkcyjną do `dist/`. Nie generuje obrazów. |
+| `npm run preview` | Serwuje zbudowany katalog `dist/` na porcie 8182. |
+| `npm run optimize:images` | Generuje warianty obrazów z `assets/img-src/` do `assets/img/`. |
 
 ### Build produkcyjny
 
@@ -168,15 +172,22 @@ npm run build
 
 Przebieg pełnego builda:
 
-1. Usunięcie katalogu `dist/`.
-2. Bundlowanie i minifikacja CSS do `dist/css/main.min.css`.
-3. Bundlowanie i minifikacja JavaScriptu do `dist/js/app.min.js` (ESM) oraz `dist/js/theme-bootstrap.min.js` (IIFE).
-4. Wstawienie partiali do dziesięciu stron HTML i podmiana odwołań `css/main.css`, `js/app.js` i `js/theme-bootstrap.js` na pliki `.min`.
-5. Skopiowanie assetów oraz `robots.txt` i `sitemap.xml` do `dist/`.
+1. Wyczyszczenie katalogu `dist/`.
+2. Transformacja dziesięciu stron HTML: wstawienie partiali, statyczne ustawienie `aria-current="page"` na aktywnym linku nawigacji głównej oraz zastąpienie tagu `js/theme-bootstrap.js` zminifikowanym skryptem inline.
+3. Bundlowanie i minifikacja CSS oraz JavaScriptu do `dist/css/` i `dist/js/`, z hashem treści w nazwach plików.
+4. Skopiowanie katalogu `assets/` bez `assets/img-src/` oraz plików `robots.txt` i `sitemap.xml` do `dist/`.
 
-Etap HTML zawiera własne kontrole spójności i przerywa build błędem, gdy w pliku źródłowym brakuje hosta partiala lub gdy na stronie należącej do nawigacji głównej nie ma dokładnie jednego linku `nav__link` z `aria-current="page"`.
+Transformacja HTML zawiera własne kontrole spójności i przerywa build błędem, gdy transformowany plik nie należy do listy `htmlPages`, gdy w pliku źródłowym brakuje hosta partiala lub tagu synchronicznego theme bootstrapu, albo gdy na stronie należącej do nawigacji głównej nie ma dokładnie jednego linku `nav__link` z `aria-current="page"`.
 
 Generowanie obrazów nie jest częścią builda. `npm run build` nie modyfikuje wersjonowanych plików w `assets/img/` — warianty obrazów powstają wyłącznie po jawnym uruchomieniu `npm run optimize:images`.
+
+Zbudowany katalog można sprawdzić lokalnie:
+
+```bash
+npm run preview
+```
+
+Podgląd serwuje `dist/` pod adresem `http://localhost:8182/`.
 
 ### Wdrożenie
 
@@ -218,7 +229,7 @@ Zakres nie obejmuje formalnego audytu zgodności — powyższe punkty opisują z
 
 ### Wydajność
 
-- Build produkcyjny minifikuje CSS (`lightningcss`) i JavaScript (`esbuild`).
+- Build produkcyjny (Vite) bundluje i minifikuje CSS oraz JavaScript, a pliki wynikowe otrzymują w nazwie hash treści. `js/theme-bootstrap.js` jest minifikowany i wstawiany inline, więc nie wymaga osobnego żądania przed pierwszym malowaniem.
 - Obrazy są dostarczane przez element `picture` z wariantami AVIF i WebP oraz fallbackiem JPG; `srcset` i `sizes` są zdefiniowane dla każdego wariantu.
 - Obrazy mają jawne atrybuty `width` i `height` oraz `decoding="async"`; obrazy poza pierwszym widokiem używają `loading="lazy"`.
 - `scripts/optimize-images.mjs` zapisuje JPG z `quality: 82` i `mozjpeg`, WebP z `quality: 80` oraz AVIF z `quality: 50`, bez powiększania obrazów źródłowych.
@@ -238,7 +249,7 @@ Repozytorium nie zawiera wyników pomiarów wydajności, dlatego powyższe punkt
 
 - Treść stron edytuje się w plikach HTML w katalogu głównym.
 - Zmiany w nagłówku, nawigacji, stopce lub modalu projektu należy wprowadzać w `partials/header.html` i `partials/footer.html`, nigdy w poszczególnych stronach.
-- Nowa strona wymaga dodania wpisu w tablicy `htmlPages` w `scripts/build.mjs`, a strona należąca do nawigacji głównej dodatkowo w `primaryNavPages` oraz w `partials/header.html`; adresy publiczne dodaje się do `sitemap.xml`.
+- Nowa strona wymaga dodania wpisu w tablicy `htmlPages` w `scripts/html-shell.mjs` — ta sama lista definiuje wejścia MPA w `vite.config.js` — a strona należąca do nawigacji głównej dodatkowo w `primaryNavPages` oraz w `partials/header.html`; adresy publiczne dodaje się do `sitemap.xml`.
 - Nowy plik CSS wymaga zarejestrowania importu w `css/main.css`, a nowy moduł JS — wywołania w `js/app.js`.
 - Selektory współdzielone między modułami są zdefiniowane w `js/config.js`.
 - Nowe obrazy dodaje się do `assets/img-src/` i generuje komendą `npm run optimize:images`; katalog `assets/img/` zawiera pliki wygenerowane, ale wersjonowane w repozytorium.
@@ -263,7 +274,7 @@ EverAfter Ring is a static, multi-page website in Polish, built with HTML, CSS, 
 
 The project is a KP_Code Digital Studio reference build that demonstrates a website for the wedding industry. Its demonstration character is stated in the interface itself — the "Informacja o projekcie" modal in `partials/footer.html` and the legal pages describe the site as a portfolio project rather than an operating business.
 
-The shared header and footer are maintained as partials with two delivery modes: they are fetched at runtime in source mode and inlined into the HTML files during the production build. The production version is generated by Node scripts into `dist/`.
+The shared header and footer are maintained as partials with two delivery modes: they are fetched at runtime in development and inlined into the HTML files during the production build. Vite is the development, build, and preview tool — not a runtime framework — and the production version is generated into `dist/`.
 
 ### Live Version
 
@@ -274,10 +285,10 @@ This address is declared as canonical in the metadata of every page, in `robots.
 ### Key Features
 
 - Multi-page structure based on top-level HTML files, without client-side routing.
-- Shared `header` and `footer` from `partials/`, with the active page marked by `aria-current="page"` — derived from `window.location` in source mode and from the file name during the build.
+- Shared `header` and `footer` from `partials/`, with the active page marked by `aria-current="page"` — derived from `window.location` in development and from the file name during the production build.
 - Mobile navigation below the 1024 px threshold: `aria-expanded`, `aria-controls`, focus trap, and closing via `Escape`, a link click, or a window resize.
 - Light/dark theme toggle persisted in `localStorage` under the `everafterring-theme` key, synchronized across tabs through the `storage` event and reflected in `meta[name="theme-color"]`.
-- A separate `js/theme-bootstrap.js` script loaded synchronously in `<head>` before the stylesheet, setting `data-theme` on `<html>`; with no stored choice it falls back to `prefers-color-scheme`.
+- A separate `js/theme-bootstrap.js` script loaded synchronously in `<head>` before the stylesheet, setting `data-theme` on `<html>`; with no stored choice it falls back to `prefers-color-scheme`. The production build minifies it and inlines it in the same position, so it stays synchronous and runs before the first paint.
 - Contact form with client-side validation (`novalidate`, per-field messages, focus on the first invalid field) and an `aria-live="polite"` status region; submission is handled by Netlify Forms with a honeypot and a redirect to `dziekujemy.html`.
 - Project notice modal (`role="dialog"`, `aria-modal="true"`) with acceptance stored in `localStorage` under the `everafterringProjectNoticeAccepted` key and previous focus restored.
 - Header scroll state with hysteresis (class added above 96 px, removed below 48 px), updated inside `requestAnimationFrame`.
@@ -296,14 +307,17 @@ This address is declared as canonical in the metadata of every page, in `robots.
 **Build tooling**
 
 - Node.js and npm
-- `esbuild` `^0.28.0`
-- `lightningcss` `^1.32.0`
-- `sharp` `^0.34.5`
-- custom scripts in `scripts/build.mjs` and `scripts/optimize-images.mjs`
+- `vite` `^8.2.1` — development server, production build, and build preview
+- `sharp` `^0.34.5` — image variant generation
+- `vite.config.js` — MPA configuration and the project-specific build plugins
+- custom scripts in `scripts/html-shell.mjs` and `scripts/optimize-images.mjs`
 
-**Local preview**
+`vite` and `sharp` are the project's only direct dependencies; both are development dependencies.
 
-- `python -m http.server` started through `start-local-preview.bat`
+**Local development and preview**
+
+- Vite development server on port 8181 (`npm run dev`, also started through `start-local-preview.bat`)
+- preview of the built `dist/` directory on port 8182 (`npm run preview`)
 
 **Assets and metadata**
 
@@ -321,12 +335,13 @@ This address is declared as canonical in the metadata of every page, in `robots.
 ### Architecture
 
 - **Pages** — each page is a standalone HTML file at the repository root with a full metadata set and its own content; `main` is the target of the `#main` skip link.
-- **Partials** — `header` and `footer` are host elements carrying `data-partial` and `data-partial-src`. `js/modules/partials.js` fetches them and marks the active link, while `scripts/build.mjs` replaces those hosts with the resolved markup during the build. Source mode therefore requires an HTTP server.
+- **Partials** — `header` and `footer` are host elements carrying `data-partial` and `data-partial-src`. In development, `js/modules/partials.js` fetches them and marks the active link, and the Vite server serves the files under `partials/` verbatim instead of treating them as standalone entries. In the production build, `scripts/html-shell.mjs` replaces those hosts with the resolved markup and sets `aria-current="page"` statically. Development therefore requires an HTTP server.
 - **CSS** — `css/main.css` is the single entry point and imports tokens, fonts, base, layout, components, and sections in order. Theme values are defined as custom properties in `css/tokens.css`, with the dark variant under `:root[data-theme="dark"]`.
 - **JavaScript** — `js/app.js` is the entry point and, after `DOMContentLoaded`, runs the modules in a fixed order: partials, theme, header, navigation, form, hero, project notice. Shared selectors live in `js/config.js`, DOM helpers and the focus trap in `js/utils.js`, and interaction logic in `js/modules/`.
-- **Two JS entry points** — `js/app.js` is bundled as ESM and `js/theme-bootstrap.js` as an IIFE, because it must run synchronously before styles render.
+- **Two JS entry points** — `js/app.js` is an ES module bundled by Vite, while `js/theme-bootstrap.js` stays a separate file outside the bundle: development loads it as a classic script, and the build minifies it and inlines it in the same position, because it must run synchronously before styles render.
 - **Images** — source files live in `assets/img-src/`, and the variants generated by `scripts/optimize-images.mjs` in `assets/img/`. The markup uses the `picture` element with AVIF, WebP, and JPG in that order.
-- **Build** — `scripts/build.mjs` generates the `dist/` directory, which is excluded from the repository by `.gitignore` and should not be edited manually.
+- **Build** — `vite.config.js` declares the ten HTML entries (`appType: "mpa"`), the shared-shell plugin backed by `scripts/html-shell.mjs`, and the static asset copy that excludes `assets/img-src/`. The build generates the `dist/` directory, which is excluded from the repository by `.gitignore` and should not be edited manually.
+- **Output file names** — bundled CSS and JavaScript land in `dist/css/` and `dist/js/` with a content hash in the file name, while files under `assets/` are copied at their authored paths, because `site.webmanifest`, the absolute URLs in the metadata, and the generated `srcset` values all reference them there.
 
 ### Project Structure
 
@@ -351,13 +366,13 @@ This address is declared as canonical in the metadata of every page, in `robots.
 │   ├── modules/            # partials, nav, theme, form, hero, header-scroll, project-notice, dom
 │   ├── app.js              # ESM entry point
 │   ├── config.js
-│   ├── theme-bootstrap.js  # separate entry point (IIFE)
+│   ├── theme-bootstrap.js  # separate script (IIFE) inlined by the build
 │   └── utils.js
 ├── partials/
 │   ├── footer.html         # footer and project notice modal
 │   └── header.html         # header, navigation, theme toggle
 ├── scripts/
-│   ├── build.mjs           # clean, css, js, html, assets, build
+│   ├── html-shell.mjs      # shared shell, navigation validation, theme bootstrap inlining
 │   └── optimize-images.mjs
 ├── index.html
 ├── oferta.html
@@ -373,6 +388,7 @@ This address is declared as canonical in the metadata of every page, in `robots.
 ├── sitemap.xml
 ├── start-local-preview.bat
 ├── package.json
+├── vite.config.js
 ├── AUDIT.md
 ├── CHANGELOG.md
 ├── LICENSE
@@ -381,7 +397,7 @@ This address is declared as canonical in the metadata of every page, in `robots.
 
 ### Installation
 
-Dependencies are required only for the production build and image optimization. The site runs in source mode without them.
+Dependencies are required to run the development server, the production build, the build preview, and image optimization.
 
 ```bash
 npm install
@@ -398,22 +414,21 @@ start-local-preview.bat
 The script runs, in the project directory:
 
 ```bash
-python -m http.server 8181
+npm run dev
 ```
 
 The preview is available at `http://localhost:8181/`. An HTTP server is required because ES modules and partials fetched at runtime do not work when files are opened over `file://`.
+
+In development the pages are served from source: the partials are fetched at runtime and `js/theme-bootstrap.js` loads as a separate synchronous script. Both are resolved statically only in the production build.
 
 ### Available Scripts
 
 | Script | Behavior |
 | --- | --- |
-| `npm run clean` | Removes the `dist/` directory. |
-| `npm run optimize:images` | Generates image variants from `assets/img-src/` into `assets/img/`. |
-| `npm run build:css` | Bundles and minifies `css/main.css` into `dist/css/main.min.css`. |
-| `npm run build:js` | Bundles and minifies `js/app.js` and `js/theme-bootstrap.js` into `dist/js/`. |
-| `npm run build:html` | Inlines the partials and switches references to the production files. |
-| `npm run build:assets` | Copies `assets/` (excluding `img-src/`), `robots.txt`, and `sitemap.xml` into `dist/`. |
+| `npm run dev` | Starts the Vite development server on port 8181. |
 | `npm run build` | Builds the production version into `dist/`. Does not generate images. |
+| `npm run preview` | Serves the built `dist/` directory on port 8182. |
+| `npm run optimize:images` | Generates image variants from `assets/img-src/` into `assets/img/`. |
 
 ### Production Build
 
@@ -423,15 +438,22 @@ npm run build
 
 Full build sequence:
 
-1. Removing the `dist/` directory.
-2. Bundling and minifying CSS into `dist/css/main.min.css`.
-3. Bundling and minifying JavaScript into `dist/js/app.min.js` (ESM) and `dist/js/theme-bootstrap.min.js` (IIFE).
-4. Inlining the partials into the ten HTML pages and rewriting `css/main.css`, `js/app.js`, and `js/theme-bootstrap.js` references to the `.min` files.
-5. Copying the assets plus `robots.txt` and `sitemap.xml` into `dist/`.
+1. Emptying the `dist/` directory.
+2. Transforming the ten HTML pages: inlining the partials, setting `aria-current="page"` statically on the active primary-navigation link, and replacing the `js/theme-bootstrap.js` tag with a minified inline script.
+3. Bundling and minifying CSS and JavaScript into `dist/css/` and `dist/js/`, with a content hash in the file names.
+4. Copying the `assets/` directory without `assets/img-src/`, plus `robots.txt` and `sitemap.xml`, into `dist/`.
 
-The HTML stage includes its own consistency checks and fails the build when a partial host is missing from a source file, or when a page belonging to the primary navigation does not contain exactly one `nav__link` with `aria-current="page"`.
+The HTML transformation includes its own consistency checks and fails the build when a transformed file is not part of the `htmlPages` list, when a partial host or the synchronous theme bootstrap tag is missing from a source file, or when a page belonging to the primary navigation does not contain exactly one `nav__link` with `aria-current="page"`.
 
 Image generation is not part of the build. `npm run build` does not modify version-controlled files in `assets/img/` — image variants are produced only by explicitly running `npm run optimize:images`.
+
+The built directory can be checked locally:
+
+```bash
+npm run preview
+```
+
+The preview serves `dist/` at `http://localhost:8182/`.
 
 ### Deployment
 
@@ -473,7 +495,7 @@ A formal conformance audit is out of scope — the points above describe impleme
 
 ### Performance
 
-- The production build minifies CSS (`lightningcss`) and JavaScript (`esbuild`).
+- The production build (Vite) bundles and minifies CSS and JavaScript, and the emitted files carry a content hash in their names. `js/theme-bootstrap.js` is minified and inlined, so it costs no separate request before the first paint.
 - Images are delivered through the `picture` element with AVIF and WebP variants and a JPG fallback; `srcset` and `sizes` are defined for every variant.
 - Images carry explicit `width` and `height` attributes and `decoding="async"`; images below the first viewport use `loading="lazy"`.
 - `scripts/optimize-images.mjs` writes JPG at `quality: 82` with `mozjpeg`, WebP at `quality: 80`, and AVIF at `quality: 50`, without enlarging source images.
@@ -493,7 +515,7 @@ The repository contains no performance measurements, so the points above describ
 
 - Page content is edited in the HTML files at the repository root.
 - Changes to the header, navigation, footer, or project notice modal belong in `partials/header.html` and `partials/footer.html`, never in individual pages.
-- A new page requires an entry in the `htmlPages` array in `scripts/build.mjs`; a page belonging to the primary navigation additionally requires entries in `primaryNavPages` and in `partials/header.html`, and public URLs are added to `sitemap.xml`.
+- A new page requires an entry in the `htmlPages` array in `scripts/html-shell.mjs` — the same list defines the MPA entries in `vite.config.js`; a page belonging to the primary navigation additionally requires entries in `primaryNavPages` and in `partials/header.html`, and public URLs are added to `sitemap.xml`.
 - A new CSS file requires an import registered in `css/main.css`, and a new JS module requires a call in `js/app.js`.
 - Selectors shared between modules are defined in `js/config.js`.
 - New images are added to `assets/img-src/` and generated with `npm run optimize:images`; `assets/img/` holds generated files that are nevertheless version-controlled.

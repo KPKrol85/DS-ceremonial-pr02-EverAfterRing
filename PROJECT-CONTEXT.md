@@ -12,7 +12,9 @@ Use it together with the current repository state and the dedicated project docu
 - Repository: `KPKrol85/DS-ceremonial-pr02-EverAfterRing`
 - Type: static multi-page website
 - Runtime: HTML, CSS, Vanilla JavaScript ES modules
-- Build tooling: Node.js / npm
+- Build tooling: Vite on Node.js / npm (development, production build, preview)
+- Project-specific build logic: `vite.config.js` and `scripts/html-shell.mjs`
+- Image generation: `scripts/optimize-images.mjs` with `sharp`, run explicitly and separately from the build
 - Production output: `dist/`
 - No runtime framework
 - No backend
@@ -159,7 +161,9 @@ Do not treat the portfolio copy as the canonical development repository.
 
 ## Migration Decisions
 
-Do not migrate the project to Vite, TypeScript, another framework, or another build architecture unless the user explicitly approves that migration.
+The migration of the build tooling to Vite was explicitly approved and is implemented. Vite is build and development tooling only: the runtime stays HTML, CSS, and Vanilla JavaScript ES modules with no runtime framework.
+
+Do not migrate the project to TypeScript, a runtime framework, or another build architecture unless the user explicitly approves that migration.
 
 A request to analyse a possible migration is analysis only until implementation is explicitly approved.
 

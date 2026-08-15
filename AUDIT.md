@@ -8,7 +8,7 @@
 
 ## 1. Executive assessment
 
-The repository is coherent and well-maintained. Architecture boundaries are explicit: `css/main.css` is the single stylesheet entry point, `js/app.js` is the single application entry point with a fixed module order, `partials/` holds the only copy of the shared shell, and `scripts/build.mjs` owns the production output. Documentation is unusually accurate: `README.md` describes the delivered mechanisms rather than aspirations, and the legal pages describe the two `localStorage` entries, the Netlify Forms submission path, and the embedded Google Maps frame that the code actually implements.
+The repository is coherent and well-maintained. Architecture boundaries are explicit: `css/main.css` is the single stylesheet entry point, `js/app.js` is the single application entry point with a fixed module order, `partials/` holds the only copy of the shared shell, and the build configuration in `vite.config.js` together with `scripts/html-shell.mjs` owns the production output. Documentation is unusually accurate: `README.md` describes the delivered mechanisms rather than aspirations, and the legal pages describe the two `localStorage` entries, the Netlify Forms submission path, and the embedded Google Maps frame that the code actually implements.
 
 The risk this audit identified was concentrated in client-side interaction state rather than in structure, content, or tooling, alongside two build- and repository-workflow items. All of those findings have since been delivered; the completed changes are recorded in `CHANGELOG.md` and their tasks in `PLAN.md`. No finding remains open here.
 
@@ -50,7 +50,7 @@ The risk this audit identified was concentrated in client-side interaction state
 ## 3. Verified strengths
 
 - Single, unambiguous source of truth per concern: `css/main.css` is the only stylesheet entry (`css/main.css:1-16`), `js/app.js` is the only application entry with an explicit module order (`js/app.js:9-16`), and `partials/` holds the only copy of the header, footer, and project notice.
-- The build enforces its own contracts instead of assuming them: `scripts/build.mjs:119-133` fails the build if a partial host is missing, and `scripts/build.mjs:105-117` fails it if a primary-navigation page does not end up with exactly one `nav__link` carrying `aria-current="page"`.
+- The build enforces its own contracts instead of assuming them: `scripts/html-shell.mjs:85-99` fails the build if a partial host is missing, and `scripts/html-shell.mjs:71-83` fails it if a primary-navigation page does not end up with exactly one `nav__link` carrying `aria-current="page"`.
 - Reference integrity is complete — all 322 local references resolve, with no duplicate IDs and no dangling ARIA or label targets across all 10 pages with partials injected.
 - Metadata is consistent across every page: each has its own `title`, `description`, `canonical`, full Open Graph set with image dimensions and alt text, Twitter Card, and two JSON-LD blocks, all parsing cleanly.
 - Image delivery is coherent: `<picture>` with AVIF/WebP/JPG, matching `srcset`/`sizes`, explicit `width`/`height` matching the real files, `decoding="async"`, and `loading="lazy"` on below-the-fold images only.
@@ -59,7 +59,7 @@ The risk this audit identified was concentrated in client-side interaction state
 - Colour tokens hold up under measurement: body text 14.30:1, muted body copy 4.48–5.47:1, accent 7.24:1, primary button 7.73:1, footer text 9.18:1, and the dark theme 8.90–16.24:1 across the pairs checked.
 - Legal documentation matches the implementation rather than a template: `cookies.html` lists exactly the two `localStorage` keys the code writes and explicitly states that no service worker, `sessionStorage`, or Cache Storage is used, which is correct for this repository; `polityka-prywatnosci.html` describes the Netlify Forms path and the Google Maps frame that `kontakt.html` actually contains.
 - Repository hygiene in shipped source is clean: no `TODO`/`FIXME`/`debugger`/`console.log` outside the build scripts' intended output, and `.gitignore` documents which generated paths are intentionally tracked.
-- Asset ownership is complete: every file under `assets/` outside `img-src/` resolves from source, so `scripts/build.mjs:153-166` copies no file the site does not use, and each icon set has exactly one authoritative copy — inline in `partials/header.html` and `partials/footer.html`.
+- Asset ownership is complete: every file under `assets/` outside `img-src/` resolves from source, so `vite.config.js:55-78` copies no file the site does not use, and each icon set has exactly one authoritative copy — inline in `partials/header.html` and `partials/footer.html`.
 
 ## 4. P0 — Critical risks
 
@@ -78,7 +78,7 @@ None open. Resolved findings are recorded in `CHANGELOG.md`.
 ### Add a custom 404 page
 
 - **Relevant area:** Routing and shared shell.
-- **Current evidence:** The repository contains ten pages and no `404.html`; `scripts/build.mjs:12-23` lists every page explicitly, and the shared shell is already available to any new page through the partial hosts.
+- **Current evidence:** The repository contains ten pages and no `404.html`; `scripts/html-shell.mjs:11-22` lists every page explicitly, and the shared shell is already available to any new page through the partial hosts.
 - **Potential value:** An unknown path would land on a page consistent with the site's own design and navigation instead of the hosting platform's default, using infrastructure that already exists.
 - **Scope boundary:** Optional. The current behaviour is not a defect, and hosting configuration is intentionally maintained outside this repository.
 
@@ -91,7 +91,7 @@ None open. Resolved findings are recorded in `CHANGELOG.md`.
 
 ### Promote the build's existing consistency checks into a standalone check command
 
-- **Relevant area:** Verification tooling (`scripts/build.mjs:105-117`, `scripts/build.mjs:119-133`, `package.json` scripts).
+- **Relevant area:** Verification tooling (`scripts/html-shell.mjs:71-83`, `scripts/html-shell.mjs:85-99`, `package.json` scripts).
 - **Current evidence:** The build already asserts partial-host presence and single-`aria-current` correctness, but those assertions can only run as part of a build that produces `dist/`. The repository has no command that validates the pages without producing output.
 - **Potential value:** The same guarantees plus cheap additions such as local-reference resolution could be run routinely and quickly, without writing any files — the checks this audit performed ad hoc would become repeatable.
 - **Scope boundary:** Optional. This proposes reusing logic that already exists rather than introducing a test framework or new dependencies.
