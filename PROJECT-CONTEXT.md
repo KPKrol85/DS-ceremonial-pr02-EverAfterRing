@@ -15,6 +15,7 @@ Use it together with the current repository state and the dedicated project docu
 - Build tooling: Vite on Node.js / npm (development, production build, preview)
 - Project-specific build logic: `vite.config.js` and `scripts/html-shell.mjs`
 - Image generation: `scripts/optimize-images.mjs` with `sharp`, run explicitly and separately from the build
+- Testing: `@playwright/test` Chromium smoke suite in `tests/`, configured by `playwright.config.js` and run with `npm run test:smoke` against the production preview; a smoke baseline, not full end-to-end coverage
 - Production output: `dist/`
 - No runtime framework
 - No backend

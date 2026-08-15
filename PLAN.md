@@ -1,6 +1,6 @@
 # EverAfter Ring — Development Plan
 
-**Last reviewed:** 2026-08-13
+**Last reviewed:** 2026-08-15
 **Project type:** Static multi-page website in Polish (HTML, CSS, Vanilla JavaScript ES modules) with a Node-based production build into `dist/`; no runtime dependencies, no backend
 **Plan status:** Required scope complete — only optional items remain
 
@@ -17,7 +17,7 @@
 
 All required work in Phases 1–4 is complete; no required item remains open, and `AUDIT.md` lists no open `P0`, `P1` or `P2` finding.
 
-The only unchecked entries left in this plan are `O-01`, `O-02` and `O-03` under "Optional future improvements". They are non-blocking refinements rather than outstanding remediation work, and none of them is scheduled.
+`O-01` has since been delivered. The only unchecked entries left in this plan are `O-02` and `O-03` under "Optional future improvements". They are non-blocking refinements rather than outstanding remediation work, and neither is scheduled.
 
 ## Phase 1 — Verifiable repository and build baseline
 
@@ -140,12 +140,13 @@ The only unchecked entries left in this plan are `O-01`, `O-02` and `O-03` under
 
 ## Optional future improvements
 
-These items sit outside the required Phase 1–4 remediation scope and were never part of it. They stay unchecked by design: none of them corrects a defect, none is required for the plan's completion, and none is scheduled.
+These items sit outside the required Phase 1–4 remediation scope and were never part of it. None of them corrects a defect and none is required for the plan's completion, so an entry left unchecked here is a refinement that has not been picked up rather than outstanding remediation work. `O-01` has since been delivered; `O-02` and `O-03` remain unscheduled.
 
-- [ ] **O-01 — Add a custom 404 page**
+- [x] **O-01 — Add a custom 404 page**
   - **Value:** an unknown path lands on a page consistent with the site's own design and navigation instead of the hosting platform's default, reusing the existing partial hosts and the `htmlPages` list in `scripts/html-shell.mjs`
   - **Scope boundary:** non-blocking; current behaviour is not a defect and hosting configuration is intentionally maintained outside this repository
   - **Source:** `AUDIT.md` — section 7
+  - **Delivered:** `9418eae`. `404.html` carries the same shared shell as every other page — the `data-partial` header and footer hosts, the synchronous `js/theme-bootstrap.js` tag and `css/main.css` — and `scripts/html-shell.mjs:22` adds it to `htmlPages`, the list `vite.config.js:183-186` uses directly as the Vite MPA entry set, so the production build resolves the partials into it and inlines the bootstrap exactly as it does for the other ten pages. Navigation is root-safe from any depth: `404.html:10` declares `<base href="/">`, because the hosting platform serves this one document for nested missing addresses as well, and `404.html:40-48` re-points the fragment-only skip link at the address actually being served so it stays a same-document jump instead of navigating to the site root. The page stays out of the index and out of discovery — `noindex, follow` at `404.html:16`, no canonical address of its own, and no entry in `sitemap.xml`, which still lists nine URLs. It is deliberately absent from `primaryNavPages` (`scripts/html-shell.mjs:26-33`) and owns no primary-navigation link, so the build's single-`aria-current` assertion neither applies to it nor is disturbed by it.
 
 - [ ] **O-02 — Reflect invalid form state in the accessibility tree**
   - **Value:** `aria-invalid` on the fields in `js/modules/form.js` would let screen readers announce a field as invalid on entry, rather than relying on the `aria-describedby` message alone; the attribute is currently absent from the repository

@@ -4,7 +4,7 @@
 
 ### Przegląd projektu
 
-EverAfter Ring to statyczny, wielostronicowy serwis w języku polskim, zbudowany w HTML, CSS i Vanilla JavaScript, bez zależności runtime. Repozytorium zawiera dziesięć stron w katalogu głównym: stronę główną, ofertę, usługi, realizacje, stronę o zespole, formularz kontaktowy, potwierdzenie wysłania formularza oraz trzy dokumenty prawne.
+EverAfter Ring to statyczny, wielostronicowy serwis w języku polskim, zbudowany w HTML, CSS i Vanilla JavaScript, bez zależności runtime. Repozytorium zawiera jedenaście stron w katalogu głównym: stronę główną, ofertę, usługi, realizacje, stronę o zespole, formularz kontaktowy, potwierdzenie wysłania formularza, trzy dokumenty prawne oraz własną stronę błędu 404.
 
 Projekt jest realizacją referencyjną KP_Code Digital Studio przedstawiającą przykładowy serwis dla branży ślubnej. Charakter demonstracyjny jest zakomunikowany w samym interfejsie — modal „Informacja o projekcie” w `partials/footer.html` oraz strony prawne opisują serwis jako projekt portfolio, a nie działającą firmę.
 
@@ -14,7 +14,7 @@ Wspólny nagłówek i stopka są utrzymywane jako partiale i mają dwa tryby dos
 
 [https://ceremonial-pr02-everafterring.netlify.app/](https://ceremonial-pr02-everafterring.netlify.app/)
 
-Ten adres jest zadeklarowany jako kanoniczny w metadanych wszystkich stron, w `robots.txt` oraz w `sitemap.xml`. Podczas przygotowania tego dokumentu adres zwracał stronę główną EverAfter Ring.
+Ten adres jest zadeklarowany jako kanoniczny w metadanych stron indeksowanych, w `robots.txt` oraz w `sitemap.xml`. Podczas przygotowania tego dokumentu adres zwracał stronę główną EverAfter Ring.
 
 ### Kluczowe funkcje
 
@@ -43,10 +43,12 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych wszystkich stron, w `r
 - Node.js i npm
 - `vite` `^8.2.1` — serwer deweloperski, build produkcyjny i podgląd builda
 - `sharp` `^0.34.5` — generowanie wariantów obrazów
+- `@playwright/test` `^1.62.1` — smoke testy w przeglądarce Chromium
 - `vite.config.js` — konfiguracja MPA oraz wtyczki builda specyficzne dla projektu
+- `playwright.config.js` — konfiguracja testów uruchamianych na podglądzie produkcyjnym
 - własne skrypty `scripts/html-shell.mjs` i `scripts/optimize-images.mjs`
 
-`vite` i `sharp` to jedyne bezpośrednie zależności projektu; obie są zależnościami deweloperskimi.
+`vite`, `sharp` i `@playwright/test` to jedyne bezpośrednie zależności projektu; wszystkie są zależnościami deweloperskimi.
 
 **Development i podgląd lokalny**
 
@@ -68,13 +70,13 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych wszystkich stron, w `r
 
 ### Architektura
 
-- **Strony** — każda strona to samodzielny plik HTML w katalogu głównym z pełnym zestawem metadanych i własną treścią; `main` jest celem linku pomijającego `#main`.
+- **Strony** — każda strona to samodzielny plik HTML w katalogu głównym z pełnym zestawem metadanych i własną treścią; `main` jest celem linku pomijającego `#main`. Wyjątkiem jest `404.html`, które celowo ma ograniczony zestaw metadanych — opisuje to sekcja SEO.
 - **Partiale** — `header` i `footer` to hosty z atrybutami `data-partial` i `data-partial-src`. W trybie deweloperskim `js/modules/partials.js` pobiera je przez `fetch` i oznacza aktywny link, a serwer Vite wydaje pliki z `partials/` w niezmienionej postaci, bez traktowania ich jak samodzielnych stron. W buildzie produkcyjnym `scripts/html-shell.mjs` zastępuje te hosty gotowym markupem i statycznie ustawia `aria-current="page"`. Oznacza to, że tryb deweloperski wymaga serwera HTTP.
 - **CSS** — `css/main.css` jest jedynym punktem wejścia i importuje kolejno tokeny, fonty, bazę, layout, komponenty i sekcje. Wartości motywu są zdefiniowane jako właściwości custom w `css/tokens.css`, a wariant ciemny jako `:root[data-theme="dark"]`.
 - **JavaScript** — `js/app.js` jest punktem wejścia i po `DOMContentLoaded` uruchamia moduły w ustalonej kolejności: partiale, motyw, nagłówek, nawigacja, formularz, hero, modal projektu. Wspólne selektory są w `js/config.js`, pomocnicze funkcje DOM i pułapka fokusa w `js/utils.js`, a logika interakcji w `js/modules/`.
 - **Dwa punkty wejścia JS** — `js/app.js` jest modułem ES bundlowanym przez Vite, a `js/theme-bootstrap.js` pozostaje osobnym plikiem poza bundlem: w trybie deweloperskim jest ładowany jako klasyczny skrypt, a w buildzie minifikowany i wstawiany inline w to samo miejsce, ponieważ musi wykonać się synchronicznie przed renderowaniem stylów.
 - **Obrazy** — pliki źródłowe znajdują się w `assets/img-src/`, a warianty generowane przez `scripts/optimize-images.mjs` w `assets/img/`. W markupie używany jest element `picture` z kolejnością AVIF, WebP i JPG.
-- **Build** — `vite.config.js` deklaruje dziesięć wejść HTML (`appType: "mpa"`), wtyczkę wspólnego shellu opartą o `scripts/html-shell.mjs` oraz kopiowanie plików statycznych z pominięciem `assets/img-src/`. Build generuje katalog `dist/`, który jest wykluczony z repozytorium przez `.gitignore` i nie powinien być edytowany ręcznie.
+- **Build** — `vite.config.js` deklaruje jedenaście wejść HTML (`appType: "mpa"`), wtyczkę wspólnego shellu opartą o `scripts/html-shell.mjs` oraz kopiowanie plików statycznych z pominięciem `assets/img-src/`. Build generuje katalog `dist/`, który jest wykluczony z repozytorium przez `.gitignore` i nie powinien być edytowany ręcznie.
 - **Nazwy plików wynikowych** — bundlowany CSS i JavaScript trafiają do `dist/css/` i `dist/js/` z hashem treści w nazwie, natomiast pliki z `assets/` są kopiowane pod swoimi oryginalnymi ścieżkami, ponieważ odwołują się do nich `site.webmanifest`, bezwzględne adresy w metadanych i wygenerowane `srcset`.
 
 ### Struktura projektu
@@ -108,6 +110,9 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych wszystkich stron, w `r
 ├── scripts/
 │   ├── html-shell.mjs      # wspólny shell, walidacja nawigacji, inline theme bootstrap
 │   └── optimize-images.mjs
+├── tests/
+│   ├── support/            # wspólne klucze localStorage i przygotowanie stanu testów
+│   └── *.spec.js           # smoke testy Playwright (Chromium)
 ├── index.html
 ├── oferta.html
 ├── uslugi.html
@@ -118,10 +123,12 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych wszystkich stron, w `r
 ├── polityka-prywatnosci.html
 ├── regulamin.html
 ├── cookies.html
+├── 404.html                # własna strona błędu, wykluczona z sitemap.xml
 ├── robots.txt
 ├── sitemap.xml
 ├── start-local-preview.bat
 ├── package.json
+├── playwright.config.js
 ├── vite.config.js
 ├── AUDIT.md
 ├── CHANGELOG.md
@@ -131,7 +138,7 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych wszystkich stron, w `r
 
 ### Instalacja
 
-Zależności są potrzebne do uruchomienia serwera deweloperskiego, builda produkcyjnego, podglądu builda i optymalizacji obrazów.
+Zależności są potrzebne do uruchomienia serwera deweloperskiego, builda produkcyjnego, podglądu builda, testów oraz optymalizacji obrazów.
 
 ```bash
 npm install
@@ -162,6 +169,7 @@ W trybie deweloperskim strony są serwowane ze źródeł: partiale są pobierane
 | `npm run dev` | Uruchamia serwer deweloperski Vite na porcie 8181. |
 | `npm run build` | Buduje wersję produkcyjną do `dist/`. Nie generuje obrazów. |
 | `npm run preview` | Serwuje zbudowany katalog `dist/` na porcie 8182. |
+| `npm run test:smoke` | Buduje `dist/` i uruchamia smoke testy Playwright (Chromium) na podglądzie produkcyjnym. |
 | `npm run optimize:images` | Generuje warianty obrazów z `assets/img-src/` do `assets/img/`. |
 
 ### Build produkcyjny
@@ -173,7 +181,7 @@ npm run build
 Przebieg pełnego builda:
 
 1. Wyczyszczenie katalogu `dist/`.
-2. Transformacja dziesięciu stron HTML: wstawienie partiali, statyczne ustawienie `aria-current="page"` na aktywnym linku nawigacji głównej oraz zastąpienie tagu `js/theme-bootstrap.js` zminifikowanym skryptem inline.
+2. Transformacja jedenastu stron HTML: wstawienie partiali, statyczne ustawienie `aria-current="page"` na aktywnym linku nawigacji głównej oraz zastąpienie tagu `js/theme-bootstrap.js` zminifikowanym skryptem inline.
 3. Bundlowanie i minifikacja CSS oraz JavaScriptu do `dist/css/` i `dist/js/`, z hashem treści w nazwach plików.
 4. Skopiowanie katalogu `assets/` bez `assets/img-src/` oraz plików `robots.txt` i `sitemap.xml` do `dist/`.
 
@@ -188,6 +196,30 @@ npm run preview
 ```
 
 Podgląd serwuje `dist/` pod adresem `http://localhost:8182/`.
+
+### Testy
+
+```bash
+npm run test:smoke
+```
+
+Komenda buduje `dist/`, uruchamia podgląd produkcyjny i wykonuje na nim dziewięć testów Playwright w przeglądarce Chromium. Testy działają na zbudowanych stronach, więc sprawdzają ten sam rozwiązany shell i wstawiony inline theme bootstrap, które trafiają na hosting. Host i port podglądu są ustalone na stałe, a testy nigdy nie podłączają się do serwera pozostawionego po wcześniejszym buildzie.
+
+Zakres testów (`tests/`):
+
+- ładowanie trzech reprezentatywnych stron (główna, oferta, kontakt): `title`, nagłówek `h1`, obecność nagłówka i stopki ze wspólnego shellu, ustawiony motyw oraz brak błędów JavaScriptu,
+- przejście przez nawigację główną na inną stronę wraz ze statycznym `aria-current="page"` ustawionym przez build,
+- motyw: zapisany wybór ciemny zastosowany przed pierwszym malowaniem oraz przełączanie i utrwalanie wyboru po przeładowaniu,
+- nawigacja mobilna przy szerokości 390 px: otwarcie z przycisku, stan panelu, obsługa fokusa i zamknięcie klawiszem `Escape`,
+- modal informacji o projekcie: pierwsza wizyta oraz zapisana akceptacja.
+
+Jest to celowo wąski zestaw smoke testów, a nie pełne pokrycie E2E. Nie obejmuje pozostałych stron, strony `404.html`, formularza kontaktowego, layoutu responsywnego, testów wizualnych, audytu dostępności ani silników przeglądarek innych niż Chromium.
+
+Playwright wymaga jednorazowego pobrania przeglądarki — `npm install` nie robi tego automatycznie:
+
+```bash
+npx playwright install chromium
+```
 
 ### Wdrożenie
 
@@ -213,12 +245,13 @@ Zakres nie obejmuje formalnego audytu zgodności — powyższe punkty opisują z
 
 ### SEO
 
-- Wszystkie dziesięć stron ma własny `title`, `meta name="description"` i `link rel="canonical"`.
-- Każda strona zawiera pełny zestaw metadanych Open Graph (wraz z wymiarami i typem obrazu) oraz Twitter Card `summary_large_image`.
-- Każda strona zawiera dwa bloki JSON-LD: `WebPage` z adresem kanonicznym strony, powiązany przez `isPartOf` ze wspólnym blokiem `WebSite`, którego opis wskazuje demonstracyjny charakter projektu. Dane strukturalne nie deklarują działającego podmiotu gospodarczego ani danych kontaktowych.
+- Wszystkie dziesięć stron indeksowanych ma własny `title`, `meta name="description"` i `link rel="canonical"`.
+- Każda z tych stron zawiera pełny zestaw metadanych Open Graph (wraz z wymiarami i typem obrazu) oraz Twitter Card `summary_large_image`.
+- Każda z tych stron zawiera dwa bloki JSON-LD: `WebPage` z adresem kanonicznym strony, powiązany przez `isPartOf` ze wspólnym blokiem `WebSite`, którego opis wskazuje demonstracyjny charakter projektu. Dane strukturalne nie deklarują działającego podmiotu gospodarczego ani danych kontaktowych.
+- Strona błędu `404.html` jest wyjątkiem: ma własny `title` i `meta name="description"`, ale jako dokument bez własnego adresu nie deklaruje `link rel="canonical"`, metadanych Open Graph, Twitter Card ani danych strukturalnych.
 - `robots.txt` zezwala na indeksowanie całego serwisu i wskazuje `sitemap.xml`.
-- `sitemap.xml` zawiera dziewięć adresów — wszystkie strony poza `dziekujemy.html`.
-- Żadna strona nie używa `meta name="robots"`, więc indeksowanie zależy wyłącznie od `robots.txt` i decyzji wyszukiwarki.
+- `sitemap.xml` zawiera dziewięć adresów — wszystkie strony poza `dziekujemy.html` i `404.html`.
+- `meta name="robots"` występuje wyłącznie na `404.html` (`noindex, follow`). Pozostałe strony nie deklarują tego znacznika, więc ich indeksowanie zależy od `robots.txt` i decyzji wyszukiwarki.
 
 ### PWA i obsługa offline
 
@@ -270,7 +303,7 @@ Materiały podmiotów trzecich pozostają objęte własnymi licencjami — zasad
 
 ### Project Overview
 
-EverAfter Ring is a static, multi-page website in Polish, built with HTML, CSS, and Vanilla JavaScript, with no runtime dependencies. The repository contains ten top-level pages: home, offer, services, portfolio, about, contact form, form confirmation, and three legal documents.
+EverAfter Ring is a static, multi-page website in Polish, built with HTML, CSS, and Vanilla JavaScript, with no runtime dependencies. The repository contains eleven top-level pages: home, offer, services, portfolio, about, contact form, form confirmation, three legal documents, and a custom 404 error page.
 
 The project is a KP_Code Digital Studio reference build that demonstrates a website for the wedding industry. Its demonstration character is stated in the interface itself — the "Informacja o projekcie" modal in `partials/footer.html` and the legal pages describe the site as a portfolio project rather than an operating business.
 
@@ -280,7 +313,7 @@ The shared header and footer are maintained as partials with two delivery modes:
 
 [https://ceremonial-pr02-everafterring.netlify.app/](https://ceremonial-pr02-everafterring.netlify.app/)
 
-This address is declared as canonical in the metadata of every page, in `robots.txt`, and in `sitemap.xml`. While this document was prepared, the address returned the EverAfter Ring home page.
+This address is declared as canonical in the metadata of the indexable pages, in `robots.txt`, and in `sitemap.xml`. While this document was prepared, the address returned the EverAfter Ring home page.
 
 ### Key Features
 
@@ -309,10 +342,12 @@ This address is declared as canonical in the metadata of every page, in `robots.
 - Node.js and npm
 - `vite` `^8.2.1` — development server, production build, and build preview
 - `sharp` `^0.34.5` — image variant generation
+- `@playwright/test` `^1.62.1` — Chromium smoke tests
 - `vite.config.js` — MPA configuration and the project-specific build plugins
+- `playwright.config.js` — configuration for the tests run against the production preview
 - custom scripts in `scripts/html-shell.mjs` and `scripts/optimize-images.mjs`
 
-`vite` and `sharp` are the project's only direct dependencies; both are development dependencies.
+`vite`, `sharp`, and `@playwright/test` are the project's only direct dependencies; all are development dependencies.
 
 **Local development and preview**
 
@@ -334,13 +369,13 @@ This address is declared as canonical in the metadata of every page, in `robots.
 
 ### Architecture
 
-- **Pages** — each page is a standalone HTML file at the repository root with a full metadata set and its own content; `main` is the target of the `#main` skip link.
+- **Pages** — each page is a standalone HTML file at the repository root with a full metadata set and its own content; `main` is the target of the `#main` skip link. `404.html` is the exception, carrying a deliberately reduced metadata set — see the SEO section.
 - **Partials** — `header` and `footer` are host elements carrying `data-partial` and `data-partial-src`. In development, `js/modules/partials.js` fetches them and marks the active link, and the Vite server serves the files under `partials/` verbatim instead of treating them as standalone entries. In the production build, `scripts/html-shell.mjs` replaces those hosts with the resolved markup and sets `aria-current="page"` statically. Development therefore requires an HTTP server.
 - **CSS** — `css/main.css` is the single entry point and imports tokens, fonts, base, layout, components, and sections in order. Theme values are defined as custom properties in `css/tokens.css`, with the dark variant under `:root[data-theme="dark"]`.
 - **JavaScript** — `js/app.js` is the entry point and, after `DOMContentLoaded`, runs the modules in a fixed order: partials, theme, header, navigation, form, hero, project notice. Shared selectors live in `js/config.js`, DOM helpers and the focus trap in `js/utils.js`, and interaction logic in `js/modules/`.
 - **Two JS entry points** — `js/app.js` is an ES module bundled by Vite, while `js/theme-bootstrap.js` stays a separate file outside the bundle: development loads it as a classic script, and the build minifies it and inlines it in the same position, because it must run synchronously before styles render.
 - **Images** — source files live in `assets/img-src/`, and the variants generated by `scripts/optimize-images.mjs` in `assets/img/`. The markup uses the `picture` element with AVIF, WebP, and JPG in that order.
-- **Build** — `vite.config.js` declares the ten HTML entries (`appType: "mpa"`), the shared-shell plugin backed by `scripts/html-shell.mjs`, and the static asset copy that excludes `assets/img-src/`. The build generates the `dist/` directory, which is excluded from the repository by `.gitignore` and should not be edited manually.
+- **Build** — `vite.config.js` declares the eleven HTML entries (`appType: "mpa"`), the shared-shell plugin backed by `scripts/html-shell.mjs`, and the static asset copy that excludes `assets/img-src/`. The build generates the `dist/` directory, which is excluded from the repository by `.gitignore` and should not be edited manually.
 - **Output file names** — bundled CSS and JavaScript land in `dist/css/` and `dist/js/` with a content hash in the file name, while files under `assets/` are copied at their authored paths, because `site.webmanifest`, the absolute URLs in the metadata, and the generated `srcset` values all reference them there.
 
 ### Project Structure
@@ -374,6 +409,9 @@ This address is declared as canonical in the metadata of every page, in `robots.
 ├── scripts/
 │   ├── html-shell.mjs      # shared shell, navigation validation, theme bootstrap inlining
 │   └── optimize-images.mjs
+├── tests/
+│   ├── support/            # shared localStorage keys and test state setup
+│   └── *.spec.js           # Playwright smoke tests (Chromium)
 ├── index.html
 ├── oferta.html
 ├── uslugi.html
@@ -384,10 +422,12 @@ This address is declared as canonical in the metadata of every page, in `robots.
 ├── polityka-prywatnosci.html
 ├── regulamin.html
 ├── cookies.html
+├── 404.html                # custom error page, excluded from sitemap.xml
 ├── robots.txt
 ├── sitemap.xml
 ├── start-local-preview.bat
 ├── package.json
+├── playwright.config.js
 ├── vite.config.js
 ├── AUDIT.md
 ├── CHANGELOG.md
@@ -397,7 +437,7 @@ This address is declared as canonical in the metadata of every page, in `robots.
 
 ### Installation
 
-Dependencies are required to run the development server, the production build, the build preview, and image optimization.
+Dependencies are required to run the development server, the production build, the build preview, the tests, and image optimization.
 
 ```bash
 npm install
@@ -428,6 +468,7 @@ In development the pages are served from source: the partials are fetched at run
 | `npm run dev` | Starts the Vite development server on port 8181. |
 | `npm run build` | Builds the production version into `dist/`. Does not generate images. |
 | `npm run preview` | Serves the built `dist/` directory on port 8182. |
+| `npm run test:smoke` | Builds `dist/` and runs the Playwright smoke tests (Chromium) against the production preview. |
 | `npm run optimize:images` | Generates image variants from `assets/img-src/` into `assets/img/`. |
 
 ### Production Build
@@ -439,7 +480,7 @@ npm run build
 Full build sequence:
 
 1. Emptying the `dist/` directory.
-2. Transforming the ten HTML pages: inlining the partials, setting `aria-current="page"` statically on the active primary-navigation link, and replacing the `js/theme-bootstrap.js` tag with a minified inline script.
+2. Transforming the eleven HTML pages: inlining the partials, setting `aria-current="page"` statically on the active primary-navigation link, and replacing the `js/theme-bootstrap.js` tag with a minified inline script.
 3. Bundling and minifying CSS and JavaScript into `dist/css/` and `dist/js/`, with a content hash in the file names.
 4. Copying the `assets/` directory without `assets/img-src/`, plus `robots.txt` and `sitemap.xml`, into `dist/`.
 
@@ -454,6 +495,30 @@ npm run preview
 ```
 
 The preview serves `dist/` at `http://localhost:8182/`.
+
+### Testing
+
+```bash
+npm run test:smoke
+```
+
+The command builds `dist/`, starts the production preview, and runs nine Playwright tests against it in Chromium. The tests run on the built pages, so they exercise the same resolved shell and inlined theme bootstrap that ship to hosting. The preview host and port are pinned, and the tests never attach to a server left running from an earlier build.
+
+Test scope (`tests/`):
+
+- loading three representative pages (home, offer, contact): `title`, the `h1` heading, the header and footer from the shared shell, the applied theme, and the absence of JavaScript errors,
+- a transition through the primary navigation to another page, including the static `aria-current="page"` set by the build,
+- the theme: a stored dark choice applied before the first paint, plus toggling and persisting the choice across a reload,
+- the mobile navigation at a width of 390 px: opening from the button, the panel state, focus handling, and closing with `Escape`,
+- the project notice modal: a first visit and a stored acceptance.
+
+This is a deliberately narrow smoke suite, not full E2E coverage. It does not cover the remaining pages, the `404.html` page, the contact form, responsive layout, visual regression, accessibility auditing, or any browser engine other than Chromium.
+
+Playwright requires a one-time browser download — `npm install` does not perform it:
+
+```bash
+npx playwright install chromium
+```
 
 ### Deployment
 
@@ -479,12 +544,13 @@ A formal conformance audit is out of scope — the points above describe impleme
 
 ### SEO
 
-- All ten pages have their own `title`, `meta name="description"`, and `link rel="canonical"`.
-- Every page includes a complete Open Graph metadata set (including image type and dimensions) and a Twitter Card of type `summary_large_image`.
-- Every page includes two JSON-LD blocks: a `WebPage` carrying the page's canonical URL, linked through `isPartOf` to the shared `WebSite` block whose description states the project's demonstration character. The structured data declares no operating business and no contact details.
+- All ten indexable pages have their own `title`, `meta name="description"`, and `link rel="canonical"`.
+- Each of those pages includes a complete Open Graph metadata set (including image type and dimensions) and a Twitter Card of type `summary_large_image`.
+- Each of those pages includes two JSON-LD blocks: a `WebPage` carrying the page's canonical URL, linked through `isPartOf` to the shared `WebSite` block whose description states the project's demonstration character. The structured data declares no operating business and no contact details.
+- The `404.html` error page is the exception: it has its own `title` and `meta name="description"`, but as a document without an address of its own it declares no `link rel="canonical"`, no Open Graph metadata, no Twitter Card, and no structured data.
 - `robots.txt` allows indexing of the whole site and points to `sitemap.xml`.
-- `sitemap.xml` lists nine URLs — every page except `dziekujemy.html`.
-- No page uses `meta name="robots"`, so indexing depends solely on `robots.txt` and search engine decisions.
+- `sitemap.xml` lists nine URLs — every page except `dziekujemy.html` and `404.html`.
+- `meta name="robots"` appears only on `404.html` (`noindex, follow`). No other page declares the tag, so their indexing depends on `robots.txt` and search engine decisions.
 
 ### PWA and Offline Support
 
