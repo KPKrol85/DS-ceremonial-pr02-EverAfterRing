@@ -18,9 +18,11 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test:smoke": "npm run build && playwright test",
     "optimize:images": "node scripts/optimize-images.mjs"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "sharp": "^0.34.5",
     "vite": "^8.2.1"
   }
