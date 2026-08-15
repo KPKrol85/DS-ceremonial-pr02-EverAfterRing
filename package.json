@@ -15,17 +15,13 @@
     "javascript"
   ],
   "scripts": {
-    "clean": "node scripts/build.mjs clean",
-    "optimize:images": "node scripts/optimize-images.mjs",
-    "build:css": "node scripts/build.mjs css",
-    "build:js": "node scripts/build.mjs js",
-    "build:html": "node scripts/build.mjs html",
-    "build:assets": "node scripts/build.mjs assets",
-    "build": "node scripts/build.mjs build"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "optimize:images": "node scripts/optimize-images.mjs"
   },
   "devDependencies": {
-    "esbuild": "^0.28.0",
-    "lightningcss": "^1.32.0",
-    "sharp": "^0.34.5"
+    "sharp": "^0.34.5",
+    "vite": "^8.2.1"
   }
 }

@@ -1,4 +1,4 @@
 @echo off
 cd /d "%~dp0"
-echo Starting local preview server at http://localhost:8181/
-python -m http.server 8181
+echo Starting Vite development server at http://localhost:8181/
+call npm run dev
