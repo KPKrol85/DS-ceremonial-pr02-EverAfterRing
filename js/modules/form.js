@@ -1,7 +1,11 @@
 import { qs, qsa } from '../utils.js';
 import { SELECTORS } from '../config.js';
 
+// The message and the field's invalid state are one transition, so both are set here and cleared
+// in clearError. The attribute is written before the describedby lookup returns, so the state stays
+// synchronised with validity even for a field that carries no message target.
 const showError = (field, message) => {
+  field.setAttribute('aria-invalid', 'true');
   const errorId = field.getAttribute('aria-describedby');
   if (!errorId) return;
   const errorEl = document.getElementById(errorId);
@@ -11,6 +15,7 @@ const showError = (field, message) => {
 };
 
 const clearError = (field) => {
+  field.removeAttribute('aria-invalid');
   const errorId = field.getAttribute('aria-describedby');
   if (!errorId) return;
   const errorEl = document.getElementById(errorId);

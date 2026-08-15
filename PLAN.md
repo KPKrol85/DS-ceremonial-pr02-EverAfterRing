@@ -17,7 +17,7 @@
 
 All required work in Phases 1–4 is complete; no required item remains open, and `AUDIT.md` lists no open `P0`, `P1` or `P2` finding.
 
-`O-01` has since been delivered. The only unchecked entries left in this plan are `O-02` and `O-03` under "Optional future improvements". They are non-blocking refinements rather than outstanding remediation work, and neither is scheduled.
+`O-01` and `O-02` have since been delivered. The only unchecked entry left in this plan is `O-03` under "Optional future improvements". It is a non-blocking refinement rather than outstanding remediation work, and it is not scheduled.
 
 ## Phase 1 — Verifiable repository and build baseline
 
@@ -140,7 +140,7 @@ All required work in Phases 1–4 is complete; no required item remains open, an
 
 ## Optional future improvements
 
-These items sit outside the required Phase 1–4 remediation scope and were never part of it. None of them corrects a defect and none is required for the plan's completion, so an entry left unchecked here is a refinement that has not been picked up rather than outstanding remediation work. `O-01` has since been delivered; `O-02` and `O-03` remain unscheduled.
+These items sit outside the required Phase 1–4 remediation scope and were never part of it. None of them corrects a defect and none is required for the plan's completion, so an entry left unchecked here is a refinement that has not been picked up rather than outstanding remediation work. `O-01` and `O-02` have since been delivered; `O-03` remains unscheduled.
 
 - [x] **O-01 — Add a custom 404 page**
   - **Value:** an unknown path lands on a page consistent with the site's own design and navigation instead of the hosting platform's default, reusing the existing partial hosts and the `htmlPages` list in `scripts/html-shell.mjs`
@@ -148,10 +148,11 @@ These items sit outside the required Phase 1–4 remediation scope and were neve
   - **Source:** `AUDIT.md` — section 7
   - **Delivered:** `9418eae`. `404.html` carries the same shared shell as every other page — the `data-partial` header and footer hosts, the synchronous `js/theme-bootstrap.js` tag and `css/main.css` — and `scripts/html-shell.mjs:22` adds it to `htmlPages`, the list `vite.config.js:183-186` uses directly as the Vite MPA entry set, so the production build resolves the partials into it and inlines the bootstrap exactly as it does for the other ten pages. Navigation is root-safe from any depth: `404.html:10` declares `<base href="/">`, because the hosting platform serves this one document for nested missing addresses as well, and `404.html:40-48` re-points the fragment-only skip link at the address actually being served so it stays a same-document jump instead of navigating to the site root. The page stays out of the index and out of discovery — `noindex, follow` at `404.html:16`, no canonical address of its own, and no entry in `sitemap.xml`, which still lists nine URLs. It is deliberately absent from `primaryNavPages` (`scripts/html-shell.mjs:26-33`) and owns no primary-navigation link, so the build's single-`aria-current` assertion neither applies to it nor is disturbed by it.
 
-- [ ] **O-02 — Reflect invalid form state in the accessibility tree**
+- [x] **O-02 — Reflect invalid form state in the accessibility tree**
   - **Value:** `aria-invalid` on the fields in `js/modules/form.js` would let screen readers announce a field as invalid on entry, rather than relying on the `aria-describedby` message alone; the attribute is currently absent from the repository
   - **Scope boundary:** non-blocking refinement to a working implementation; no change to the validation logic or the Netlify Forms contract
   - **Source:** `AUDIT.md` — section 7
+  - **Delivered:** The state travels the shared transition path the module already had rather than a second validity check: `showError()` sets `aria-invalid="true"` and `clearError()` removes it (`js/modules/form.js:4-25`), so every invalid branch of `validateField()` marks the field and every valid outcome clears it — the valid branch on `blur` and on submit, and the `input` handler that already cleared the message. No stale `aria-invalid="true"` can survive a field becoming valid, and repeated blur/submit/input cycles re-synchronise because each pass runs the same two functions. The attribute is written before the `aria-describedby` lookup can return early, so a validated field without a message target would still expose its state. Nothing else moved: the rules stay `field.validity`, the Polish messages, the described-by targets, the polite status region, the first-invalid-field focus, and the Netlify Forms markup (`name`, hidden `form-name`, honeypot, `method`, `action`, `data-netlify`) are unchanged, only the eight fields already carrying `data-validate` are touched — five inputs, two selects and the textarea, all of them `required` — while the optional `phone` field and the honeypot stay outside the validation contract. No CSS was added; the state carries no visual treatment of its own. Verified in Chromium against the built preview: `npm run build`, then `npx playwright test tests/form-validation.spec.js` — 1 passed. The new focused test asserts the observable contract only: after a submit with the required fields empty, the first validated field exposes `aria-invalid="true"`, holds focus, and computes its accessible description from the existing error target; filling it with a valid value clears both the state and the message.
 
 - [ ] **O-03 — Promote the build's consistency checks into a standalone check command**
   - **Value:** the partial-host and single-`aria-current` assertions in `scripts/html-shell.mjs` could run without writing any output, together with cheap additions such as local-reference resolution

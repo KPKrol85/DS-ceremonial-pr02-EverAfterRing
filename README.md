@@ -203,7 +203,7 @@ Podgląd serwuje `dist/` pod adresem `http://localhost:8182/`.
 npm run test:smoke
 ```
 
-Komenda buduje `dist/`, uruchamia podgląd produkcyjny i wykonuje na nim dziewięć testów Playwright w przeglądarce Chromium. Testy działają na zbudowanych stronach, więc sprawdzają ten sam rozwiązany shell i wstawiony inline theme bootstrap, które trafiają na hosting. Host i port podglądu są ustalone na stałe, a testy nigdy nie podłączają się do serwera pozostawionego po wcześniejszym buildzie.
+Komenda buduje `dist/`, uruchamia podgląd produkcyjny i wykonuje na nim dziesięć testów Playwright w przeglądarce Chromium. Testy działają na zbudowanych stronach, więc sprawdzają ten sam rozwiązany shell i wstawiony inline theme bootstrap, które trafiają na hosting. Host i port podglądu są ustalone na stałe, a testy nigdy nie podłączają się do serwera pozostawionego po wcześniejszym buildzie.
 
 Zakres testów (`tests/`):
 
@@ -211,9 +211,10 @@ Zakres testów (`tests/`):
 - przejście przez nawigację główną na inną stronę wraz ze statycznym `aria-current="page"` ustawionym przez build,
 - motyw: zapisany wybór ciemny zastosowany przed pierwszym malowaniem oraz przełączanie i utrwalanie wyboru po przeładowaniu,
 - nawigacja mobilna przy szerokości 390 px: otwarcie z przycisku, stan panelu, obsługa fokusa i zamknięcie klawiszem `Escape`,
-- modal informacji o projekcie: pierwsza wizyta oraz zapisana akceptacja.
+- modal informacji o projekcie: pierwsza wizyta oraz zapisana akceptacja,
+- formularz kontaktowy: wysyłka z pustymi polami wymaganymi — stan `aria-invalid`, fokus i komunikat pierwszego niepoprawnego pola oraz wyczyszczenie obu po wpisaniu poprawnej wartości.
 
-Jest to celowo wąski zestaw smoke testów, a nie pełne pokrycie E2E. Nie obejmuje pozostałych stron, strony `404.html`, formularza kontaktowego, layoutu responsywnego, testów wizualnych, audytu dostępności ani silników przeglądarek innych niż Chromium.
+Jest to celowo wąski zestaw smoke testów, a nie pełne pokrycie E2E. Z formularza kontaktowego obejmuje wyłącznie powyższą ścieżkę stanu niepoprawnego pola — nie obejmuje pozostałych pól walidowanych, pozostałych typów błędów ani wysyłki. Nie obejmuje też pozostałych stron, strony `404.html`, layoutu responsywnego, testów wizualnych, audytu dostępności ani silników przeglądarek innych niż Chromium.
 
 Playwright wymaga jednorazowego pobrania przeglądarki — `npm install` nie robi tego automatycznie:
 
@@ -239,6 +240,7 @@ npx playwright install chromium
 - `css/base.css` definiuje wspólny styl `:focus-visible` dla linków, przycisków i pól formularza.
 - Redukcja ruchu jest obsługiwana zarówno w CSS (`css/base.css`, `css/components/nav.css`, `css/components/project-notice.css`), jak i w module hero, który nasłuchuje zmian `prefers-reduced-motion`.
 - Formularz kontaktowy używa powiązanych etykiet, `aria-describedby` dla komunikatów błędów i regionu statusu `aria-live="polite"`.
+- Pole walidowane, które nie przeszło walidacji, dostaje `aria-invalid="true"`; atrybut jest usuwany, gdy pole staje się poprawne — razem z komunikatem błędu.
 - Przełącznik motywu komunikuje stan przez `aria-pressed` i aktualizowaną etykietę `aria-label`.
 
 Zakres nie obejmuje formalnego audytu zgodności — powyższe punkty opisują zaimplementowane mechanizmy.
@@ -502,7 +504,7 @@ The preview serves `dist/` at `http://localhost:8182/`.
 npm run test:smoke
 ```
 
-The command builds `dist/`, starts the production preview, and runs nine Playwright tests against it in Chromium. The tests run on the built pages, so they exercise the same resolved shell and inlined theme bootstrap that ship to hosting. The preview host and port are pinned, and the tests never attach to a server left running from an earlier build.
+The command builds `dist/`, starts the production preview, and runs ten Playwright tests against it in Chromium. The tests run on the built pages, so they exercise the same resolved shell and inlined theme bootstrap that ship to hosting. The preview host and port are pinned, and the tests never attach to a server left running from an earlier build.
 
 Test scope (`tests/`):
 
@@ -510,9 +512,10 @@ Test scope (`tests/`):
 - a transition through the primary navigation to another page, including the static `aria-current="page"` set by the build,
 - the theme: a stored dark choice applied before the first paint, plus toggling and persisting the choice across a reload,
 - the mobile navigation at a width of 390 px: opening from the button, the panel state, focus handling, and closing with `Escape`,
-- the project notice modal: a first visit and a stored acceptance.
+- the project notice modal: a first visit and a stored acceptance,
+- the contact form: a submit with the required fields empty — the `aria-invalid` state, focus, and message of the first invalid field, and both cleared once a valid value is entered.
 
-This is a deliberately narrow smoke suite, not full E2E coverage. It does not cover the remaining pages, the `404.html` page, the contact form, responsive layout, visual regression, accessibility auditing, or any browser engine other than Chromium.
+This is a deliberately narrow smoke suite, not full E2E coverage. Of the contact form it covers only the invalid-state path above — not the other validated fields, the remaining validity types, or the submission. It also does not cover the remaining pages, the `404.html` page, responsive layout, visual regression, accessibility auditing, or any browser engine other than Chromium.
 
 Playwright requires a one-time browser download — `npm install` does not perform it:
 
@@ -538,6 +541,7 @@ npx playwright install chromium
 - `css/base.css` defines a shared `:focus-visible` style for links, buttons, and form fields.
 - Reduced motion is handled both in CSS (`css/base.css`, `css/components/nav.css`, `css/components/project-notice.css`) and in the hero module, which listens for `prefers-reduced-motion` changes.
 - The contact form uses associated labels, `aria-describedby` for error messages, and an `aria-live="polite"` status region.
+- A validated field that fails validation carries `aria-invalid="true"`; the attribute is removed once the field becomes valid, together with its error message.
 - The theme toggle communicates state through `aria-pressed` and an updated `aria-label`.
 
 A formal conformance audit is out of scope — the points above describe implemented mechanisms.
