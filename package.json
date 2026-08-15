@@ -3,9 +3,17 @@
   "version": "1.0.0",
   "description": "A static portfolio reference website for a premium wedding and ceremonial services brand.",
   "private": true,
-  "author": "Kamil Król",
+  "author": "Kamil Król — KP_Code Digital Studio",
   "license": "SEE LICENSE IN LICENSE",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KPKrol85/DS-ceremonial-pr02-EverAfterRing.git"
+  },
+  "homepage": "https://ceremonial-pr02-everafterring.netlify.app/",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "keywords": [
     "portfolio",
     "static-site",
