@@ -16,6 +16,7 @@
 
 .card__title {
   font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-lg);
 }
 
 .card__meta {
