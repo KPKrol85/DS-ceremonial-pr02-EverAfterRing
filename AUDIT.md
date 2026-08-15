@@ -2,7 +2,7 @@
 
 **Audit date:** 2026-08-13
 **Status re-verified:** 2026-08-13, against the current source and Git history
-**Optional items re-checked:** 2026-08-15, against `404.html`, `scripts/html-shell.mjs`, `js/modules/form.js`, `package.json`, `playwright.config.js` and `tests/`; the accessibility-tree item that re-check confirmed has since been delivered and is no longer listed in section 7
+**Optional items re-checked:** 2026-08-15, against `404.html`, `scripts/html-shell.mjs`, `js/modules/form.js`, `package.json`, `playwright.config.js` and `tests/`; both items that re-check confirmed — the accessibility-tree state and the standalone check command — have since been delivered, so section 7 lists none
 **Project type:** Static multi-page website in Polish (HTML, CSS, Vanilla JavaScript ES modules) with a Node-based production build into `dist/`; no runtime dependencies, no backend
 **Audit mode:** Final repository and implementation review
 **Active findings:** 0 — no P0, no open P1, no open P2
@@ -54,6 +54,7 @@ The scope and results recorded below are those of the 2026-08-13 run and are kep
 
 - Single, unambiguous source of truth per concern: `css/main.css` is the only stylesheet entry (`css/main.css:1-16`), `js/app.js` is the only application entry with an explicit module order (`js/app.js:9-16`), and `partials/` holds the only copy of the header, footer, and project notice.
 - The build enforces its own contracts instead of assuming them: `scripts/html-shell.mjs:86-100` fails the build if a partial host is missing, and `scripts/html-shell.mjs:72-84` fails it if a primary-navigation page does not end up with exactly one `nav__link` carrying `aria-current="page"`.
+- Those contracts are no longer reachable only through a build. `scripts/check.mjs`, run by `npm run check`, imports the same page registry and the same helpers and runs them in memory for all eleven pages, so the partial-host, single-`aria-current` and theme-bootstrap assertions keep one implementation and gain an output-free entry point; the command also resolves the local references declared by the pages, the partials, the stylesheets and the web manifest. Run against the current tree on 2026-08-15 it passes, resolving 390 local references with none missing — the reference check this audit performed ad hoc is now repeatable, and it writes nothing.
 - Reference integrity is complete — all 322 local references resolve, with no duplicate IDs and no dangling ARIA or label targets across all 10 pages with partials injected.
 - Metadata is consistent across the ten indexable pages: each has its own `title`, `description`, `canonical`, full Open Graph set with image dimensions and alt text, Twitter Card, and two JSON-LD blocks, all parsing cleanly. The eleventh page, `404.html`, deliberately carries none of that beyond its own title and description — an error document has no canonical address of its own, and it is held out of the index by `noindex, follow` and out of `sitemap.xml`.
 - Image delivery is coherent: `<picture>` with AVIF/WebP/JPG, matching `srcset`/`sizes`, explicit `width`/`height` matching the real files, `decoding="async"`, and `loading="lazy"` on below-the-fold images only.
@@ -79,27 +80,24 @@ None open. Resolved findings are recorded in `CHANGELOG.md`.
 
 ## 7. Extra quality improvements
 
-### Promote the build's existing consistency checks into a standalone check command
-
-- **Relevant area:** Verification tooling (`scripts/html-shell.mjs:72-84`, `scripts/html-shell.mjs:86-100`, `package.json` scripts).
-- **Current evidence:** The build already asserts partial-host presence and single-`aria-current` correctness, but those assertions can only run as part of a build that produces `dist/`. The repository still has no command that validates the pages without producing output; `npm run test:smoke` does not close this, because it builds `dist/` first and then verifies rendered behaviour rather than the source contract.
-- **Potential value:** The same guarantees plus cheap additions such as local-reference resolution could be run routinely and quickly, without writing any files — the checks this audit performed ad hoc would become repeatable.
-- **Scope boundary:** Optional. This proposes reusing logic that already exists rather than introducing a test framework or new dependencies.
+None open. The standalone check command this section proposed has since been delivered as `scripts/check.mjs` behind `npm run check`; it is described in section 3 and recorded in `CHANGELOG.md`.
 
 ## 8. Current readiness conclusion
 
-**Status:** No open findings at any priority.
+**Status:** No open findings at any priority, and no open recommendation.
 
-Nothing blocks the project from being built, served, or read: content, structure, metadata, references, asset ownership, and documentation are all in good order. The only entry remaining in this document is the optional improvement in section 7, which is not a defect.
+Nothing blocks the project from being built, served, or read: content, structure, metadata, references, asset ownership, and documentation are all in good order. The source-level guarantees this document reasoned about are now executable rather than only inspectable — `npm run check` runs the build's own shared-shell contracts and the local-reference resolution without producing output, and `npm run build` still enforces the same contracts on the way to `dist/`.
 
 This status is a repository-state assessment. It is not an accessibility certification, a security assessment, a guarantee of browser or assistive-technology behaviour, or a performance measurement — none of which were performed, as recorded in the verification limitations.
 
 ## 9. Senior rating
 
-**Rating:** 8/10 — held at the 2026-08-15 re-check; reassessed 2026-08-13 against the repository state with every finding closed (7/10 on the audit date)
+**Rating:** 8/10 — held at the 2026-08-15 reassessment made after the standalone check command landed; reassessed 2026-08-13 against the repository state with every finding closed (7/10 on the audit date)
 
 **Active findings behind this rating:** P0 — 0. P1 — 0. P2 — 0.
 
 The source-level work this audit called for is complete. The interaction layer establishes its own defaults instead of depending on scripting to repair them: the theme resolved before first paint survives runtime initialisation, the mobile navigation panel is closed in markup and CSS below the breakpoint, the project-notice dialog contains focus and closes on `Escape` and on the backdrop, and no raw hex literal remains anywhere under `css/` outside `css/tokens.css`. Asset ownership is now complete as well — every shipped file resolves from source, and each icon set has one authoritative copy. The build contract is verifiable as documented — `npm run build` writes only into the ignored `dist/` — and `.gitattributes` keeps diffs reviewable.
 
-The rating holds at 8, and the reason it holds has changed. One of the two factors the previous reassessment named as gating a higher score has genuinely moved: the repository is no longer without automated verification, and the browser behaviour this document reasons about from source now has a Chromium suite that runs against the built preview. The other has not moved at all — there is still no output-free check command, so the build's own contract assertions can only run as part of a build that writes `dist/`. The previous reassessment set both conditions together — the standalone check command in section 7, plus verification in a real browser — and only one of the two has landed. The coverage that did land is a smoke baseline whose limits are recorded in the verification limitations: one browser engine, three of the eleven pages, a single contact-form path — the invalid state, focus, and message the module produces for the first invalid field — and nothing for the rest of that form, the custom 404 page, responsive layout, or accessibility conformance; assistive-technology behaviour remains unverified at any level. Those are material limitations rather than formalities, so the rating stays where it was rather than rising on partial progress. What lifts it from here is the check command in section 7, plus browser coverage wide enough to stand behind — not more changes to the source.
+The rating holds at 8, and the reason it holds has narrowed again. Both factors the earlier reassessment named as gating a higher score have now been attempted, and the tooling half is genuinely settled: `npm run check` runs the build's own partial-host, single-`aria-current` and theme-bootstrap assertions plus local-reference resolution without writing a file, so those guarantees no longer require a build that produces `dist/`, and the reference sweep this document performed by hand is now a command anyone can repeat. That closes the section 7 condition outright, and it does so by reusing the existing helpers rather than adding a dependency or a second implementation.
+
+What has not moved is the other half, and it is the half that carries the remaining risk. The browser evidence is still the same smoke baseline, with the limits recorded in the verification limitations: one browser engine, three of the eleven pages, a single contact-form path — the invalid state, focus, and message the module produces for the first invalid field — and nothing for the rest of that form, the custom 404 page, responsive layout, or accessibility conformance; assistive-technology behaviour remains unverified at any level. A source-level checker cannot substitute for any of that: it validates what the source declares, not what a browser renders or what a screen reader announces. Those are material limitations rather than formalities, so the rating does not rise on the tooling alone. What lifts it from here is browser and assistive-technology coverage wide enough to stand behind — which is now the only outstanding factor, and not a change to the source.

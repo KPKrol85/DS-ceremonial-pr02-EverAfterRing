@@ -26,6 +26,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "check": "node scripts/check.mjs",
     "test:smoke": "npm run build && playwright test",
     "optimize:images": "node scripts/optimize-images.mjs"
   },
