@@ -148,8 +148,6 @@ Zależności są potrzebne do uruchomienia serwera deweloperskiego, builda produ
 npm install
 ```
 
-Konfiguracja środowiska Codex w `.codex/environments/environment.toml` instaluje zależności komendą `npm ci`.
-
 ### Development lokalny
 
 ```bat
@@ -475,8 +473,6 @@ Dependencies are required to run the development server, the production build, t
 ```bash
 npm install
 ```
-
-The Codex environment configuration in `.codex/environments/environment.toml` installs dependencies with `npm ci`.
 
 ### Local Development
 
