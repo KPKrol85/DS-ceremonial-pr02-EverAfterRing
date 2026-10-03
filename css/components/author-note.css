@@ -1,0 +1,8 @@
+/* Names the real project author directly above the contact details shown under the fictional
+   brand. The colour is deliberately not set here: it comes from the surrounding paragraph rules,
+   the muted page text by default and the footer text inside `.site-footer`. */
+.author-note {
+  margin-bottom: var(--space-3);
+  font-size: var(--font-size-xxs);
+  line-height: var(--line-height-compact);
+}
