@@ -100,8 +100,10 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych stron indeksowanych, w
 │   ├── main.css            # jedyny punkt wejścia CSS
 │   └── tokens.css
 ├── docs/
-│   └── archive/
-│       └── plans/          # zarchiwizowane ukończone plany projektu (PLAN-2026-08-15.md)
+│   ├── archive/
+│   │   ├── audits/         # zarchiwizowane audyty projektu (AUDIT-2026-08-15.md)
+│   │   └── plans/          # zarchiwizowane ukończone plany projektu (PLAN-2026-08-15.md)
+│   └── CHANGELOG.md
 ├── js/
 │   ├── modules/            # partials, nav, theme, form, hero, header-scroll, project-notice, lightbox, dom
 │   ├── app.js              # punkt wejścia ESM
@@ -135,8 +137,6 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych stron indeksowanych, w
 ├── package.json
 ├── playwright.config.js
 ├── vite.config.js
-├── AUDIT.md
-├── CHANGELOG.md
 └── LICENSE
 ```
 
@@ -428,8 +428,10 @@ This address is declared as canonical in the metadata of the indexable pages, in
 │   ├── main.css            # single CSS entry point
 │   └── tokens.css
 ├── docs/
-│   └── archive/
-│       └── plans/          # archived completed project plans (PLAN-2026-08-15.md)
+│   ├── archive/
+│   │   ├── audits/         # archived project audits (AUDIT-2026-08-15.md)
+│   │   └── plans/          # archived completed project plans (PLAN-2026-08-15.md)
+│   └── CHANGELOG.md
 ├── js/
 │   ├── modules/            # partials, nav, theme, form, hero, header-scroll, project-notice, lightbox, dom
 │   ├── app.js              # ESM entry point
@@ -463,8 +465,6 @@ This address is declared as canonical in the metadata of the indexable pages, in
 ├── package.json
 ├── playwright.config.js
 ├── vite.config.js
-├── AUDIT.md
-├── CHANGELOG.md
 └── LICENSE
 ```
 
