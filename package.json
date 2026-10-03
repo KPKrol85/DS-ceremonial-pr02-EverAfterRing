@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/KPKrol85/DS-ceremonial-pr02-EverAfterRing.git"
   },
-  "homepage": "https://ceremonial-pr02-everafterring.netlify.app/",
+  "homepage": "https://ds-ceremonial-pr02-everafterring.netlify.app/",
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
   },
