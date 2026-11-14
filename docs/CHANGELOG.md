@@ -62,3 +62,4 @@ For each implementation task, determine `Changelog: yes` or `Changelog: no`. Add
 * Removed direct `esbuild` and `lightningcss` dependencies after moving bundling and minification to Vite.
 * Added `npm run check` for dependency-free source consistency, shared-shell contracts, and local-reference validation.
 * Added a Chromium smoke-test baseline covering representative pages, navigation, theme behavior, mobile navigation, and the project notice.
+* Extended theme regression tests to cover the system-dark fallback, `theme-color` metadata synchronization, and cross-tab theme synchronization.

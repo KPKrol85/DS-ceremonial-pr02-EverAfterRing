@@ -17,13 +17,9 @@ All five proposals below extend existing mechanisms: the Playwright suite under 
 
 ### IMP-QUALITY-01 — Protect the theme fallback and synchronization contract
 
-- **Affected area:** Theme resolution and theme state synchronization (`js/theme-bootstrap.js`, `js/modules/theme.js`).
-- **Evidence:** `js/theme-bootstrap.js:10-33`, `js/modules/theme.js:27-34`, `js/modules/theme.js:44-54`, `js/modules/theme.js:72-75`, `playwright.config.js:15-17`, `tests/theme.spec.js:9-43`, `docs/CHANGELOG.md:40`
-- **Current implementation:** The bootstrap resolves the theme in this order: stored value, then `prefers-color-scheme: dark`, then `light`. It also writes `meta[name="theme-color"]`. `initTheme()` adopts the `<html data-theme>` value instead of recomputing it; this was the fix recorded in `docs/CHANGELOG.md:40`. A `storage` listener keeps open tabs in sync. Playwright pins `colorScheme: "light"` globally. The existing tests cover a stored dark value and toggle persistence, but not the system-dark fallback, the `theme-color` value, or cross-tab sync.
-- **Proposed improvement:** Add focused theme tests for three cases. First, with no stored value and `colorScheme: "dark"`, the document and toggle report dark after initialization. Second, `meta[name="theme-color"]` follows the active theme. Third, a change made in one page of a browser context reaches a second open page through the `storage` event.
-- **Expected quality value:** Protects the previously fixed defect where `initTheme()` dropped system dark. Today that regression would pass the suite unnoticed, because the global `colorScheme` is light. The two documented synchronization mechanisms also gain executable evidence.
-- **Implementation scope:** Extend `tests/theme.spec.js` only, using a per-test `test.use({ colorScheme: "dark" })` or a scoped `describe`. Reuse `tests/support/app.js`. No change to theme source, storage keys, or the global Playwright configuration.
-- **Acceptance criteria:** One test, run with a dark colour scheme and no stored theme, asserts `data-theme="dark"`, `aria-pressed="true"`, and the accessible name `Włącz tryb jasny` after load. One assertion checks that `meta[name="theme-color"]` is `#faf7f2` in light and `#171311` after switching to dark. One test opens two pages in the same context, toggles the theme in the first, and asserts the second page's `data-theme` updates. `npx playwright test tests/theme.spec.js` passes against a fresh build.
+- **Status:** COMPLETED — implemented and verified.
+- **Result:** `tests/theme.spec.js` now covers the system-dark fallback without a stored preference under a scoped `colorScheme: "dark"`, `meta[name="theme-color"]` values (`#faf7f2` light, `#171311` dark) in the existing toggle test and the system-dark test, and cross-tab synchronization between two pages of one browser context through the native `storage` event. No theme source, helper, or Playwright configuration was changed.
+- **Verification:** `node --check tests/theme.spec.js` passed; `npm run test:smoke -- tests/theme.spec.js` built `dist/` with Vite and passed 4 of 4 theme tests in Chromium. The new tests were not run against a deliberately reintroduced regression.
 - **Impact:** High
 - **Effort:** Small
 
