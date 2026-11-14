@@ -1,8 +1,8 @@
 {
   "name": "everafterring",
   "version": "1.0.0",
-  "description": "A static portfolio reference website for a premium wedding and ceremonial services brand.",
   "private": true,
+  "description": "A responsive wedding and ceremonial services demonstration website built with HTML, CSS, and vanilla JavaScript, featuring accessibility, SEO, light/dark themes, and a Vite-powered build.",
   "author": "Kamil Król — KP_Code Digital Studio",
   "license": "SEE LICENSE IN LICENSE.md",
   "type": "module",
