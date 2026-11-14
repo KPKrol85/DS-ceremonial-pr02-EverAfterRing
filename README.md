@@ -225,7 +225,7 @@ Komenda nie zastępuje pozostałych: `npm run build` wymusza te same kontrakty s
 npm run test:smoke
 ```
 
-Komenda buduje `dist/`, uruchamia podgląd produkcyjny i wykonuje na nim dwadzieścia testów Playwright w przeglądarce Chromium. Testy działają na zbudowanych stronach, więc sprawdzają ten sam rozwiązany shell i wstawiony inline theme bootstrap, które trafiają na hosting. Host i port podglądu są ustalone na stałe, a testy nigdy nie podłączają się do serwera pozostawionego po wcześniejszym buildzie.
+Komenda buduje `dist/`, uruchamia podgląd produkcyjny i wykonuje na nim dwadzieścia trzy testy Playwright w przeglądarce Chromium. Testy działają na zbudowanych stronach, więc sprawdzają ten sam rozwiązany shell i wstawiony inline theme bootstrap, które trafiają na hosting. Host i port podglądu są ustalone na stałe, a testy nigdy nie podłączają się do serwera pozostawionego po wcześniejszym buildzie.
 
 Zakres testów (`tests/`):
 
@@ -233,7 +233,7 @@ Zakres testów (`tests/`):
 - przejście przez nawigację główną na inną stronę wraz ze statycznym `aria-current="page"` ustawionym przez build,
 - motyw: zapisany wybór ciemny zastosowany przed pierwszym malowaniem, przełączanie i utrwalanie wyboru po przeładowaniu, ciemny schemat systemowy bez zapisanego wyboru, synchronizacja `meta[name="theme-color"]` z aktywnym motywem oraz przeniesienie zmiany motywu do innej otwartej karty przez zdarzenie `storage`,
 - nawigacja mobilna przy szerokości 390 px: otwarcie z przycisku, stan panelu, obsługa fokusa i zamknięcie klawiszem `Escape`,
-- modal informacji o projekcie: pierwsza wizyta oraz zapisana akceptacja,
+- modal informacji o projekcie: otwarcie przy pierwszej wizycie i zamknięcie klawiszem `Escape`, zapisana akceptacja, utrzymanie fokusa w oknie przy `Tab` i `Shift+Tab` wraz z wejściem z kontenera i zawijaniem na obu końcach, zamknięcie kliknięciem tła poza panelem ze zdjęciem blokady przewijania oraz akceptacja przyciskiem `Akceptuję` utrwalona po przeładowaniu strony,
 - formularz kontaktowy: stan `aria-invalid` i dostępny opis błędu oraz ich wyczyszczenie po poprawieniu wartości dla pustego pola wymaganego, niepoprawnego formatu emaila, liczby gości spoza zakresu 10–400 i niewybranego budżetu; zablokowanie niepoprawnej wysyłki z komunikatem w regionie statusu, fokusem na pierwszym niepoprawnym polu i bez żądania POST; poprawna wysyłka jako natywny POST na `/dziekujemy.html` z `form-name`, wartościami wszystkich ośmiu walidowanych pól i pustym `bot-field`; informacja nad formularzem wskazująca autora projektu jako adresata zapytań,
 - lightbox portfolio na `realizacje.html`: otwarcie pierwszego zdjęcia dwuklikiem myszy, tytuł, opis i tekst alternatywny w otwartym oknie, dostępny przycisk zamknięcia z fokusem, zamknięcie klawiszem `Escape` i przyciskiem, powrót fokusa na wyzwalacz, ponowne otwarcie klawiszem `Enter` i `Spacja` oraz brak reakcji na pojedyncze kliknięcie myszą.
 
@@ -551,7 +551,7 @@ The command does not replace the others: `npm run build` enforces the same shell
 npm run test:smoke
 ```
 
-The command builds `dist/`, starts the production preview, and runs twenty Playwright tests against it in Chromium. The tests run on the built pages, so they exercise the same resolved shell and inlined theme bootstrap that ship to hosting. The preview host and port are pinned, and the tests never attach to a server left running from an earlier build.
+The command builds `dist/`, starts the production preview, and runs twenty-three Playwright tests against it in Chromium. The tests run on the built pages, so they exercise the same resolved shell and inlined theme bootstrap that ship to hosting. The preview host and port are pinned, and the tests never attach to a server left running from an earlier build.
 
 Test scope (`tests/`):
 
@@ -559,7 +559,7 @@ Test scope (`tests/`):
 - a transition through the primary navigation to another page, including the static `aria-current="page"` set by the build,
 - the theme: a stored dark choice applied before the first paint, toggling and persisting the choice across a reload, the dark system scheme without a stored choice, `meta[name="theme-color"]` synchronized with the active theme, and a theme change reaching another open tab through the `storage` event,
 - the mobile navigation at a width of 390 px: opening from the button, the panel state, focus handling, and closing with `Escape`,
-- the project notice modal: a first visit and a stored acceptance,
+- the project notice modal: opening on a first visit and closing with `Escape`, a stored acceptance, focus kept inside the dialog with `Tab` and `Shift+Tab`, including entry from the container and wraparound at both ends, closing with a backdrop click outside the panel that removes the scroll lock, and acceptance with the `Akceptuję` button persisted across a page reload,
 - the contact form: the `aria-invalid` state and accessible error description, both cleared once the value is corrected, for an empty required field, an invalid email format, a guest count outside the 10–400 range, and an unselected budget; an invalid submit prevented with a message in the status region, focus on the first invalid field, and no POST request; a valid submit sent as a native POST to `/dziekujemy.html` with `form-name`, the values of all eight validated fields, and an empty `bot-field`; the note above the form naming the project author as the recipient of inquiries,
 - the portfolio lightbox on `realizacje.html`: opening the first image with a mouse double-click, the title, description, and alternative text in the open dialog, the focused and accessible close button, closing with `Escape` and with the button, focus returning to the trigger, reopening with `Enter` and `Space`, and a single mouse click leaving it closed.
 

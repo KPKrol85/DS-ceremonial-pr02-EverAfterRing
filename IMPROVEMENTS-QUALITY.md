@@ -33,13 +33,9 @@ All five proposals below extend existing mechanisms: the Playwright suite under 
 
 ### IMP-QUALITY-03 — Cover the project-notice modal's focus containment and dismissal paths
 
-- **Affected area:** Project notice dialog (`js/modules/project-notice.js`, `trapFocus` in `js/utils.js`, `partials/footer.html`).
-- **Evidence:** `js/modules/project-notice.js:70-100`, `js/utils.js:35-49`, `partials/footer.html:101-117`, `tests/project-notice.spec.js:6-29`, `docs/CHANGELOG.md:43`
-- **Current implementation:** The notice opens on a first visit and focuses its `tabindex="-1"` container. It holds a focus trap that also handles `Tab` pressed while the container itself is focused. It closes via `Escape`, the `Akceptuję` button, or the `[data-project-notice-close]` backdrop, and persists acceptance last. The tests cover opening, `Escape` dismissal, and a pre-seeded acceptance. They do not cover `Tab`/`Shift+Tab` containment, backdrop dismissal, or acceptance written through the button.
-- **Proposed improvement:** Add tests for the three remaining contract paths of this modal: keyboard focus containment, backdrop dismissal, and acceptance persisted through the button and honoured on reload.
-- **Expected quality value:** The changelog records containment and backdrop dismissal as delivered fixes, but no executable check protects them. The container-entry case in `trapFocus` is subtle and shared with the mobile navigation, so a regression there would affect both.
-- **Implementation scope:** Extend `tests/project-notice.spec.js` only. No change to the module, `trapFocus`, the partial, or the storage key.
-- **Acceptance criteria:** From the focused dialog container, `Tab` focuses the first focusable element in the dialog and `Shift+Tab` focuses the last one. Repeated `Tab` presses never move focus outside the dialog. A click on the backdrop outside the dialog panel hides the notice. Pressing `Akceptuję` hides the notice, and after `page.reload()` the notice stays hidden. These pass against a fresh build.
+- **Status:** COMPLETED — implemented and verified.
+- **Result:** `tests/project-notice.spec.js` now covers `Tab`/`Shift+Tab` entry from the focused container, forward order, wraparound at both ends, and repeated navigation staying inside the dialog; a real backdrop click that hides the notice, removes the scroll lock, and leaves focus outside it; and acceptance through `Akceptuję` written to storage and honoured after `page.reload()`. No application source, partial, helper, or configuration was changed.
+- **Verification:** `node --check tests/project-notice.spec.js` passed; `npm run test:smoke -- tests/project-notice.spec.js` built `dist/` with Vite and passed 5 of 5 project-notice tests in Chromium. The new tests were not run against a deliberately reintroduced regression.
 - **Impact:** Medium
 - **Effort:** Small
 
