@@ -67,3 +67,4 @@ For each implementation task, determine `Changelog: yes` or `Changelog: no`. Add
 * Extended contact-form regression tests to cover per-field validation messages, prevented invalid submission, and the Netlify Forms POST payload.
 * Extended project-notice regression tests to cover keyboard focus containment, backdrop dismissal, and acceptance persisted across a reload.
 * Added a regression test verifying that theme switching, project-notice dismissal, and mobile navigation remain operable without uncaught errors when browser storage is unavailable.
+* Extended `npm run check` to validate per-page ID uniqueness and same-document ARIA, `label[for]`, and fragment-link targets with the shared shell resolved.

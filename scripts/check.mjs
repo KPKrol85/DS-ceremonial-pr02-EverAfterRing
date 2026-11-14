@@ -22,7 +22,7 @@ const styleRoot = "css";
 const webManifestFile = "assets/favicon/site.webmanifest";
 
 const failures = [];
-const counts = { pages: 0, partials: 0, stylesheets: 0, manifests: 0, references: 0 };
+const counts = { pages: 0, partials: 0, stylesheets: 0, manifests: 0, references: 0, idDocuments: 0, idReferences: 0 };
 
 const fail = (source, message) => {
   failures.push(`${source}: ${message}`);
@@ -141,26 +141,113 @@ const splitAttributeReferences = (attributeName, value) => {
     .filter(Boolean);
 };
 
-const checkHtmlReferences = (sourceFile, html, baseDirectory) => {
+// Yields every tag of the markup with its lowercased name and its valued attributes. Comments and
+// script bodies are stripped first, so neither contributes tags, references nor IDs.
+function* scanHtmlTags(html) {
   const markup = html.replace(htmlCommentPattern, "").replace(scriptBodyPattern, "$1$2");
 
   for (const [, tagName, attributes] of markup.matchAll(htmlTagPattern)) {
-    const tag = tagName.toLowerCase();
+    const attributeEntries = [...attributes.matchAll(htmlAttributePattern)].map(
+      ([, name, doubleQuoted, singleQuoted, unquoted]) => {
+        return [name.toLowerCase(), doubleQuoted ?? singleQuoted ?? unquoted ?? ""];
+      }
+    );
 
-    for (const [, name, doubleQuoted, singleQuoted, unquoted] of attributes.matchAll(htmlAttributePattern)) {
-      const attributeName = name.toLowerCase();
+    yield [tagName.toLowerCase(), attributeEntries];
+  }
+}
 
+const checkHtmlReferences = (sourceFile, html, baseDirectory) => {
+  for (const [tag, attributes] of scanHtmlTags(html)) {
+    for (const [attributeName, value] of attributes) {
       if (!isReferenceAttribute(tag, attributeName)) {
         continue;
       }
-
-      const value = doubleQuoted ?? singleQuoted ?? unquoted ?? "";
 
       splitAttributeReferences(attributeName, value).forEach((reference) => {
         checkReference(sourceFile, reference, baseDirectory);
       });
     }
   }
+};
+
+// Attributes whose value is a whitespace-separated list of IDs in the same document.
+const idReferenceListAttributes = ["aria-labelledby", "aria-describedby", "aria-controls"];
+const htmlWhitespacePattern = /[\t\n\f\r ]+/;
+
+// Returns the ID a fragment-only `href` addresses, or null when the value is not one. `#` alone
+// (and `#top` without a matching element) addresses the top of the document, not an element.
+const getFragmentTarget = (value) => {
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue.startsWith("#") || trimmedValue.length === 1) {
+    return null;
+  }
+
+  try {
+    return decodeURIComponent(trimmedValue.slice(1));
+  } catch {
+    return trimmedValue.slice(1);
+  }
+};
+
+const collectIdReferences = (tag, attributes) => {
+  return attributes.flatMap(([attributeName, value]) => {
+    if (idReferenceListAttributes.includes(attributeName)) {
+      return value
+        .split(htmlWhitespacePattern)
+        .filter(Boolean)
+        .map((id) => ({ attribute: attributeName, value, id }));
+    }
+
+    if (attributeName === "for" && tag === "label" && value !== "") {
+      return [{ attribute: "label[for]", value, id: value }];
+    }
+
+    if (attributeName === "href" && tag !== "base") {
+      const id = getFragmentTarget(value);
+      return id === null ? [] : [{ attribute: "href", value, id }];
+    }
+
+    return [];
+  });
+};
+
+// Checks one document with the shared shell already resolved into it, so IDs and references from
+// the page and both partials meet exactly as they do in the production output. IDs are collected
+// before references are resolved, which keeps forward references valid.
+const checkIdIntegrity = (page, html) => {
+  const idOccurrences = new Map();
+  const references = [];
+
+  for (const [tag, attributes] of scanHtmlTags(html)) {
+    attributes.forEach(([attributeName, value]) => {
+      if (attributeName === "id" && value !== "") {
+        idOccurrences.set(value, (idOccurrences.get(value) ?? 0) + 1);
+      }
+    });
+
+    references.push(...collectIdReferences(tag, attributes));
+  }
+
+  counts.idDocuments += 1;
+
+  idOccurrences.forEach((occurrences, id) => {
+    if (occurrences > 1) {
+      fail(page, `duplicate id "${id}" (${occurrences} elements in the document with the shared shell resolved)`);
+    }
+  });
+
+  references.forEach(({ attribute, value, id }) => {
+    counts.idReferences += 1;
+
+    if (idOccurrences.has(id) || (attribute === "href" && id.toLowerCase() === "top")) {
+      return;
+    }
+
+    const declaration = attribute === "label[for]" ? `label for="${value}"` : `${attribute}="${value}"`;
+    fail(page, `${declaration} references missing id "${id}" in the document with the shared shell resolved`);
+  });
 };
 
 const cssCommentPattern = /\/\*[\s\S]*?\*\//g;
@@ -222,8 +309,9 @@ const checkWebManifest = () => {
 
 // The build's own contracts, run against the source without producing the transformed document:
 // required partial hosts, exactly one `aria-current="page"` on a primary-navigation page, and the
-// synchronous theme-bootstrap tag.
+// synchronous theme-bootstrap tag. Returns each page whose shared shell resolved, in memory only.
 const checkSharedShellContracts = (pageSources) => {
+  const resolvedPages = new Map();
   let shell;
   let themeBootstrap;
 
@@ -232,7 +320,7 @@ const checkSharedShellContracts = (pageSources) => {
     themeBootstrap = readThemeBootstrap();
   } catch (error) {
     fail("scripts/html-shell.mjs", `shared shell sources could not be read: ${error.message}`);
-    return;
+    return resolvedPages;
   }
 
   htmlPages.forEach((page) => {
@@ -243,11 +331,15 @@ const checkSharedShellContracts = (pageSources) => {
     }
 
     try {
-      inlineThemeBootstrap(resolveSharedShell(html, page, shell), themeBootstrap);
+      const resolvedHtml = resolveSharedShell(html, page, shell);
+      resolvedPages.set(page, resolvedHtml);
+      inlineThemeBootstrap(resolvedHtml, themeBootstrap);
     } catch (error) {
       fail(page, error.message);
     }
   });
+
+  return resolvedPages;
 };
 
 const report = () => {
@@ -257,6 +349,9 @@ const report = () => {
   );
   console.log(
     `- local references: ${counts.references} checked across ${counts.pages} pages, ${counts.partials} partials, ${counts.stylesheets} stylesheets and ${counts.manifests} web manifest`
+  );
+  console.log(
+    `- ID references: ${counts.idReferences} checked (aria-labelledby, aria-describedby, aria-controls, label[for], fragment-only href) and IDs checked for uniqueness across ${counts.idDocuments} pages with the shared shell resolved`
   );
 
   if (failures.length === 0) {
@@ -283,7 +378,10 @@ const main = () => {
     pageSources.set(page, html);
   });
 
-  checkSharedShellContracts(pageSources);
+  const resolvedPages = checkSharedShellContracts(pageSources);
+
+  // ID integrity is checked on the resolved document, where page and partial IDs share one scope.
+  resolvedPages.forEach((html, page) => checkIdIntegrity(page, html));
 
   // A top-level document sits at the project root, so its relative references resolve from there.
   pageSources.forEach((html, page) => checkHtmlReferences(page, html, projectRoot));

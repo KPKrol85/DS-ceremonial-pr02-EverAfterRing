@@ -171,7 +171,7 @@ W trybie deweloperskim strony są serwowane ze źródeł: partiale są pobierane
 | `npm run dev` | Uruchamia serwer deweloperski Vite na porcie 8181. |
 | `npm run build` | Buduje wersję produkcyjną do `dist/`. Nie generuje obrazów. |
 | `npm run preview` | Serwuje zbudowany katalog `dist/` na porcie 8182. |
-| `npm run check` | Sprawdza spójność źródeł bez budowania: kontrakty wspólnego shellu i rozwiązywanie lokalnych referencji. Nie zapisuje plików. |
+| `npm run check` | Sprawdza spójność źródeł bez budowania: kontrakty wspólnego shellu, rozwiązywanie lokalnych referencji oraz unikalność ID i referencje do ID w obrębie dokumentu. Nie zapisuje plików. |
 | `npm run test:smoke` | Buduje `dist/` i uruchamia smoke testy Playwright (Chromium) na podglądzie produkcyjnym. |
 | `npm run optimize:images` | Generuje warianty obrazów z `assets/img-src/` do `assets/img/`. |
 
@@ -211,11 +211,12 @@ Komenda sprawdza utrzymywane źródła bez budowania czegokolwiek. Nie tworzy an
 Zakres kontroli (`scripts/check.mjs`):
 
 - kontrakty wspólnego shellu dla wszystkich jedenastu stron, wykonywane w pamięci na tych samych funkcjach z `scripts/html-shell.mjs`, których używa build: obecność hostów partiali `header` i `footer`, dokładnie jeden link `nav__link` z `aria-current="page"` na stronie należącej do nawigacji głównej oraz obecność tagu synchronicznego theme bootstrapu,
-- rozwiązywanie lokalnych referencji: `src`, `href`, `srcset` (każdy kandydat osobno), `data-partial-src` i `action` formularza w stronach oraz partialach, `url()` i `@import` w plikach CSS, a także wpisy `src` ikon, skrótów i zrzutów ekranu w `assets/favicon/site.webmanifest`.
+- rozwiązywanie lokalnych referencji: `src`, `href`, `srcset` (każdy kandydat osobno), `data-partial-src` i `action` formularza w stronach oraz partialach, `url()` i `@import` w plikach CSS, a także wpisy `src` ikon, skrótów i zrzutów ekranu w `assets/favicon/site.webmanifest`,
+- integralność ID w obrębie dokumentu dla każdej z jedenastu stron po rozwiązaniu w pamięci wspólnego nagłówka i stopki przez `resolveSharedShell()`: unikalność wartości `id` (także między stroną a wstawionym partialem) oraz istnienie celu każdego ID wskazanego w `aria-labelledby`, `aria-describedby` i `aria-controls` (każde ID z listy osobno), w `for` elementu `<label>` oraz w linkach zawierających wyłącznie fragment, np. `href="#main"`. Ten sam ID na dwóch różnych stronach jest poprawny. Komentarze HTML i treść skryptów są pomijane.
 
-Referencje są rozwiązywane względem pliku, który je deklaruje: strony i partiale względem katalogu głównego projektu — partiale są wstawiane do stron leżących w katalogu głównym — pliki CSS względem własnej lokalizacji, a ścieżki zaczynające się od `/` względem katalogu głównego. Ciągi zapytań i fragmenty nie wpływają na wyszukiwanie pliku. Adresy zewnętrzne (`http:`, `https:`, `mailto:`, `tel:`, `data:`), linki zawierające wyłącznie fragment oraz deklaracja `<base href="/">` nie są traktowane jako referencje do plików.
+Referencje są rozwiązywane względem pliku, który je deklaruje: strony i partiale względem katalogu głównego projektu — partiale są wstawiane do stron leżących w katalogu głównym — pliki CSS względem własnej lokalizacji, a ścieżki zaczynające się od `/` względem katalogu głównego. Ciągi zapytań i fragmenty nie wpływają na wyszukiwanie pliku. Adresy zewnętrzne (`http:`, `https:`, `mailto:`, `tel:`, `data:`), linki zawierające wyłącznie fragment oraz deklaracja `<base href="/">` nie są traktowane jako referencje do plików. Linki zawierające wyłącznie fragment są natomiast sprawdzane jako referencje do ID w tym samym dokumencie.
 
-Powodzenie kończy się kodem wyjścia `0` i podsumowaniem liczby sprawdzonych stron i referencji. Niespełniony kontrakt kończy się kodem różnym od zera, a każdy problem jest wypisywany z nazwą pliku źródłowego i opisem — dla referencji także z jej treścią i oczekiwaną ścieżką.
+Powodzenie kończy się kodem wyjścia `0` i podsumowaniem liczby sprawdzonych stron, referencji lokalnych i referencji do ID. Niespełniony kontrakt kończy się kodem różnym od zera, a każdy problem jest wypisywany z nazwą pliku źródłowego i opisem — dla referencji lokalnej także z jej treścią i oczekiwaną ścieżką, dla referencji do ID z atrybutem i brakującym ID, a dla zduplikowanego ID z jego wartością.
 
 Komenda nie zastępuje pozostałych: `npm run build` wymusza te same kontrakty shellu przy generowaniu `dist/`, a `npm run test:smoke` sprawdza zachowanie w przeglądarce Chromium na zbudowanym podglądzie. `npm run check` sprawdza wyłącznie źródła i jest jedyną z nich, która niczego nie zapisuje.
 
@@ -498,7 +499,7 @@ In development the pages are served from source: the partials are fetched at run
 | `npm run dev` | Starts the Vite development server on port 8181. |
 | `npm run build` | Builds the production version into `dist/`. Does not generate images. |
 | `npm run preview` | Serves the built `dist/` directory on port 8182. |
-| `npm run check` | Checks source consistency without building: the shared-shell contracts and local-reference resolution. Writes no files. |
+| `npm run check` | Checks source consistency without building: the shared-shell contracts, local-reference resolution, and in-document ID uniqueness and ID references. Writes no files. |
 | `npm run test:smoke` | Builds `dist/` and runs the Playwright smoke tests (Chromium) against the production preview. |
 | `npm run optimize:images` | Generates image variants from `assets/img-src/` into `assets/img/`. |
 
@@ -538,11 +539,12 @@ The command validates the maintained source without building anything. It neithe
 Check scope (`scripts/check.mjs`):
 
 - the shared-shell contracts for all eleven pages, run in memory through the same functions from `scripts/html-shell.mjs` that the build uses: the presence of the `header` and `footer` partial hosts, exactly one `nav__link` carrying `aria-current="page"` on a page belonging to the primary navigation, and the presence of the synchronous theme bootstrap tag,
-- local reference resolution: `src`, `href`, `srcset` (each candidate separately), `data-partial-src`, and the form `action` in the pages and the partials, `url()` and `@import` in the CSS files, plus the icon, shortcut-icon, and screenshot `src` entries in `assets/favicon/site.webmanifest`.
+- local reference resolution: `src`, `href`, `srcset` (each candidate separately), `data-partial-src`, and the form `action` in the pages and the partials, `url()` and `@import` in the CSS files, plus the icon, shortcut-icon, and screenshot `src` entries in `assets/favicon/site.webmanifest`,
+- in-document ID integrity for each of the eleven pages after the shared header and footer are resolved in memory through `resolveSharedShell()`: unique `id` values (including between a page and an inserted partial) and an existing target for every ID referenced by `aria-labelledby`, `aria-describedby`, and `aria-controls` (each ID in the list separately), by `for` on a `<label>` element, and by fragment-only links such as `href="#main"`. The same ID on two different pages is valid. HTML comments and script contents are ignored.
 
-References are resolved relative to the file that declares them: pages and partials against the project root — the partials are injected into pages that live in the root — CSS files against their own location, and paths starting with `/` against the project root. Query strings and fragments do not affect the filesystem lookup. External addresses (`http:`, `https:`, `mailto:`, `tel:`, `data:`), fragment-only links, and the `<base href="/">` declaration are not treated as file references.
+References are resolved relative to the file that declares them: pages and partials against the project root — the partials are injected into pages that live in the root — CSS files against their own location, and paths starting with `/` against the project root. Query strings and fragments do not affect the filesystem lookup. External addresses (`http:`, `https:`, `mailto:`, `tel:`, `data:`), fragment-only links, and the `<base href="/">` declaration are not treated as file references. Fragment-only links are instead checked as same-document ID references.
 
-A passing run exits with code `0` and prints a summary of the pages and references checked. A failed contract exits with a non-zero code, and every problem is printed with its source file and description — for a reference, also with the reference itself and the expected path.
+A passing run exits with code `0` and prints a summary of the pages, local references, and ID references checked. A failed contract exits with a non-zero code, and every problem is printed with its source file and description — for a local reference, also with the reference itself and the expected path; for an ID reference, with the attribute and the missing ID; and for a duplicate ID, with its value.
 
 The command does not replace the others: `npm run build` enforces the same shell contracts while producing `dist/`, and `npm run test:smoke` verifies behavior in Chromium against the built preview. `npm run check` covers the source only, and it is the only one of the three that writes nothing.
 
