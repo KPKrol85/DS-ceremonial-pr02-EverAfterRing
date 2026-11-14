@@ -137,7 +137,7 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych stron indeksowanych, w
 ├── package.json
 ├── playwright.config.js
 ├── vite.config.js
-└── LICENSE
+└── LICENSE.md
 ```
 
 ### Instalacja
@@ -318,13 +318,13 @@ Repozytorium nie zawiera wyników pomiarów wydajności, dlatego powyższe punkt
 
 ### Licencja
 
-Projekt jest objęty własnościową licencją KP_Code (wersja 1.0) opisaną w [LICENSE](LICENSE). Nie jest to licencja open source ani przekazanie do domeny publicznej; `package.json` deklaruje `SEE LICENSE IN LICENSE`.
+Projekt jest objęty własnościową licencją KP_Code (wersja 1.0) opisaną w [LICENSE.md](LICENSE.md). Nie jest to licencja open source ani przekazanie do domeny publicznej; `package.json` deklaruje `SEE LICENSE IN LICENSE.md`.
 
 Licencja jest dwujęzyczna, a w razie rozbieżności rozstrzygająca jest wersja polska. Właścicielem praw jest Kamil Król — KP_Code.
 
 ### Atrybucje
 
-Materiały podmiotów trzecich pozostają objęte własnymi licencjami — zasady opisuje sekcja 8 pliku [LICENSE](LICENSE). Repozytorium hostuje lokalnie subsety fontów Cormorant Garamond i Inter w `assets/fonts/`, deklarowane w `css/fonts.css`.
+Materiały podmiotów trzecich pozostają objęte własnymi licencjami — zasady opisuje sekcja 8 pliku [LICENSE.md](LICENSE.md). Repozytorium hostuje lokalnie subsety fontów Cormorant Garamond i Inter w `assets/fonts/`, deklarowane w `css/fonts.css`.
 
 ## EN
 
@@ -463,7 +463,7 @@ This address is declared as canonical in the metadata of the indexable pages, in
 ├── package.json
 ├── playwright.config.js
 ├── vite.config.js
-└── LICENSE
+└── LICENSE.md
 ```
 
 ### Installation
@@ -644,10 +644,10 @@ The repository contains no performance measurements, so the points above describ
 
 ### License
 
-The project is covered by the KP_Code proprietary project license (version 1.0) described in [LICENSE](LICENSE). It is not open-source software and not a dedication to the public domain; `package.json` declares `SEE LICENSE IN LICENSE`.
+The project is covered by the KP_Code proprietary project license (version 1.0) described in [LICENSE.md](LICENSE.md). It is not open-source software and not a dedication to the public domain; `package.json` declares `SEE LICENSE IN LICENSE.md`.
 
 The license is bilingual, and the Polish version prevails in case of divergence. The rights owner is Kamil Król — KP_Code.
 
 ### Attributions
 
-Third-party materials remain subject to their own licenses — the rules are stated in section 8 of [LICENSE](LICENSE). The repository hosts local subsets of the Cormorant Garamond and Inter fonts in `assets/fonts/`, declared in `css/fonts.css`.
+Third-party materials remain subject to their own licenses — the rules are stated in section 8 of [LICENSE.md](LICENSE.md). The repository hosts local subsets of the Cormorant Garamond and Inter fonts in `assets/fonts/`, declared in `css/fonts.css`.

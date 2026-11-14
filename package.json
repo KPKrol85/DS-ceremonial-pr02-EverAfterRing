@@ -4,7 +4,7 @@
   "description": "A static portfolio reference website for a premium wedding and ceremonial services brand.",
   "private": true,
   "author": "Kamil Król — KP_Code Digital Studio",
-  "license": "SEE LICENSE IN LICENSE",
+  "license": "SEE LICENSE IN LICENSE.md",
   "type": "module",
   "repository": {
     "type": "git",
