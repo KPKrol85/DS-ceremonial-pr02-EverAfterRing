@@ -225,19 +225,19 @@ Komenda nie zastępuje pozostałych: `npm run build` wymusza te same kontrakty s
 npm run test:smoke
 ```
 
-Komenda buduje `dist/`, uruchamia podgląd produkcyjny i wykonuje na nim jedenaście testów Playwright w przeglądarce Chromium. Testy działają na zbudowanych stronach, więc sprawdzają ten sam rozwiązany shell i wstawiony inline theme bootstrap, które trafiają na hosting. Host i port podglądu są ustalone na stałe, a testy nigdy nie podłączają się do serwera pozostawionego po wcześniejszym buildzie.
+Komenda buduje `dist/`, uruchamia podgląd produkcyjny i wykonuje na nim dwadzieścia testów Playwright w przeglądarce Chromium. Testy działają na zbudowanych stronach, więc sprawdzają ten sam rozwiązany shell i wstawiony inline theme bootstrap, które trafiają na hosting. Host i port podglądu są ustalone na stałe, a testy nigdy nie podłączają się do serwera pozostawionego po wcześniejszym buildzie.
 
 Zakres testów (`tests/`):
 
 - ładowanie trzech reprezentatywnych stron (główna, oferta, kontakt): `title`, nagłówek `h1`, obecność nagłówka i stopki ze wspólnego shellu, ustawiony motyw oraz brak błędów JavaScriptu,
 - przejście przez nawigację główną na inną stronę wraz ze statycznym `aria-current="page"` ustawionym przez build,
-- motyw: zapisany wybór ciemny zastosowany przed pierwszym malowaniem oraz przełączanie i utrwalanie wyboru po przeładowaniu,
+- motyw: zapisany wybór ciemny zastosowany przed pierwszym malowaniem, przełączanie i utrwalanie wyboru po przeładowaniu, ciemny schemat systemowy bez zapisanego wyboru, synchronizacja `meta[name="theme-color"]` z aktywnym motywem oraz przeniesienie zmiany motywu do innej otwartej karty przez zdarzenie `storage`,
 - nawigacja mobilna przy szerokości 390 px: otwarcie z przycisku, stan panelu, obsługa fokusa i zamknięcie klawiszem `Escape`,
 - modal informacji o projekcie: pierwsza wizyta oraz zapisana akceptacja,
-- formularz kontaktowy: wysyłka z pustymi polami wymaganymi — stan `aria-invalid`, fokus i komunikat pierwszego niepoprawnego pola oraz wyczyszczenie obu po wpisaniu poprawnej wartości,
+- formularz kontaktowy: stan `aria-invalid` i dostępny opis błędu oraz ich wyczyszczenie po poprawieniu wartości dla pustego pola wymaganego, niepoprawnego formatu emaila, liczby gości spoza zakresu 10–400 i niewybranego budżetu; zablokowanie niepoprawnej wysyłki z komunikatem w regionie statusu, fokusem na pierwszym niepoprawnym polu i bez żądania POST; poprawna wysyłka jako natywny POST na `/dziekujemy.html` z `form-name`, wartościami wszystkich ośmiu walidowanych pól i pustym `bot-field`; informacja nad formularzem wskazująca autora projektu jako adresata zapytań,
 - lightbox portfolio na `realizacje.html`: otwarcie pierwszego zdjęcia dwuklikiem myszy, tytuł, opis i tekst alternatywny w otwartym oknie, dostępny przycisk zamknięcia z fokusem, zamknięcie klawiszem `Escape` i przyciskiem, powrót fokusa na wyzwalacz, ponowne otwarcie klawiszem `Enter` i `Spacja` oraz brak reakcji na pojedyncze kliknięcie myszą.
 
-Jest to celowo wąski zestaw smoke testów, a nie pełne pokrycie E2E. Z formularza kontaktowego obejmuje wyłącznie powyższą ścieżkę stanu niepoprawnego pola — nie obejmuje pozostałych pól walidowanych, pozostałych typów błędów ani wysyłki. Z lightboxa obejmuje wyłącznie pierwszą kartę portfolio i wskazane wyżej ścieżki otwarcia oraz zamknięcia. Nie obejmuje też pozostałych stron, strony `404.html`, layoutu responsywnego, testów wizualnych, audytu dostępności ani silników przeglądarek innych niż Chromium.
+Jest to celowo wąski zestaw smoke testów, a nie pełne pokrycie E2E. Wysyłka formularza jest przechwytywana lokalnie przez `page.route()`, więc test sprawdza żądanie wysłane przez przeglądarkę, a nie faktyczne dostarczenie zgłoszenia przez Netlify Forms. Z lightboxa obejmuje wyłącznie pierwszą kartę portfolio i wskazane wyżej ścieżki otwarcia oraz zamknięcia. Nie obejmuje też pozostałych stron, strony `404.html`, layoutu responsywnego, testów wizualnych, audytu dostępności ani silników przeglądarek innych niż Chromium.
 
 Playwright wymaga jednorazowego pobrania przeglądarki — `npm install` nie robi tego automatycznie:
 
@@ -551,19 +551,19 @@ The command does not replace the others: `npm run build` enforces the same shell
 npm run test:smoke
 ```
 
-The command builds `dist/`, starts the production preview, and runs eleven Playwright tests against it in Chromium. The tests run on the built pages, so they exercise the same resolved shell and inlined theme bootstrap that ship to hosting. The preview host and port are pinned, and the tests never attach to a server left running from an earlier build.
+The command builds `dist/`, starts the production preview, and runs twenty Playwright tests against it in Chromium. The tests run on the built pages, so they exercise the same resolved shell and inlined theme bootstrap that ship to hosting. The preview host and port are pinned, and the tests never attach to a server left running from an earlier build.
 
 Test scope (`tests/`):
 
 - loading three representative pages (home, offer, contact): `title`, the `h1` heading, the header and footer from the shared shell, the applied theme, and the absence of JavaScript errors,
 - a transition through the primary navigation to another page, including the static `aria-current="page"` set by the build,
-- the theme: a stored dark choice applied before the first paint, plus toggling and persisting the choice across a reload,
+- the theme: a stored dark choice applied before the first paint, toggling and persisting the choice across a reload, the dark system scheme without a stored choice, `meta[name="theme-color"]` synchronized with the active theme, and a theme change reaching another open tab through the `storage` event,
 - the mobile navigation at a width of 390 px: opening from the button, the panel state, focus handling, and closing with `Escape`,
 - the project notice modal: a first visit and a stored acceptance,
-- the contact form: a submit with the required fields empty — the `aria-invalid` state, focus, and message of the first invalid field, and both cleared once a valid value is entered,
+- the contact form: the `aria-invalid` state and accessible error description, both cleared once the value is corrected, for an empty required field, an invalid email format, a guest count outside the 10–400 range, and an unselected budget; an invalid submit prevented with a message in the status region, focus on the first invalid field, and no POST request; a valid submit sent as a native POST to `/dziekujemy.html` with `form-name`, the values of all eight validated fields, and an empty `bot-field`; the note above the form naming the project author as the recipient of inquiries,
 - the portfolio lightbox on `realizacje.html`: opening the first image with a mouse double-click, the title, description, and alternative text in the open dialog, the focused and accessible close button, closing with `Escape` and with the button, focus returning to the trigger, reopening with `Enter` and `Space`, and a single mouse click leaving it closed.
 
-This is a deliberately narrow smoke suite, not full E2E coverage. Of the contact form it covers only the invalid-state path above — not the other validated fields, the remaining validity types, or the submission. Of the lightbox it covers only the first portfolio card and the open and close paths listed above. It also does not cover the remaining pages, the `404.html` page, responsive layout, visual regression, accessibility auditing, or any browser engine other than Chromium.
+This is a deliberately narrow smoke suite, not full E2E coverage. The form submission is intercepted locally with `page.route()`, so the test checks the request sent by the browser, not actual delivery through Netlify Forms. Of the lightbox it covers only the first portfolio card and the open and close paths listed above. It also does not cover the remaining pages, the `404.html` page, responsive layout, visual regression, accessibility auditing, or any browser engine other than Chromium.
 
 Playwright requires a one-time browser download — `npm install` does not perform it:
 
