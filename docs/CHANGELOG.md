@@ -66,3 +66,4 @@ For each implementation task, determine `Changelog: yes` or `Changelog: no`. Add
 * Extended theme regression tests to cover the system-dark fallback, `theme-color` metadata synchronization, and cross-tab theme synchronization.
 * Extended contact-form regression tests to cover per-field validation messages, prevented invalid submission, and the Netlify Forms POST payload.
 * Extended project-notice regression tests to cover keyboard focus containment, backdrop dismissal, and acceptance persisted across a reload.
+* Added a regression test verifying that theme switching, project-notice dismissal, and mobile navigation remain operable without uncaught errors when browser storage is unavailable.

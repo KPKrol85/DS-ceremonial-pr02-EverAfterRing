@@ -41,13 +41,9 @@ All five proposals below extend existing mechanisms: the Playwright suite under 
 
 ### IMP-QUALITY-04 — Verify graceful degradation when browser storage is unavailable
 
-- **Affected area:** Storage-dependent features: theme bootstrap, theme toggle, project notice.
-- **Evidence:** `js/theme-bootstrap.js:10-17`, `js/modules/theme.js:10-25`, `js/modules/project-notice.js:5-21`, `js/modules/project-notice.js:92-93`, `tests/support/app.js:8-13`, `docs/CHANGELOG.md:45`
-- **Current implementation:** Every `localStorage` read and write is wrapped in `try`/`catch`. An unreadable store resolves to no stored theme and no acceptance, so the notice still renders and dismissal works for the current page. The acceptance write runs last so the close path never depends on it. The changelog records this resilience as a delivered fix. Every existing test runs with a working `localStorage`.
-- **Proposed improvement:** Add one focused test that makes `window.localStorage` throw before any page script runs. It then verifies that the documented degradation holds without uncaught errors.
-- **Expected quality value:** Converts a source-level guarantee into an executable one for the browsers and privacy settings that block site data. Any new unguarded storage access added later in these modules would then fail the suite instead of halting `js/app.js` initialization.
-- **Implementation scope:** One new spec file, or one test in an existing spec, that uses an init script to make the `localStorage` getter throw a `SecurityError`. No change to application source or to the existing storage-seeding helpers.
-- **Acceptance criteria:** With storage blocked, loading `/` records no `pageerror` events. `<html data-theme>` resolves to `light` under the pinned light scheme. The project notice opens and closes with `Akceptuję`. The theme toggle switches the document to dark and back for the current page. The header navigation, initialized after the notice in `js/app.js`, remains operable. These pass against a fresh build.
+- **Status:** COMPLETED — implemented and verified.
+- **Result:** `tests/storage-unavailable.spec.js` makes the `window.localStorage` getter throw a `SecurityError` through an init script and verifies, at a 390 px viewport, the `light` fallback, theme switching to dark and back with `aria-pressed` and `theme-color` synchronized, notice dismissal through `Akceptuję` despite the failed write, and mobile-navigation opening and `Escape` closing. No application source, helper, or Playwright configuration was changed.
+- **Verification:** `node --check` passed; `npm run test:smoke -- tests/storage-unavailable.spec.js` built `dist/` with Vite and passed 1 of 1 tests with no `pageerror` events, and `npx playwright test --list` reports 24 tests in 8 files. The test was not run against a deliberately reintroduced unguarded storage access.
 - **Impact:** Medium
 - **Effort:** Small
 
