@@ -29,6 +29,7 @@ For each implementation task, determine `Changelog: yes` or `Changelog: no`. Add
 * Added a custom `404.html` page with the shared shell, root-relative recovery navigation, `noindex, follow`, and production-build integration.
 * Added an accessible portfolio lightbox for all nine images on `realizacje.html`, with mouse, touch, keyboard, focus-return, responsive-image, dark-theme, and reduced-motion support.
 * Added `aria-invalid` state handling to validated contact-form fields, synchronized with the existing validation messages and recovery behavior.
+* Added a contact-form note identifying KP_Code Digital Studio as the inquiry recipient and the presented services and packages as demonstrational.
 
 ### Removed
 
@@ -63,3 +64,4 @@ For each implementation task, determine `Changelog: yes` or `Changelog: no`. Add
 * Added `npm run check` for dependency-free source consistency, shared-shell contracts, and local-reference validation.
 * Added a Chromium smoke-test baseline covering representative pages, navigation, theme behavior, mobile navigation, and the project notice.
 * Extended theme regression tests to cover the system-dark fallback, `theme-color` metadata synchronization, and cross-tab theme synchronization.
+* Extended contact-form regression tests to cover per-field validation messages, prevented invalid submission, and the Netlify Forms POST payload.
