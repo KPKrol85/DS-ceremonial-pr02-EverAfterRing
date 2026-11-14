@@ -1,4 +1,4 @@
-import { copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync } from "node:fs";
+import { copyFileSync, cpSync, existsSync, mkdirSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig, minifySync } from "vite";
@@ -77,49 +77,21 @@ const copyStaticAssets = (outDir) => {
   });
 };
 
-// The partials are shared-shell fragments, not documents. Serving them verbatim keeps the runtime
-// loader in development injecting exactly the markup the production build resolves, instead of the
-// fragment Vite would otherwise treat as an HTML entry.
-const devPartialsPlugin = () => {
-  const partialsRoot = path.join(projectRoot, "partials");
-
-  return {
-    name: "everafter-dev-partials",
-    apply: "serve",
-    configureServer(server) {
-      server.middlewares.use((request, response, next) => {
-        const [requestPath] = (request.url ?? "").split("?");
-
-        if (!requestPath.startsWith("/partials/") || !requestPath.endsWith(".html")) {
-          next();
-          return;
-        }
-
-        const partialFile = path.resolve(projectRoot, decodeURIComponent(requestPath).slice(1));
-
-        if (!partialFile.startsWith(`${partialsRoot}${path.sep}`) || !existsSync(partialFile)) {
-          next();
-          return;
-        }
-
-        response.setHeader("Content-Type", "text/html; charset=utf-8");
-        response.end(readFileSync(partialFile, "utf8"));
-      });
-    }
-  };
-};
-
-// Production HTML transformation for the contracts Vite does not own: the shared shell,
-// the active primary-navigation state and the synchronous theme bootstrap. Development keeps
-// the runtime partial loader (`js/modules/partials.js`), so the plugin is build-only.
+// Development and production share shell resolution and active-navigation validation.
+// Only production replaces the synchronous external theme bootstrap with its inline version.
 const sharedShellPlugin = () => {
+  let isBuild = false;
   let sharedShell = null;
   let themeBootstrapCode = "";
 
   return {
     name: "everafter-shared-shell",
-    apply: "build",
+    configResolved(config) {
+      isBuild = config.command === "build";
+    },
     buildStart() {
+      if (!isBuild) return;
+
       sharedShell = readSharedShell();
 
       const { code, errors } = minifySync("theme-bootstrap.js", readThemeBootstrap());
@@ -130,16 +102,31 @@ const sharedShellPlugin = () => {
 
       themeBootstrapCode = code;
     },
+    hotUpdate({ file }) {
+      const relativePath = toProjectRelativePath(file);
+
+      if (relativePath === "partials/header.html" || relativePath === "partials/footer.html") {
+        if (this.environment.name === "client") {
+          this.environment.hot.send({ type: "full-reload", path: "*" });
+        }
+
+        return [];
+      }
+    },
     transformIndexHtml: {
       order: "pre",
       handler(html, context) {
-        const page = path.basename(context.path ?? context.filename ?? "");
+        const entryPath = toPosixPath(context.filename ?? context.path);
+        const page = context.path === "/" ? "index.html" : path.posix.basename(entryPath);
 
         if (!htmlPages.includes(page)) {
           throw new Error(`Unexpected HTML entry "${page}". Maintained pages are: ${htmlPages.join(", ")}.`);
         }
 
-        return inlineThemeBootstrap(resolveSharedShell(html, page, sharedShell), themeBootstrapCode);
+        // Read current partials for every development request instead of caching a startup snapshot.
+        const resolvedHtml = resolveSharedShell(html, page, isBuild ? sharedShell : readSharedShell());
+
+        return isBuild ? inlineThemeBootstrap(resolvedHtml, themeBootstrapCode) : resolvedHtml;
       }
     }
   };
@@ -191,5 +178,5 @@ export default defineConfig({
       }
     }
   },
-  plugins: [devPartialsPlugin(), sharedShellPlugin(), staticAssetsPlugin()]
+  plugins: [sharedShellPlugin(), staticAssetsPlugin()]
 });

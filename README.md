@@ -8,7 +8,7 @@ EverAfter Ring to statyczny, wielostronicowy serwis w języku polskim, zbudowany
 
 Projekt jest realizacją referencyjną KP_Code Digital Studio przedstawiającą przykładowy serwis dla branży ślubnej. Charakter demonstracyjny jest zakomunikowany w samym interfejsie — modal „Informacja o projekcie” w `partials/footer.html` oraz strony prawne opisują serwis jako projekt portfolio, a nie działającą firmę.
 
-Wspólny nagłówek i stopka są utrzymywane jako partiale i mają dwa tryby dostarczania: w trybie deweloperskim są pobierane przez `fetch`, a w buildzie produkcyjnym wstawiane bezpośrednio do plików HTML. Vite jest narzędziem developmentu, builda i podglądu — nie jest frameworkiem runtime — a wersja produkcyjna jest generowana do katalogu `dist/`.
+Wspólny nagłówek i stopka są utrzymywane jako partiale i wstawiane do HTML przez tę samą transformację Vite w trybie deweloperskim i podczas builda produkcyjnego. Vite jest narzędziem developmentu, builda i podglądu — nie jest frameworkiem runtime — a wersja produkcyjna jest generowana do katalogu `dist/`.
 
 ### Wersja online
 
@@ -19,7 +19,7 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych stron indeksowanych, w
 ### Kluczowe funkcje
 
 - Wielostronicowa struktura oparta na plikach HTML w katalogu głównym, bez routingu klienckiego.
-- Wspólny `header` i `footer` z `partials/`, z automatycznym oznaczaniem aktywnej strony przez `aria-current="page"` — w trybie deweloperskim na podstawie `window.location`, a w buildzie produkcyjnym na podstawie nazwy pliku.
+- Wspólny `header` i `footer` z `partials/`, z automatycznym oznaczaniem aktywnej strony przez `aria-current="page"` na podstawie nazwy dokumentu HTML w obu trybach Vite.
 - Nawigacja mobilna poniżej progu 1024 px: `aria-expanded`, `aria-controls`, pułapka fokusa, zamykanie klawiszem `Escape`, kliknięciem linku i przy zmianie szerokości okna.
 - Przełącznik motywu jasnego i ciemnego zapisywany w `localStorage` pod kluczem `everafterring-theme`, z synchronizacją między kartami przez zdarzenie `storage` i aktualizacją `meta[name="theme-color"]`.
 - Osobny skrypt `js/theme-bootstrap.js` ładowany synchronicznie w `<head>` przed arkuszem stylów, ustawiający `data-theme` na `<html>`; przy braku zapisanego wyboru bierze pod uwagę `prefers-color-scheme`. W buildzie produkcyjnym jest minifikowany i wstawiany w to samo miejsce jako skrypt inline, żeby pozostał synchroniczny i wykonał się przed pierwszym malowaniem.
@@ -45,7 +45,7 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych stron indeksowanych, w
 - `vite` `^8.2.1` — serwer deweloperski, build produkcyjny i podgląd builda
 - `sharp` `^0.34.5` — generowanie wariantów obrazów
 - `@playwright/test` `^1.62.1` — smoke testy w przeglądarce Chromium
-- `vite.config.js` — konfiguracja MPA oraz wtyczki builda specyficzne dla projektu
+- `vite.config.js` — konfiguracja MPA oraz wtyczki developmentu i builda specyficzne dla projektu
 - `playwright.config.js` — konfiguracja testów uruchamianych na podglądzie produkcyjnym
 - własne skrypty `scripts/html-shell.mjs` i `scripts/optimize-images.mjs`
 
@@ -72,9 +72,9 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych stron indeksowanych, w
 ### Architektura
 
 - **Strony** — każda strona to samodzielny plik HTML w katalogu głównym z pełnym zestawem metadanych i własną treścią; `main` jest celem linku pomijającego `#main`. Wyjątkiem jest `404.html`, które celowo ma ograniczony zestaw metadanych — opisuje to sekcja SEO.
-- **Partiale** — `header` i `footer` to hosty z atrybutami `data-partial` i `data-partial-src`. W trybie deweloperskim `js/modules/partials.js` pobiera je przez `fetch` i oznacza aktywny link, a serwer Vite wydaje pliki z `partials/` w niezmienionej postaci, bez traktowania ich jak samodzielnych stron. W buildzie produkcyjnym `scripts/html-shell.mjs` zastępuje te hosty gotowym markupem i statycznie ustawia `aria-current="page"`. Oznacza to, że tryb deweloperski wymaga serwera HTTP.
+- **Partiale** — źródłowe elementy `header` i `footer` są hostami z atrybutami `data-partial` i `data-partial-src`. Wtyczka Vite wywołuje `resolveSharedShell()` z `scripts/html-shell.mjs` w trybie deweloperskim i podczas builda: zastępuje hosty gotowym markupem i ustawia `aria-current="page"` na podstawie nazwy dokumentu. Przeglądarka otrzymuje rozwiązany shell już w odpowiedzi HTML, bez pobierania partiali przez JavaScript.
 - **CSS** — `css/main.css` jest jedynym punktem wejścia i importuje kolejno tokeny, fonty, bazę, layout, komponenty i sekcje. Wartości motywu są zdefiniowane jako właściwości custom w `css/tokens.css`, a wariant ciemny jako `:root[data-theme="dark"]`.
-- **JavaScript** — `js/app.js` jest punktem wejścia i po `DOMContentLoaded` uruchamia moduły w ustalonej kolejności: partiale, motyw, nagłówek, nawigacja, formularz, hero, modal projektu, lightbox portfolio. Każdy moduł sam sprawdza, czy jego markup istnieje, więc lightbox inicjalizuje się wyłącznie na `realizacje.html`. Wspólne selektory są w `js/config.js`, pomocnicze funkcje DOM i pułapka fokusa w `js/utils.js`, a logika interakcji w `js/modules/`.
+- **JavaScript** — `js/app.js` jest punktem wejścia i przez `onReady()` uruchamia moduły w ustalonej kolejności: motyw, nagłówek, nawigacja, formularz, hero, modal projektu, lightbox portfolio. Inicjalizacja nie wymaga oczekiwania na partiale. Każdy moduł sam sprawdza, czy jego markup istnieje, więc lightbox inicjalizuje się wyłącznie na `realizacje.html`. Wspólne selektory są w `js/config.js`, pomocnicze funkcje DOM i pułapka fokusa w `js/utils.js`, a logika interakcji w `js/modules/`.
 - **Dwa punkty wejścia JS** — `js/app.js` jest modułem ES bundlowanym przez Vite, a `js/theme-bootstrap.js` pozostaje osobnym plikiem poza bundlem: w trybie deweloperskim jest ładowany jako klasyczny skrypt, a w buildzie minifikowany i wstawiany inline w to samo miejsce, ponieważ musi wykonać się synchronicznie przed renderowaniem stylów.
 - **Obrazy** — pliki źródłowe znajdują się w `assets/img-src/`, a warianty generowane przez `scripts/optimize-images.mjs` w `assets/img/`. W markupie używany jest element `picture` z kolejnością AVIF, WebP i JPG.
 - **Build** — `vite.config.js` deklaruje jedenaście wejść HTML (`appType: "mpa"`), wtyczkę wspólnego shellu opartą o `scripts/html-shell.mjs` oraz kopiowanie plików statycznych z pominięciem `assets/img-src/`. Build generuje katalog `dist/`, który jest wykluczony z repozytorium przez `.gitignore` i nie powinien być edytowany ręcznie.
@@ -105,7 +105,7 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych stron indeksowanych, w
 │   │   └── plans/          # zarchiwizowane ukończone plany projektu (PLAN-2026-08-15.md)
 │   └── CHANGELOG.md
 ├── js/
-│   ├── modules/            # partials, nav, theme, form, hero, header-scroll, project-notice, lightbox, dom
+│   ├── modules/            # nav, theme, form, hero, header-scroll, project-notice, lightbox, dom
 │   ├── app.js              # punkt wejścia ESM
 │   ├── config.js
 │   ├── theme-bootstrap.js  # osobny skrypt (IIFE) wstawiany inline w buildzie
@@ -160,9 +160,9 @@ Skrypt uruchamia w katalogu projektu:
 npm run dev
 ```
 
-Podgląd jest dostępny pod adresem `http://localhost:8181/`. Serwer HTTP jest wymagany, ponieważ moduły ES i partiale pobierane przez `fetch` nie działają przy otwarciu plików przez `file://`.
+Podgląd jest dostępny pod adresem `http://localhost:8181/`. Serwer Vite jest wymagany do transformacji źródłowych dokumentów HTML i obsługi modułów ES.
 
-W trybie deweloperskim strony są serwowane ze źródeł: partiale są pobierane przez `fetch`, a `js/theme-bootstrap.js` ładuje się jako osobny synchroniczny skrypt. Obie te rzeczy są rozwiązywane statycznie dopiero w buildzie produkcyjnym.
+W trybie deweloperskim Vite wstawia aktualną treść partiali przed wysłaniem HTML i przeładowuje strony po zmianie `partials/header.html` lub `partials/footer.html`. `js/theme-bootstrap.js` pozostaje osobnym klasycznym skryptem ładowanym synchronicznie przed arkuszem stylów; build produkcyjny minifikuje go i wstawia inline w to samo miejsce.
 
 ### Dostępne skrypty
 
@@ -336,7 +336,7 @@ EverAfter Ring is a static, multi-page website in Polish, built with HTML, CSS, 
 
 The project is a KP_Code Digital Studio reference build that demonstrates a website for the wedding industry. Its demonstration character is stated in the interface itself — the "Informacja o projekcie" modal in `partials/footer.html` and the legal pages describe the site as a portfolio project rather than an operating business.
 
-The shared header and footer are maintained as partials with two delivery modes: they are fetched at runtime in development and inlined into the HTML files during the production build. Vite is the development, build, and preview tool — not a runtime framework — and the production version is generated into `dist/`.
+The shared header and footer are maintained as partials and inserted into HTML by the same Vite transformation in development and during the production build. Vite is the development, build, and preview tool — not a runtime framework — and the production version is generated into `dist/`.
 
 ### Live Version
 
@@ -347,7 +347,7 @@ This address is declared as canonical in the metadata of the indexable pages, in
 ### Key Features
 
 - Multi-page structure based on top-level HTML files, without client-side routing.
-- Shared `header` and `footer` from `partials/`, with the active page marked by `aria-current="page"` — derived from `window.location` in development and from the file name during the production build.
+- Shared `header` and `footer` from `partials/`, with the active page marked by `aria-current="page"` based on the HTML document name in both Vite modes.
 - Mobile navigation below the 1024 px threshold: `aria-expanded`, `aria-controls`, focus trap, and closing via `Escape`, a link click, or a window resize.
 - Light/dark theme toggle persisted in `localStorage` under the `everafterring-theme` key, synchronized across tabs through the `storage` event and reflected in `meta[name="theme-color"]`.
 - A separate `js/theme-bootstrap.js` script loaded synchronously in `<head>` before the stylesheet, setting `data-theme` on `<html>`; with no stored choice it falls back to `prefers-color-scheme`. The production build minifies it and inlines it in the same position, so it stays synchronous and runs before the first paint.
@@ -373,7 +373,7 @@ This address is declared as canonical in the metadata of the indexable pages, in
 - `vite` `^8.2.1` — development server, production build, and build preview
 - `sharp` `^0.34.5` — image variant generation
 - `@playwright/test` `^1.62.1` — Chromium smoke tests
-- `vite.config.js` — MPA configuration and the project-specific build plugins
+- `vite.config.js` — MPA configuration and the project-specific development and build plugins
 - `playwright.config.js` — configuration for the tests run against the production preview
 - custom scripts in `scripts/html-shell.mjs` and `scripts/optimize-images.mjs`
 
@@ -400,9 +400,9 @@ This address is declared as canonical in the metadata of the indexable pages, in
 ### Architecture
 
 - **Pages** — each page is a standalone HTML file at the repository root with a full metadata set and its own content; `main` is the target of the `#main` skip link. `404.html` is the exception, carrying a deliberately reduced metadata set — see the SEO section.
-- **Partials** — `header` and `footer` are host elements carrying `data-partial` and `data-partial-src`. In development, `js/modules/partials.js` fetches them and marks the active link, and the Vite server serves the files under `partials/` verbatim instead of treating them as standalone entries. In the production build, `scripts/html-shell.mjs` replaces those hosts with the resolved markup and sets `aria-current="page"` statically. Development therefore requires an HTTP server.
+- **Partials** — the source `header` and `footer` elements are hosts carrying `data-partial` and `data-partial-src`. The Vite plugin calls `resolveSharedShell()` from `scripts/html-shell.mjs` in development and during the build: it replaces the hosts with resolved markup and sets `aria-current="page"` based on the document name. The browser receives the resolved shell in the initial HTML response, without fetching partials through JavaScript.
 - **CSS** — `css/main.css` is the single entry point and imports tokens, fonts, base, layout, components, and sections in order. Theme values are defined as custom properties in `css/tokens.css`, with the dark variant under `:root[data-theme="dark"]`.
-- **JavaScript** — `js/app.js` is the entry point and, after `DOMContentLoaded`, runs the modules in a fixed order: partials, theme, header, navigation, form, hero, project notice, portfolio lightbox. Every module checks for its own markup first, so the lightbox initializes on `realizacje.html` only. Shared selectors live in `js/config.js`, DOM helpers and the focus trap in `js/utils.js`, and interaction logic in `js/modules/`.
+- **JavaScript** — `js/app.js` is the entry point and uses `onReady()` to run the modules in a fixed order: theme, header, navigation, form, hero, project notice, portfolio lightbox. Initialization does not wait for partials. Every module checks for its own markup first, so the lightbox initializes on `realizacje.html` only. Shared selectors live in `js/config.js`, DOM helpers and the focus trap in `js/utils.js`, and interaction logic in `js/modules/`.
 - **Two JS entry points** — `js/app.js` is an ES module bundled by Vite, while `js/theme-bootstrap.js` stays a separate file outside the bundle: development loads it as a classic script, and the build minifies it and inlines it in the same position, because it must run synchronously before styles render.
 - **Images** — source files live in `assets/img-src/`, and the variants generated by `scripts/optimize-images.mjs` in `assets/img/`. The markup uses the `picture` element with AVIF, WebP, and JPG in that order.
 - **Build** — `vite.config.js` declares the eleven HTML entries (`appType: "mpa"`), the shared-shell plugin backed by `scripts/html-shell.mjs`, and the static asset copy that excludes `assets/img-src/`. The build generates the `dist/` directory, which is excluded from the repository by `.gitignore` and should not be edited manually.
@@ -433,7 +433,7 @@ This address is declared as canonical in the metadata of the indexable pages, in
 │   │   └── plans/          # archived completed project plans (PLAN-2026-08-15.md)
 │   └── CHANGELOG.md
 ├── js/
-│   ├── modules/            # partials, nav, theme, form, hero, header-scroll, project-notice, lightbox, dom
+│   ├── modules/            # nav, theme, form, hero, header-scroll, project-notice, lightbox, dom
 │   ├── app.js              # ESM entry point
 │   ├── config.js
 │   ├── theme-bootstrap.js  # separate script (IIFE) inlined by the build
@@ -488,9 +488,9 @@ The script runs, in the project directory:
 npm run dev
 ```
 
-The preview is available at `http://localhost:8181/`. An HTTP server is required because ES modules and partials fetched at runtime do not work when files are opened over `file://`.
+The preview is available at `http://localhost:8181/`. The Vite server is required to transform the source HTML documents and serve ES modules.
 
-In development the pages are served from source: the partials are fetched at runtime and `js/theme-bootstrap.js` loads as a separate synchronous script. Both are resolved statically only in the production build.
+In development, Vite inserts the current partial content before sending HTML and reloads pages when `partials/header.html` or `partials/footer.html` changes. `js/theme-bootstrap.js` remains a separate classic script loaded synchronously before the stylesheet; the production build minifies it and inlines it in the same position.
 
 ### Available Scripts
 

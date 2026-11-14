@@ -46,7 +46,7 @@ const indentBlock = (content, indentation) => {
 };
 
 // `partials/header.html` and `partials/footer.html` stay the single maintained copies of the
-// shared shell; development loads them at runtime, production resolves them into the document.
+// shared shell, resolved into documents by Vite in both development and production.
 export const readSharedShell = () => ({
   header: readProjectFile(path.join("partials", "header.html")).trimEnd(),
   footer: readProjectFile(path.join("partials", "footer.html")).trimEnd()
@@ -99,7 +99,7 @@ const replacePartialHost = (html, tagName, partialName, partialMarkup) => {
   );
 };
 
-// Production documents ship the resolved shared shell instead of empty partial hosts that
+// Served and built documents contain the resolved shared shell instead of empty partial hosts that
 // would depend on a runtime fetch, and carry the active primary-navigation state statically.
 export const resolveSharedShell = (html, page, shell) => {
   const headerMarkup = getHeaderMarkupForPage(shell.header, page);
