@@ -90,12 +90,20 @@
   display: block;
   position: relative;
   z-index: 1;
-  transition: transform var(--transition-base);
   border-radius: calc(var(--radius-lg) - var(--space-4));
 }
 
-.hero__media:hover img {
-  transform: scale(1.03);
+.hero__media picture,
+.hero__media svg {
+  transition: transform var(--transition-base);
+}
+
+/* With motion allowed, `js/modules/hero.js` owns the image transform (resting scale and parallax),
+   so no stylesheet transform or transition competes with its interpolation. */
+@media (prefers-reduced-motion: reduce) {
+  .hero__media:hover img {
+    transform: scale(1.03);
+  }
 }
 
 .badge--animate {
