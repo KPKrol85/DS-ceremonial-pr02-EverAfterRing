@@ -21,13 +21,9 @@ The site's core journeys are browsing the offer and services, viewing the portfo
 
 ### IMP-UX-02 — Give the services and about pages a closing next step
 
-- **Affected journey:** Reading `uslugi.html` and `o-nas.html` and moving on to contact or the offer.
-- **Evidence:** `uslugi.html:112-356` (five service sections ending at `</main>` with no in-content link or button); `o-nas.html:164-186` (page ends after "Standardy jakości" with no action); `index.html:379-388` and `realizacje.html:423-433` (existing `.callout` sections with contact and offer actions); `partials/header.html:12-36` (the header "Zapytaj o termin" button sits inside the collapsible panel, hidden behind the menu toggle on mobile).
-- **Current experience:** The home and portfolio pages end with a callout offering contact and package links. The services and about pages end with content cards only. Below the 1024 px navigation breakpoint, the only routes onward are the menu toggle or the footer links.
-- **Proposed improvement:** End both pages with the existing `.callout` pattern, with Polish copy suited to each page and actions to `kontakt.html` and `oferta.html`.
-- **Expected user value:** Visitors who finish reading the services or company description get a direct way to ask about a date or compare packages, consistent with the home and portfolio pages.
-- **Implementation scope:** Markup additions in `uslugi.html` and `o-nas.html` only, reusing `css/sections/callout.css` and existing button variants. No new component, style variant, or navigation change.
-- **Acceptance criteria:** Both pages end with a callout containing working links to `kontakt.html` and `oferta.html` that render correctly in light and dark themes and at mobile and desktop widths. `npm run check` passes with the new local references.
+- **Status:** COMPLETED — implemented and verified.
+- **Result:** `uslugi.html` and `o-nas.html` now end with the existing `.callout` section, with page-specific Polish copy and actions to `kontakt.html` and `oferta.html`. The markup reuses the `index.html` pairing of `button--light` and `button--primary`, because the `button--ghost` action on `realizacje.html` measures 1.98:1 text contrast on the light-theme callout; no CSS, JavaScript, or navigation changed.
+- **Verification:** `npm run check`, `npm run build`, and `git diff --check` passed. In the production preview, both callouts were the last child of `<main>`, both destinations returned HTTP 200, buttons stayed on one row without horizontal overflow at 320, 375, and 1280 px, colors matched the `index.html` callout in light, dark, and system themes (text contrast at least 5.67:1), and Tab, Shift+Tab, Enter, and the visible focus ring worked. Screenshots were unavailable because the browser pane does not composite.
 - **Impact:** Medium
 - **Effort:** Small
 
