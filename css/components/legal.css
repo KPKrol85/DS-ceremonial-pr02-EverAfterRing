@@ -1,0 +1,26 @@
+/* Legal Document Prose */
+
+/* Registered so `ch` resolves once on `.legal-prose`, in the body-text font, giving headings the paragraph measure */
+@property --legal-measure {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+/* This gap separates sections; each article's `.stack` gap spaces its own content, so prose carries no margins */
+.legal-prose {
+  --legal-measure: 70ch;
+  gap: var(--space-7);
+}
+
+/* The measure targets text only, leaving the cookies table region the full container width */
+.legal-prose :is(h2, p, .list) {
+  max-width: var(--legal-measure);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.legal-prose :is(p, .list) {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+}

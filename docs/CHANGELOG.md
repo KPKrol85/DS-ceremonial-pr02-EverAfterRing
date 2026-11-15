@@ -34,6 +34,10 @@ For each implementation task, determine `Changelog: yes` or `Changelog: no`. Add
 * Added closing calls to action on `uslugi.html` and `o-nas.html` that lead to the contact form and the packages offer, matching the existing home-page callout.
 * Added package-specific inquiry links on `oferta.html` that automatically preselect the chosen package in the editable contact form.
 
+### Changed
+
+* Gave the terms, privacy policy, and cookies policy a dedicated reading layout with a 70ch text measure, 1rem body text, relaxed line height, and consistent section spacing.
+
 ### Removed
 
 * Removed eight unused icon, logo, and placeholder assets, reducing the deployment payload without affecting rendered content.

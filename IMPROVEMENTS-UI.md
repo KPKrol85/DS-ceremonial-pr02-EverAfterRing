@@ -15,13 +15,9 @@ Five source-supported opportunities were selected: dedicated reading typography,
 
 ### IMP-UI-01 — Give legal documents a dedicated reading layout
 
-- **Affected area:** Privacy policy, cookies policy, and terms body content.
-- **Evidence:** `polityka-prywatnosci.html:90-131`, `cookies.html:90-126`, `regulamin.html:88-120`; `css/layout.css:1-3,40-43`; `css/base.css:80-84`; `css/tokens.css:54-74,118`.
-- **Current state:** Legal articles use the same container, capped at 1100 px, as marketing grids. Paragraphs inherit the general 0.85rem size, while nested `.stack` layouts add gaps alongside the default paragraph and heading margins. There is no dedicated prose measure or typography variant.
-- **Proposed improvement:** Introduce a shared legal-prose treatment with a narrower text measure, base-size body text, relaxed line height, and explicitly owned heading and paragraph spacing. Keep the existing fonts and theme colors.
-- **Expected value:** Give sustained reading a distinct typographic scale and more consistent grouping than the compact copy used inside cards.
-- **Implementation scope:** Scope styles to the three legal content regions through their canonical HTML and the existing CSS import structure. Preserve Polish wording, numbered headings, links, `data-project-notice-skip`, and the cookies table's independently scrollable region; do not narrow the global container.
-- **Acceptance criteria:** At desktop widths, prose has a maximum measure of approximately 70ch, uses the existing 1rem and 1.7 line-height tokens, and has one consistent spacing rule between headings, paragraphs, and lists. At 320 and 390 px, text fits the available width; the cookies table retains its focusable scroll wrapper and may use the wider outer container. Marketing content and both themes retain their existing styling.
+- **Status:** COMPLETED — implemented and verified.
+- **Result:** The terms, privacy policy, and cookies policy share a scoped `.legal-prose` layout in `css/components/legal.css`: headings, paragraphs, and lists use one 70ch measure, prose uses the 1rem and 1.7 line-height tokens, and spacing is owned by a 3rem section gap and the existing 1rem article gap instead of element margins. The cookies table region keeps the full container width and its scroll, label, and focus contracts.
+- **Verification:** `npm run check`, `npm run build`, and `git diff --check` passed. Chromium measurements of the built pages at 320, 390, and 1280 px confirmed 16px/27.2px prose, a 706.6px desktop measure, no page overflow or clipped prose, a keyboard-focusable scrolling table region, and unchanged light and dark colors; eight other pages showed no computed-style changes at 1280 px. Screenshots, physical devices, and non-Chromium browsers were not checked.
 - **Impact:** Medium
 - **Effort:** Medium
 
