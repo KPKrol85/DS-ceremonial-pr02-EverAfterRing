@@ -41,6 +41,10 @@
   --color-hero-glow: rgba(245, 225, 230, 0.4);
   --color-hero-sheen: rgba(255, 255, 255, 0.3);
   --color-hero-border: rgba(198, 167, 122, 0.2);
+  --color-backdrop-rgb: 12, 10, 9;
+  --color-lightbox-backdrop: rgba(var(--color-backdrop-rgb), 0.72);
+  --color-project-notice-backdrop: rgba(var(--color-backdrop-rgb), 0.58);
+  --color-project-notice-border: rgba(255, 255, 255, 0.72);
 
   /* Typography */
   --font-serif: "Cormorant Garamond", "Times New Roman", Georgia, serif;
@@ -98,6 +102,13 @@
   /* Shadows */
   --shadow-soft: 0 20px 40px rgba(42, 36, 34, 0.08);
   --shadow-card: 0 12px 24px rgba(42, 36, 34, 0.1);
+  --shadow-button-light: 0 0.25rem 0.75rem rgba(44, 24, 16, 0.08);
+  --shadow-button-light-hover:
+    0 0.75rem 1.5rem rgba(44, 24, 16, 0.16),
+    0 0.25rem 0.625rem rgba(44, 24, 16, 0.1);
+  --shadow-project-notice:
+    0 24px 70px rgba(23, 19, 17, 0.18),
+    0 8px 24px rgba(23, 19, 17, 0.1);
 
   /* Transitions */
   --transition-fast: 150ms ease;

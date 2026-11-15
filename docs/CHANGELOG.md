@@ -48,6 +48,7 @@ For each implementation task, determine `Changelog: yes` or `Changelog: no`. Add
 * Replaced `LocalBusiness` structured data with linked `WebPage` and `WebSite` data that reflects the project's demonstrational character.
 * Aligned the navigation script's mobile mode with the CSS desktop breakpoint, removing mobile-only panel state and focus handling from the desktop navigation at 1024 px.
 * Stopped the hero image parallax from scheduling animation frames while idle and gave its transform a single owner per motion preference.
+* Moved the remaining component color and shadow literals into design tokens, making `css/tokens.css` the single owner of component color values.
 
 ### Documentation
 

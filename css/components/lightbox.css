@@ -24,7 +24,7 @@
 }
 
 .lightbox::backdrop {
-  background: rgb(12 10 9 / 0.72);
+  background: var(--color-lightbox-backdrop);
   backdrop-filter: blur(6px);
   opacity: 0;
 }

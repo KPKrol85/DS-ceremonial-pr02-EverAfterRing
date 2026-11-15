@@ -45,13 +45,9 @@ The architecture is small and coherent. `js/app.js` is the single application en
 
 ### IMP-TECH-05 — Move the remaining component color literals into design tokens
 
-- **Affected area:** CSS token ownership: `css/tokens.css` and the component stylesheets that bypass it.
-- **Evidence:** `css/components/buttons.css:45,54-55` (`rgba(44, 24, 16, …)` shadows), `css/components/lightbox.css:27` (`rgb(12 10 9 / 0.72)` backdrop), `css/components/project-notice.css:8` (`rgb(12 10 9 / 0.58)` backdrop), `css/components/project-notice.css:25,30-31` (dialog border and shadows), `css/tokens.css:31-43` and `css/tokens.css:116-150` (existing semantic color and shadow tokens with dark-theme values).
-- **Current implementation:** Colors and shadows elsewhere are drawn from `css/tokens.css`, which also holds the dark-theme overrides. These five declarations still carry raw `rgb()`/`rgba()` values in component files. The lightbox and project-notice scrims share one base color with different opacities, and the button shadow uses a brown that matches no existing token. None of them takes part in the token-level theme switch.
-- **Proposed improvement:** Declare semantic tokens for the scrim, the light-button shadows and the project-notice dialog border and shadow in `css/tokens.css`, set to the current values, and reference them from the three component files.
-- **Expected engineering value:** Every component color has one owner in the token layer, the shared scrim is defined once, and a future theme adjustment to these surfaces becomes a token change instead of a search through component files.
-- **Implementation scope:** `css/tokens.css`, `css/components/buttons.css`, `css/components/lightbox.css`, `css/components/project-notice.css`. Rendered colors stay identical in both themes; choosing different dark-theme values is a separate UI decision and is outside this proposal.
-- **Acceptance criteria:** No `rgb()`, `rgba()` or hex color literal remains under `css/components/` or `css/sections/`. The new tokens are declared in `css/tokens.css` with the current values, the computed styles of the affected elements are unchanged in light and dark themes, and `npm run check` and `npm run build` pass.
+- **Status:** COMPLETED — implemented and verified.
+- **Result:** `css/tokens.css` now owns the shared backdrop channels with separate lightbox (0.72) and project-notice (0.58) backdrop tokens, the project-notice border color, and complete light-button and project-notice shadow tokens, all with unchanged values inherited by the dark theme. The three component stylesheets reference these tokens, leaving no `rgb()`, `rgba()` or hex literal under `css/components/` or `css/sections/`.
+- **Verification:** Passed `npm run check`, `npm run build`, all 24 Chromium smoke tests and `git diff --check`. A temporary Playwright probe found all 157 computed values identical in light and dark themes and after runtime theme switches, and all 12 settled screenshots pixel-identical on the development server. Limitations: the production minifier no longer quantizes the `var()`-composed backdrop alpha to 8-bit hex, which changed 26 pixels of the light-theme lightbox by one channel level; the lightbox backdrop relies on `::backdrop` custom-property inheritance, and only Chromium was tested.
 - **Impact:** Low
 - **Effort:** Small
 

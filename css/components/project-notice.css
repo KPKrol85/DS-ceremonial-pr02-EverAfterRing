@@ -5,7 +5,7 @@
   display: grid;
   place-items: center;
   padding: var(--space-4);
-  background: rgb(12 10 9 / 0.58);
+  background: var(--color-project-notice-backdrop);
   backdrop-filter: blur(8px);
 }
 
@@ -22,13 +22,11 @@
   position: relative;
   width: min(100%, 31rem);
   padding: clamp(var(--space-4), 4vw, var(--space-6));
-  border: 1px solid rgb(255 255 255 / 0.72);
+  border: 1px solid var(--color-project-notice-border);
   border-radius: var(--radius-sm);
   background: color-mix(in srgb, var(--color-surface) 92%, transparent);
   backdrop-filter: blur(10px);
-  box-shadow:
-    0 24px 70px rgb(23 19 17 / 0.18),
-    0 8px 24px rgb(23 19 17 / 0.1);
+  box-shadow: var(--shadow-project-notice);
   text-align: center;
 }
 
