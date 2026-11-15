@@ -29,13 +29,9 @@ The site's core journeys are browsing the offer and services, viewing the portfo
 
 ### IMP-UX-03 — Carry the selected package from the offer into the contact form
 
-- **Affected journey:** Choosing a package on `oferta.html` and sending an inquiry on `kontakt.html`.
-- **Evidence:** `oferta.html:121-160` (three package cards with no per-package action); `oferta.html:190-192` (one generic contact button below the add-ons); `kontakt.html:169-176` (required "Preferowany pakiet" select with Essential, Signature, and Full Service options, empty by default); `js/modules/form.js:26-32` (form initialization without any preselection).
-- **Current experience:** A visitor who has chosen a package on the offer page has no action on that card. They must find the generic contact button, then pick the same package again in a required select on the contact page.
-- **Proposed improvement:** Give each package card an inquiry link to `kontakt.html` that identifies the package, and preselect the matching `package` option when the contact form loads with a recognized value.
-- **Expected user value:** The choice made on the offer page carries over to the form, which removes a repeated decision and a likely validation stop in the main inquiry journey.
-- **Implementation scope:** Three links in `oferta.html`. A small preselection step in `js/modules/form.js` that accepts only values matching an existing option and otherwise leaves the select at "Wybierz pakiet". Required validation, field order, Netlify Forms attributes, and the submitted payload format must not change. Home-page package cards may reuse the same links only if this stays within the same change.
-- **Acceptance criteria:** Following each package link opens the contact form with the corresponding package selected and still editable. Opening `kontakt.html` directly, or with an unknown value, leaves the select empty and the existing required-field validation applies. `tests/form-validation.spec.js` continues to pass.
+- **Status:** COMPLETED — implemented and verified.
+- **Result:** Added inquiry links to all three offer package cards and initialized the contact-form selection from exact, non-empty matches against its existing option values. The selection remains editable; missing or invalid parameters preserve the placeholder and required validation.
+- **Verification:** `npm run check`, `npm run test:smoke -- tests/form-validation.spec.js` (17 Chromium tests, including 9 new regressions), and `git diff --check` passed. Production-preview checks verified 27 keyboard journeys in light, dark, and system-dark themes at 320, 390, and 1280 px, editable selections, visible focus, no horizontal overflow or JavaScript errors, and link text contrast of 7.73:1 in light and 9.76:1 in dark themes; screenshots confirmed the layout. Actual Netlify delivery, other browser engines, and physical mobile devices were not tested.
 - **Impact:** Medium
 - **Effort:** Small
 

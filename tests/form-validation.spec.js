@@ -60,6 +60,108 @@ const fillValidInquiry = async (form, overrides = {}) => {
   await form.getByRole("textbox", { name: "Wiadomość" }).fill(values.message);
 };
 
+for (const packageName of ["Essential", "Signature", "Full Service"]) {
+  test(`the ${packageName} inquiry link preselects its package in the contact form`, async ({ page }) => {
+    await acceptProjectNotice(page);
+    await page.goto("/oferta.html");
+
+    const card = page.locator(".card--package").filter({ has: page.getByText(packageName, { exact: true }) });
+    const inquiryLink = card.getByRole("link", { name: `Zapytaj o pakiet ${packageName}`, exact: true });
+    const destination = `kontakt.html?package=${encodeURIComponent(packageName)}`;
+
+    await expect(inquiryLink).toHaveAttribute("href", destination);
+    await inquiryLink.click();
+
+    await expect(page).toHaveURL(new URL(destination, page.url()).href);
+    const packageSelect = contactForm(page).getByRole("combobox", { name: "Preferowany pakiet" });
+    await expect(packageSelect).toHaveValue(packageName);
+    await expect(packageSelect).toBeEnabled();
+    await expect(packageSelect).not.toHaveAttribute("aria-invalid");
+  });
+}
+
+const unselectedPackageCases = [
+  { title: "a missing package parameter", query: "" },
+  { title: "an unknown package parameter", query: "?package=Unknown" },
+  { title: "an empty package parameter", query: "?package=" },
+  { title: "a package parameter with different letter case", query: "?package=essential" },
+  { title: "a package parameter with surrounding spaces", query: "?package=%20Essential%20" }
+];
+
+for (const { title, query } of unselectedPackageCases) {
+  test(`${title} keeps the placeholder and required package validation`, async ({ page }) => {
+    await acceptProjectNotice(page);
+
+    const submissions = [];
+    page.on("request", (request) => {
+      if (request.method() === "POST" && new URL(request.url()).pathname === FORM_ACTION) {
+        submissions.push(request.url());
+      }
+    });
+
+    await page.goto(`/kontakt.html${query}`);
+
+    const form = contactForm(page);
+    const packageSelect = form.getByRole("combobox", { name: "Preferowany pakiet" });
+    await expect(packageSelect).toHaveValue("");
+    await expect(packageSelect.locator("option:checked")).toHaveText("Wybierz pakiet");
+    await expect(packageSelect.locator("option")).toHaveCount(4);
+    expect(await packageSelect.evaluate((select) => select.validity.valueMissing)).toBe(true);
+
+    // All other required fields are valid, leaving the unchanged placeholder as the only error.
+    await fillValidInquiry(form, { package: "Wybierz pakiet" });
+    await form.getByRole("button", { name: "Wyślij zapytanie" }).click();
+
+    await expect(packageSelect).toHaveValue("");
+    await expect(packageSelect).toHaveAttribute("aria-invalid", "true");
+    await expect(packageSelect).toHaveAccessibleDescription("To pole jest wymagane.");
+    await expect(packageSelect).toBeFocused();
+    await expect(form.locator("[data-validate][aria-invalid]")).toHaveCount(1);
+    await expect(form.locator("[data-form-status]")).toHaveText("Uzupełnij zaznaczone pola, aby wysłać zapytanie.");
+    expect(new URL(page.url()).pathname).toBe("/kontakt.html");
+    expect(submissions).toEqual([]);
+  });
+}
+
+test("a user can change a preselected package and submit the current value in the native Netlify payload", async ({ page }) => {
+  await acceptProjectNotice(page);
+
+  const submissions = [];
+  await page.route(`**${FORM_ACTION}`, async (route) => {
+    const request = route.request();
+    if (request.method() !== "POST") {
+      await route.continue();
+      return;
+    }
+
+    submissions.push(request.postData() ?? "");
+    await route.fulfill({
+      status: 200,
+      contentType: "text/html; charset=utf-8",
+      body: "<!doctype html><title>Dziękujemy</title>"
+    });
+  });
+
+  await page.goto("/kontakt.html?package=Essential");
+
+  const form = contactForm(page);
+  const packageSelect = form.getByRole("combobox", { name: "Preferowany pakiet" });
+  await expect(packageSelect).toHaveValue("Essential");
+  await expect(packageSelect).toBeEnabled();
+
+  // The shared helper changes Essential to the valid inquiry's Signature through the select.
+  await fillValidInquiry(form);
+  await expect(packageSelect).toHaveValue(VALID_INQUIRY.package);
+  await expect(page).toHaveURL(/\/kontakt\.html\?package=Essential$/);
+  await form.getByRole("button", { name: "Wyślij zapytanie" }).click();
+  await page.waitForURL(`**${FORM_ACTION}`);
+
+  expect(submissions).toHaveLength(1);
+  const payload = new URLSearchParams(submissions[0]);
+  expect(payload.get("form-name")).toBe("kontakt-everafterring");
+  expect(payload.get("package")).toBe(VALID_INQUIRY.package);
+});
+
 test("the form introduction names KP_Code Digital Studio as the recipient of a demonstration project", async ({ page }) => {
   await acceptProjectNotice(page);
   await page.goto("/kontakt.html");

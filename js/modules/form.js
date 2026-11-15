@@ -27,6 +27,15 @@ export const initForm = () => {
   const form = qs('[data-contact-form]');
   if (!form || form.dataset.initialized === 'true') return;
 
+  const packageSelect = qs('select[name="package"]', form);
+  const requestedPackage = new URLSearchParams(window.location.search).get('package');
+  if (
+    packageSelect &&
+    qsa('option', packageSelect).some((option) => option.value !== '' && option.value === requestedPackage)
+  ) {
+    packageSelect.value = requestedPackage;
+  }
+
   const status = qs('[data-form-status]', form);
   const fields = qsa('[data-validate]', form);
   form.setAttribute('novalidate', '');
