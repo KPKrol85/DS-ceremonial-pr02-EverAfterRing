@@ -45,6 +45,7 @@ For each implementation task, determine `Changelog: yes` or `Changelog: no`. Add
 * Contained the cookie-policy technology table within a horizontally scrollable, keyboard-focusable region on narrow screens.
 * Made the project notice resilient to unavailable browser storage.
 * Replaced `LocalBusiness` structured data with linked `WebPage` and `WebSite` data that reflects the project's demonstrational character.
+* Aligned the navigation script's mobile mode with the CSS desktop breakpoint, removing mobile-only panel state and focus handling from the desktop navigation at 1024 px.
 
 ### Documentation
 

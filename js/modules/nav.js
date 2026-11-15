@@ -8,7 +8,9 @@ export const initNav = () => {
 
   if (navToggle?.dataset.initialized === "true") return;
 
-  const isMobileNav = () => window.innerWidth <= 1024;
+  // Mirrors the desktop breakpoint in `css/components/nav.css`; narrower viewports use the mobile navigation
+  const desktopNavQuery = window.matchMedia("(min-width: 1024px)");
+  const isMobileNav = () => !desktopNavQuery.matches;
 
   const activateFocusTrap = () => {
     if (!navPanel || releaseFocusTrap || !isMobileNav()) return;
@@ -68,7 +70,7 @@ export const initNav = () => {
   const navLinks = qsa(".nav__link", navPanel);
   navLinks.forEach((link) => {
     link.addEventListener("click", () => {
-      if (window.innerWidth <= 1024) {
+      if (isMobileNav()) {
         closeNav();
       }
     });
@@ -85,8 +87,8 @@ export const initNav = () => {
 
   document.addEventListener("keydown", handleEscape);
 
-  // Handle window resize
-  window.addEventListener("resize", () => {
+  // Reconcile the panel state when the viewport crosses the navigation breakpoint
+  const syncNavMode = () => {
     if (!isMobileNav()) {
       releaseNavFocusTrap();
       navPanel?.removeAttribute("hidden");
@@ -99,12 +101,15 @@ export const initNav = () => {
     } else {
       activateFocusTrap();
     }
-  });
+  };
+
+  desktopNavQuery.addEventListener("change", syncNavMode);
 
   navToggle && (navToggle.dataset.initialized = "true");
 
   return () => {
     releaseNavFocusTrap();
     document.removeEventListener("keydown", handleEscape);
+    desktopNavQuery.removeEventListener("change", syncNavMode);
   };
 };
