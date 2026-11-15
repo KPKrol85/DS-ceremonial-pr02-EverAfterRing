@@ -45,13 +45,9 @@ The site's core journeys are browsing the offer and services, viewing the portfo
 
 ### IMP-UX-05 — Stop the project notice from covering the legal pages it links to
 
-- **Affected journey:** First visit, reading "Regulamin", "Polityka prywatności", or "Cookies" from the project notice.
-- **Evidence:** `partials/footer.html:166-186` (notice on every page via the shared footer, with links to the three legal pages); `js/modules/project-notice.js:41-43` and `js/modules/project-notice.js:82-102` (acceptance is stored only through accept, backdrop, or `Escape`; the notice opens on every page load until then); `cookies.html:85` and `regulamin.html:133` (legal pages state the demonstrational character themselves).
-- **Current experience:** A first-time visitor who follows a legal link inside the notice navigates without dismissing it. Because acceptance was not stored, the same modal opens again on the destination page and covers the document the visitor chose to read, so they must dismiss it before reading.
-- **Proposed improvement:** Do not open the notice automatically on the three legal pages, so a visitor can read them directly. The notice continues to appear on other pages until it is dismissed.
-- **Expected user value:** The links offered inside the notice lead straight to readable content instead of back into the same dialog.
-- **Implementation scope:** A page-level opt-out marker on `regulamin.html`, `polityka-prywatnosci.html`, and `cookies.html`, read by `js/modules/project-notice.js` before opening. The notice markup in the shared footer, the storage key, acceptance semantics, focus containment, and dismissal paths must not change. The notice must not be treated as accepted merely because a legal page was visited.
-- **Acceptance criteria:** With no stored acceptance, opening any of the three legal pages shows no notice and no scroll lock. Opening any other page afterwards still shows the notice. `tests/project-notice.spec.js` and `tests/storage-unavailable.spec.js` continue to pass.
+- **Status:** COMPLETED — implemented and verified.
+- **Result:** Added `data-project-notice-skip` to the three legal documents and an early initialization guard that leaves the notice hidden without accessing acceptance storage, trapping focus, or locking scrolling. Unmarked pages retain existing notice and acceptance behavior.
+- **Verification:** `npm run check`, `npm run test:smoke -- tests/project-notice.spec.js tests/storage-unavailable.spec.js` (production build and 12 Chromium tests), and `git diff --check` passed. Six new regressions verified initialized legal pages, direct visits, notice links, keyboard navigation, absent acceptance, and reopening on return; existing tests verified dismissal, focus handling, acceptance persistence, and unavailable storage. The sandbox blocked localhost access (`EACCES`), so smoke tests passed after rerunning outside it; other browser engines and physical devices were not tested.
 - **Impact:** Medium
 - **Effort:** Small
 

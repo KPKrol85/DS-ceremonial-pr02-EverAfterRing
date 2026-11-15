@@ -3,6 +3,64 @@ import { acceptProjectNotice, PROJECT_NOTICE_STORAGE_KEY } from "./support/app.j
 
 const projectNotice = (page) => page.getByRole("dialog", { name: "Informacja o projekcie" });
 
+const expectReadableLegalPage = async (page) => {
+  // This marker is set in the same synchronous app callback as initProjectNotice(), so
+  // authored hidden markup alone cannot satisfy the assertions before initialization.
+  await expect(page.getByRole("banner").locator("[data-theme-toggle]")).toHaveAttribute("data-initialized", "true");
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.locator("[data-project-notice]")).toHaveAttribute("hidden", "");
+  await expect(projectNotice(page)).toBeHidden();
+  await expect(page.locator("body")).not.toHaveClass(/\bis-project-notice-open\b/);
+  expect(
+    await page.evaluate((key) => window.localStorage.getItem(key), PROJECT_NOTICE_STORAGE_KEY)
+  ).toBeNull();
+
+  const skipLink = page.getByRole("link", { name: "Przejdź do treści" });
+  await skipLink.focus();
+  await expect(skipLink).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("banner").getByRole("link", { name: "EverAfter Ring - powrót do strony głównej" })).toBeFocused();
+  await expect(page.locator("[data-project-notice] :focus")).toHaveCount(0);
+};
+
+for (const [path, linkName] of [
+  ["regulamin.html", "Regulamin"],
+  ["polityka-prywatnosci.html", "Polityka prywatności"],
+  ["cookies.html", "Cookies"]
+]) {
+  test(`a direct visit to ${path} skips the notice without accepting it`, async ({ page }) => {
+    const pageErrors = [];
+    page.on("pageerror", (error) => pageErrors.push(error));
+
+    await page.goto(`/${path}`);
+    await expectReadableLegalPage(page);
+
+    expect(pageErrors).toEqual([]);
+  });
+
+  test(`the notice links to readable ${path} and reopens on return without acceptance`, async ({ page }) => {
+    const pageErrors = [];
+    page.on("pageerror", (error) => pageErrors.push(error));
+    await page.goto("/");
+
+    const dialog = projectNotice(page);
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole("link", { name: linkName, exact: true }).click();
+    await page.waitForURL(`**/${path}`);
+    await expectReadableLegalPage(page);
+
+    await page.getByRole("banner").getByRole("link", { name: "EverAfter Ring - powrót do strony głównej" }).click();
+    await page.waitForURL("**/index.html");
+    await expect(dialog).toBeVisible();
+    await expect(dialog).toBeFocused();
+    await expect(page.locator("body")).toHaveClass(/\bis-project-notice-open\b/);
+    expect(
+      await page.evaluate((key) => window.localStorage.getItem(key), PROJECT_NOTICE_STORAGE_KEY)
+    ).toBeNull();
+    expect(pageErrors).toEqual([]);
+  });
+}
+
 test("a first visit opens the project notice and Escape closes it", async ({ page }) => {
   // No seeding: the fresh context is exactly the unaccepted first-visit state the module reads.
   await page.goto("/");

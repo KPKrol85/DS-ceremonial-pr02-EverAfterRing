@@ -41,6 +41,7 @@ For each implementation task, determine `Changelog: yes` or `Changelog: no`. Add
 
 ### Fixed
 
+* Prevented the project notice from reopening over linked legal documents without recording acceptance.
 * Aligned the privacy policy, cookies policy, and terms with the implemented Netlify Forms flow, browser storage, embedded map, and demonstrational project scope.
 * Preserved the resolved system theme before first paint and aligned the theme toggle with the active theme.
 * Kept the mobile navigation closed by default until JavaScript explicitly opens it.

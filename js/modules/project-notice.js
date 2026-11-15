@@ -21,6 +21,10 @@ const storeAcceptance = () => {
 };
 
 export function initProjectNotice() {
+  if (document.body.hasAttribute("data-project-notice-skip")) {
+    return;
+  }
+
   const notice = document.querySelector("[data-project-notice]");
 
   if (!notice) {
