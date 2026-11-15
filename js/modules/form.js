@@ -48,8 +48,17 @@ export const initForm = () => {
 
     if (field.validity.valueMissing) {
       showError(field, 'To pole jest wymagane.');
+    } else if (field.validity.typeMismatch && field.type === 'email') {
+      showError(field, 'Podaj poprawny adres e-mail, np. anna@example.com.');
     } else if (field.validity.typeMismatch) {
       showError(field, 'Wprowadź poprawny format.');
+    } else if (
+      (field.validity.rangeUnderflow || field.validity.rangeOverflow) &&
+      field.type === 'number' &&
+      field.min &&
+      field.max
+    ) {
+      showError(field, `Podaj liczbę gości od ${field.min} do ${field.max}.`);
     } else {
       showError(field, 'Sprawdź poprawność pola.');
     }

@@ -53,6 +53,7 @@ For each implementation task, determine `Changelog: yes` or `Changelog: no`. Add
 * Stopped the hero image parallax from scheduling animation frames while idle and gave its transform a single owner per motion preference.
 * Moved the remaining component color and shadow literals into design tokens, making `css/tokens.css` the single owner of component color values.
 * Raised the light-theme text contrast of the "Zobacz pakiety" callout link on `realizacje.html` from 1.98:1 to 7.73:1 by reusing the home-page primary button variant.
+* Clarified contact-form email-format and numeric-range validation feedback with an example address and the allowed guest-count limits.
 
 ### Documentation
 

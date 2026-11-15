@@ -37,13 +37,9 @@ The site's core journeys are browsing the offer and services, viewing the portfo
 
 ### IMP-UX-04 — Make contact-form validation messages name the expected input
 
-- **Affected journey:** Correcting invalid input in the contact form on `kontakt.html`.
-- **Evidence:** `js/modules/form.js:34-49` (three generic messages: `To pole jest wymagane.`, `Wprowadź poprawny format.`, `Sprawdź poprawność pola.`); `kontakt.html:133` (`type="email"`); `kontakt.html:178-182` (`guests` with `min="10"` and `max="400"`, no visible hint of the range); `tests/form-validation.spec.js:79-97` (current messages asserted).
-- **Current experience:** An invalid email address shows "Wprowadź poprawny format." without saying which format is expected. A guest count outside 10–400 shows "Sprawdź poprawność pola." without stating the allowed range, which is not displayed anywhere on the page.
-- **Proposed improvement:** Produce validity-specific Polish messages that state the expected input: an email example for `typeMismatch`, and the field's own `min`/`max` values for range errors.
-- **Expected user value:** Visitors can correct a rejected value on the first attempt instead of guessing what the field requires.
-- **Implementation scope:** `js/modules/form.js` message selection, deriving range values from the field's attributes rather than hard-coding them. Update the asserted messages in `tests/form-validation.spec.js`. Validation rules, timing (blur, input, submit), `aria-invalid` handling, `aria-describedby` associations, the status message, and focus on the first invalid field must not change.
-- **Acceptance criteria:** Entering `5` or `500` guests and leaving the field shows a message stating the 10–400 range. An invalid email shows a message with an example address. Required-field messages are unchanged. The updated `tests/form-validation.spec.js` passes.
+- **Status:** COMPLETED — implemented and verified.
+- **Result:** Added precise Polish email-format and guest-range messages, deriving the range from the input's `min` and `max` attributes. Preserved required-value messages, generic fallbacks, validation rules, and form interactions.
+- **Verification:** `npm run check`, `npm run test:smoke -- tests/form-validation.spec.js` (production build and 22 Chromium tests), and `git diff --check` passed. Tests covered guest counts of 5 and 500, dynamic and missing boundaries, unsupported errors, blur validation, error clearing, ARIA descriptions, first-invalid focus, prevented invalid submission, package preselection, and the native POST payload. Actual Netlify delivery and other browser engines were not tested.
 - **Impact:** Medium
 - **Effort:** Small
 

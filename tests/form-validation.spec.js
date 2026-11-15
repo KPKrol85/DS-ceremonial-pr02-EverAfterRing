@@ -174,29 +174,71 @@ test("the form introduction names KP_Code Digital Studio as the recipient of a d
   await expect(disclosure).toContainText("charakter demonstracyjny");
 });
 
-// Each case reaches one of the module's three message branches through the field's own constraint
+// Each case reaches a message branch through the field's own constraint
 // and leaves it on blur, which is where the module validates a single field outside a submit.
 const fieldCases = [
   {
     title: "an email without a valid format",
     locate: (form) => form.getByRole("textbox", { name: "Email", exact: true }),
     makeInvalid: (field) => field.fill("anna.kowalska"),
-    message: "Wprowadź poprawny format.",
+    message: "Podaj poprawny adres e-mail, np. anna@example.com.",
     makeValid: (field) => field.fill(VALID_INQUIRY.email)
   },
   {
     title: "a guest count below the 10–400 range",
     locate: (form) => form.getByRole("spinbutton", { name: "Liczba gości" }),
     makeInvalid: (field) => field.fill("5"),
-    message: "Sprawdź poprawność pola.",
+    message: "Podaj liczbę gości od 10 do 400.",
     makeValid: (field) => field.fill(VALID_INQUIRY.guests)
   },
   {
     title: "a guest count above the 10–400 range",
     locate: (form) => form.getByRole("spinbutton", { name: "Liczba gości" }),
-    makeInvalid: (field) => field.fill("401"),
+    makeInvalid: (field) => field.fill("500"),
+    message: "Podaj liczbę gości od 10 do 400.",
+    makeValid: (field) => field.fill(VALID_INQUIRY.guests)
+  },
+  {
+    title: "a guest count outside dynamically changed limits",
+    locate: (form) => form.getByRole("spinbutton", { name: "Liczba gości" }),
+    makeInvalid: async (field) => {
+      await field.evaluate((input) => {
+        input.min = "20";
+        input.max = "200";
+      });
+      await field.fill("5");
+    },
+    message: "Podaj liczbę gości od 20 do 200.",
+    makeValid: (field) => field.fill(VALID_INQUIRY.guests)
+  },
+  ...["min", "max"].map((boundary) => ({
+    title: `a guest range error without the ${boundary} boundary`,
+    locate: (form) => form.getByRole("spinbutton", { name: "Liczba gości" }),
+    makeInvalid: async (field) => {
+      await field.evaluate((input, attribute) => input.removeAttribute(attribute), boundary);
+      await field.fill(boundary === "min" ? "500" : "5");
+    },
     message: "Sprawdź poprawność pola.",
     makeValid: (field) => field.fill(VALID_INQUIRY.guests)
+  })),
+  {
+    title: "a guest count with an unsupported step mismatch",
+    locate: (form) => form.getByRole("spinbutton", { name: "Liczba gości" }),
+    makeInvalid: (field) => field.fill("10.5"),
+    message: "Sprawdź poprawność pola.",
+    makeValid: (field) => field.fill(VALID_INQUIRY.guests)
+  },
+  {
+    title: "a non-email type mismatch",
+    locate: (form) => form.getByRole("textbox", { name: "Email", exact: true }),
+    makeInvalid: async (field) => {
+      await field.evaluate((input) => {
+        input.type = "url";
+      });
+      await field.fill("invalid-url");
+    },
+    message: "Wprowadź poprawny format.",
+    makeValid: (field) => field.fill("https://example.com")
   },
   {
     title: "a required budget left on its placeholder option",
@@ -253,7 +295,7 @@ test("an invalid submit is prevented, announced, and focuses the first invalid f
   await expect(form.locator("[data-form-status]")).toHaveText("Uzupełnij zaznaczone pola, aby wysłać zapytanie.");
   await expect(email).toBeFocused();
   await expect(email).toHaveAttribute("aria-invalid", "true");
-  await expect(email).toHaveAccessibleDescription("Wprowadź poprawny format.");
+  await expect(email).toHaveAccessibleDescription("Podaj poprawny adres e-mail, np. anna@example.com.");
   await expect(form.locator("[data-validate][aria-invalid]")).toHaveCount(1);
 
   // The submit handler runs before any navigation starts, so a submission that was not prevented
