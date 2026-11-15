@@ -13,13 +13,9 @@ The site's core journeys are browsing the offer and services, viewing the portfo
 
 ### IMP-UX-01 — Disclose the portfolio lightbox opening gesture
 
-- **Affected journey:** Viewing portfolio images on `realizacje.html`.
-- **Evidence:** `js/modules/lightbox.js:77-99` (a mouse opens the lightbox only on `dblclick`; a single mouse click returns without action); `css/components/cards.css:60-65` (`cursor: zoom-in` on every trigger); `realizacje.html:115-118` (section header without any instruction); `tests/portfolio-lightbox.spec.js:51-53` (single click deliberately leaves the lightbox closed).
-- **Current experience:** Mouse users see a zoom-in cursor over each portfolio image, which suggests a single click, but a single click does nothing. Only a double-click opens the enlarged view. The double-click rule is a documented, deliberate decision, but the page never tells visitors about it.
-- **Proposed improvement:** Add a short Polish instruction in the "Wybrane historie" section that states how to open an image for the current input type, for example a double-click with a mouse and a tap on touch screens. Show it only once the lightbox has initialized.
-- **Expected user value:** Mouse users learn the required gesture before a click fails, which removes the gap between the zoom-in cursor and the actual behavior.
-- **Implementation scope:** `realizacje.html` (hint element in the section header), `js/modules/lightbox.js` (reveal the hint after successful initialization), and existing CSS in `css/components/` or `css/layout.css` for input-specific wording through `hover`/`pointer` media queries if used. The opening rules for mouse, touch, pen, and keyboard, the dialog behavior, and focus return must not change.
-- **Acceptance criteria:** With a fine pointer, the portfolio section shows a visible instruction naming the double-click gesture; with a coarse pointer, the instruction names a tap. The instruction stays hidden when the lightbox does not initialize (no `showModal` support or no JavaScript). `tests/portfolio-lightbox.spec.js` continues to pass unchanged.
+- **Status:** COMPLETED — implemented and verified.
+- **Result:** The "Wybrane historie" header on `realizacje.html` shows one Polish gesture hint, a double-click instruction for a fine primary pointer or a tap instruction for a coarse one, selected in CSS by the same `(pointer: coarse)` query the lightbox uses as its fallback. The hint is authored `hidden` and revealed by `initLightbox()` only after initialization completes; opening gestures, dialog behavior, and focus return are unchanged.
+- **Verification:** `npm run check`, `npm run build`, and the unchanged `tests/portfolio-lightbox.spec.js` passed. A temporary Playwright probe passed 30 of 30 checks: one correct wording in Desktop Chrome and Pixel 5 emulation, light, dark, and system-dark contrast of 6.34:1 and 9.42:1, stable layout at 320, 393, and 1280 px, the hint kept hidden without JavaScript, without `showModal()`, and on incomplete initialization, and unchanged gestures on all nine cards. Real touch hardware and hybrid devices were not tested; on hybrids the primary pointer selects the wording.
 - **Impact:** High
 - **Effort:** Small
 

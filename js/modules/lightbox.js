@@ -18,6 +18,8 @@ export const initLightbox = () => {
   const description = qs("[data-lightbox-description]", lightbox);
   const closeButton = qs("[data-lightbox-close]", lightbox);
   const triggers = qsa("[data-lightbox-trigger]");
+  // The gesture hint is optional, so a page without it still gets a working lightbox.
+  const hint = qs("[data-lightbox-hint]");
 
   if (!media || !title || !description || !closeButton || triggers.length === 0) return;
 
@@ -119,4 +121,8 @@ export const initLightbox = () => {
   lightbox.addEventListener("close", handleClose);
 
   lightbox.dataset.initialized = "true";
+
+  // The hint describes the gestures wired above, so it is authored `hidden` and revealed only
+  // here; without JavaScript, `showModal()` or the required markup it stays hidden.
+  if (hint) hint.hidden = false;
 };

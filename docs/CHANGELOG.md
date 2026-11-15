@@ -30,6 +30,7 @@ For each implementation task, determine `Changelog: yes` or `Changelog: no`. Add
 * Added an accessible portfolio lightbox for all nine images on `realizacje.html`, with mouse, touch, keyboard, focus-return, responsive-image, dark-theme, and reduced-motion support.
 * Added `aria-invalid` state handling to validated contact-form fields, synchronized with the existing validation messages and recovery behavior.
 * Added a contact-form note identifying KP_Code Digital Studio as the inquiry recipient and the presented services and packages as demonstrational.
+* Added a portfolio hint on `realizacje.html` that names the lightbox opening gesture for the primary input, a mouse double-click or a single tap, and appears only once the lightbox has initialized.
 
 ### Removed
 

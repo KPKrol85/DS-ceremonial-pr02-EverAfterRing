@@ -70,6 +70,33 @@
   box-shadow: none;
 }
 
+/* The hint above the portfolio grid names the opening gesture of `.card__image-trigger`. Its
+   container never sets `display`, so the authored `hidden` keeps it out until the lightbox is
+   ready. Only one wording is shown: the primary pointer decides, through the same
+   `(pointer: coarse)` query `js/modules/lightbox.js` falls back to, so a hybrid device never
+   sees both instructions at once. */
+.card-hint {
+  color: var(--color-accent);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-wide);
+  line-height: var(--line-height-compact);
+}
+
+.card-hint__text--touch {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .card-hint__text--mouse {
+    display: none;
+  }
+
+  .card-hint__text--touch {
+    display: inline;
+  }
+}
+
 .card--outline {
   border-color: var(--color-border-subtle);
   box-shadow: none;
