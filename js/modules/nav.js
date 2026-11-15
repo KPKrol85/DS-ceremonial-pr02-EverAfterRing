@@ -1,9 +1,8 @@
 import { qs, qsa, setExpanded, trapFocus } from "../utils.js";
-import { SELECTORS } from "../config.js";
 
 export const initNav = () => {
-  const navToggle = qs(SELECTORS.navToggle);
-  const navPanel = qs(SELECTORS.navPanel);
+  const navToggle = qs("[data-nav-toggle]");
+  const navPanel = qs("[data-nav-panel]");
   let releaseFocusTrap = null;
 
   if (navToggle?.dataset.initialized === "true") return;

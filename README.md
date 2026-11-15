@@ -74,7 +74,7 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych stron indeksowanych, w
 - **Strony** — każda strona to samodzielny plik HTML w katalogu głównym z pełnym zestawem metadanych i własną treścią; `main` jest celem linku pomijającego `#main`. Wyjątkiem jest `404.html`, które celowo ma ograniczony zestaw metadanych — opisuje to sekcja SEO.
 - **Partiale** — źródłowe elementy `header` i `footer` są hostami z atrybutami `data-partial` i `data-partial-src`. Wtyczka Vite wywołuje `resolveSharedShell()` z `scripts/html-shell.mjs` w trybie deweloperskim i podczas builda: zastępuje hosty gotowym markupem i ustawia `aria-current="page"` na podstawie nazwy dokumentu. Przeglądarka otrzymuje rozwiązany shell już w odpowiedzi HTML, bez pobierania partiali przez JavaScript.
 - **CSS** — `css/main.css` jest jedynym punktem wejścia i importuje kolejno tokeny, fonty, bazę, layout, komponenty i sekcje. Wartości motywu są zdefiniowane jako właściwości custom w `css/tokens.css`, a wariant ciemny jako `:root[data-theme="dark"]`.
-- **JavaScript** — `js/app.js` jest punktem wejścia i przez `onReady()` uruchamia moduły w ustalonej kolejności: motyw, nagłówek, nawigacja, formularz, hero, modal projektu, lightbox portfolio. Inicjalizacja nie wymaga oczekiwania na partiale. Każdy moduł sam sprawdza, czy jego markup istnieje, więc lightbox inicjalizuje się wyłącznie na `realizacje.html`. Wspólne selektory są w `js/config.js`, pomocnicze funkcje DOM i pułapka fokusa w `js/utils.js`, a logika interakcji w `js/modules/`.
+- **JavaScript** — `js/app.js` jest punktem wejścia i przez `onReady()` uruchamia moduły w ustalonej kolejności: motyw, nagłówek, nawigacja, formularz, hero, modal projektu, lightbox portfolio. Inicjalizacja nie wymaga oczekiwania na partiale. Każdy moduł sam sprawdza, czy jego markup istnieje, więc lightbox inicjalizuje się wyłącznie na `realizacje.html`. Pomocnicze funkcje DOM i pułapka fokusa są w `js/utils.js`, a logika interakcji w `js/modules/`; każdy moduł deklaruje lokalnie selektory, z których korzysta.
 - **Dwa punkty wejścia JS** — `js/app.js` jest modułem ES bundlowanym przez Vite, a `js/theme-bootstrap.js` pozostaje osobnym plikiem poza bundlem: w trybie deweloperskim jest ładowany jako klasyczny skrypt, a w buildzie minifikowany i wstawiany inline w to samo miejsce, ponieważ musi wykonać się synchronicznie przed renderowaniem stylów.
 - **Obrazy** — pliki źródłowe znajdują się w `assets/img-src/`, a warianty generowane przez `scripts/optimize-images.mjs` w `assets/img/`. W markupie używany jest element `picture` z kolejnością AVIF, WebP i JPG.
 - **Build** — `vite.config.js` deklaruje jedenaście wejść HTML (`appType: "mpa"`), wtyczkę wspólnego shellu opartą o `scripts/html-shell.mjs` oraz kopiowanie plików statycznych z pominięciem `assets/img-src/`. Build generuje katalog `dist/`, który jest wykluczony z repozytorium przez `.gitignore` i nie powinien być edytowany ręcznie.
@@ -107,7 +107,6 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych stron indeksowanych, w
 ├── js/
 │   ├── modules/            # nav, theme, form, hero, header-scroll, project-notice, lightbox, dom
 │   ├── app.js              # punkt wejścia ESM
-│   ├── config.js
 │   ├── theme-bootstrap.js  # osobny skrypt (IIFE) wstawiany inline w buildzie
 │   └── utils.js
 ├── partials/
@@ -313,7 +312,7 @@ Repozytorium nie zawiera wyników pomiarów wydajności, dlatego powyższe punkt
 - Zmiany w nagłówku, nawigacji, stopce lub modalu projektu należy wprowadzać w `partials/header.html` i `partials/footer.html`, nigdy w poszczególnych stronach.
 - Nowa strona wymaga dodania wpisu w tablicy `htmlPages` w `scripts/html-shell.mjs` — ta sama lista definiuje wejścia MPA w `vite.config.js` — a strona należąca do nawigacji głównej dodatkowo w `primaryNavPages` oraz w `partials/header.html`; adresy publiczne dodaje się do `sitemap.xml`.
 - Nowy plik CSS wymaga zarejestrowania importu w `css/main.css`, a nowy moduł JS — wywołania w `js/app.js`.
-- Selektory współdzielone między modułami są zdefiniowane w `js/config.js`.
+- Selektory DOM definiuje lokalnie moduł, który z nich korzysta; projekt nie ma wspólnego rejestru selektorów.
 - Nowe obrazy dodaje się do `assets/img-src/` i generuje komendą `npm run optimize:images`; katalog `assets/img/` zawiera pliki wygenerowane, ale wersjonowane w repozytorium.
 - Katalog `dist/` jest generowany i wykluczony z repozytorium — nie należy edytować go ręcznie.
 - Klucze `localStorage` są zduplikowane w `js/theme-bootstrap.js` i `js/modules/theme.js`; zmiana klucza wymaga aktualizacji obu plików oraz dokumentów prawnych, które go opisują.
@@ -402,7 +401,7 @@ This address is declared as canonical in the metadata of the indexable pages, in
 - **Pages** — each page is a standalone HTML file at the repository root with a full metadata set and its own content; `main` is the target of the `#main` skip link. `404.html` is the exception, carrying a deliberately reduced metadata set — see the SEO section.
 - **Partials** — the source `header` and `footer` elements are hosts carrying `data-partial` and `data-partial-src`. The Vite plugin calls `resolveSharedShell()` from `scripts/html-shell.mjs` in development and during the build: it replaces the hosts with resolved markup and sets `aria-current="page"` based on the document name. The browser receives the resolved shell in the initial HTML response, without fetching partials through JavaScript.
 - **CSS** — `css/main.css` is the single entry point and imports tokens, fonts, base, layout, components, and sections in order. Theme values are defined as custom properties in `css/tokens.css`, with the dark variant under `:root[data-theme="dark"]`.
-- **JavaScript** — `js/app.js` is the entry point and uses `onReady()` to run the modules in a fixed order: theme, header, navigation, form, hero, project notice, portfolio lightbox. Initialization does not wait for partials. Every module checks for its own markup first, so the lightbox initializes on `realizacje.html` only. Shared selectors live in `js/config.js`, DOM helpers and the focus trap in `js/utils.js`, and interaction logic in `js/modules/`.
+- **JavaScript** — `js/app.js` is the entry point and uses `onReady()` to run the modules in a fixed order: theme, header, navigation, form, hero, project notice, portfolio lightbox. Initialization does not wait for partials. Every module checks for its own markup first, so the lightbox initializes on `realizacje.html` only. DOM helpers and the focus trap live in `js/utils.js` and interaction logic in `js/modules/`; each module declares the selectors it uses locally.
 - **Two JS entry points** — `js/app.js` is an ES module bundled by Vite, while `js/theme-bootstrap.js` stays a separate file outside the bundle: development loads it as a classic script, and the build minifies it and inlines it in the same position, because it must run synchronously before styles render.
 - **Images** — source files live in `assets/img-src/`, and the variants generated by `scripts/optimize-images.mjs` in `assets/img/`. The markup uses the `picture` element with AVIF, WebP, and JPG in that order.
 - **Build** — `vite.config.js` declares the eleven HTML entries (`appType: "mpa"`), the shared-shell plugin backed by `scripts/html-shell.mjs`, and the static asset copy that excludes `assets/img-src/`. The build generates the `dist/` directory, which is excluded from the repository by `.gitignore` and should not be edited manually.
@@ -435,7 +434,6 @@ This address is declared as canonical in the metadata of the indexable pages, in
 ├── js/
 │   ├── modules/            # nav, theme, form, hero, header-scroll, project-notice, lightbox, dom
 │   ├── app.js              # ESM entry point
-│   ├── config.js
 │   ├── theme-bootstrap.js  # separate script (IIFE) inlined by the build
 │   └── utils.js
 ├── partials/
@@ -641,7 +639,7 @@ The repository contains no performance measurements, so the points above describ
 - Changes to the header, navigation, footer, or project notice modal belong in `partials/header.html` and `partials/footer.html`, never in individual pages.
 - A new page requires an entry in the `htmlPages` array in `scripts/html-shell.mjs` — the same list defines the MPA entries in `vite.config.js`; a page belonging to the primary navigation additionally requires entries in `primaryNavPages` and in `partials/header.html`, and public URLs are added to `sitemap.xml`.
 - A new CSS file requires an import registered in `css/main.css`, and a new JS module requires a call in `js/app.js`.
-- Selectors shared between modules are defined in `js/config.js`.
+- DOM selectors are defined locally in the module that uses them; the project has no shared selector registry.
 - New images are added to `assets/img-src/` and generated with `npm run optimize:images`; `assets/img/` holds generated files that are nevertheless version-controlled.
 - The `dist/` directory is generated and excluded from the repository — it must not be edited manually.
 - The `localStorage` keys are duplicated in `js/theme-bootstrap.js` and `js/modules/theme.js`; changing a key requires updating both files and the legal documents that describe it.

@@ -34,6 +34,7 @@ For each implementation task, determine `Changelog: yes` or `Changelog: no`. Add
 ### Removed
 
 * Removed eight unused icon, logo, and placeholder assets, reducing the deployment payload without affecting rendered content.
+* Removed the single-consumer `js/config.js` selector registry, so every JavaScript module now owns its DOM selectors.
 
 ### Fixed
 

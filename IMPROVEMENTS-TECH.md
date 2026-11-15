@@ -37,13 +37,9 @@ The architecture is small and coherent. `js/app.js` is the single application en
 
 ### IMP-TECH-04 — Replace the single-consumer selector registry in `js/config.js` with module-owned selectors
 
-- **Affected area:** JavaScript module organization: `js/config.js`, `js/modules/nav.js`, `js/modules/form.js`.
-- **Evidence:** `js/config.js:1-5`, `js/modules/nav.js:2,5-6`, `js/modules/form.js:2,28`; module-local selectors in `js/modules/theme.js:57`, `js/modules/lightbox.js:9-20`, `js/modules/project-notice.js:24-32`, `js/modules/header-scroll.js:8`; `README.md:77` and `README.md:316` ("Selektory współdzielone między modułami są zdefiniowane w `js/config.js`").
-- **Current implementation:** `SELECTORS` holds three selectors. `navToggle` and `navPanel` are used only by `nav.js` and `contactForm` only by `form.js`, so none of them is shared between modules. Every other module, including those added later, declares its `data-*` hooks locally. The README describes `config.js` as the home of shared selectors, a role no entry currently fulfils.
-- **Proposed improvement:** Move the three selectors into their only consumers, remove `js/config.js`, and state the actual convention in the README: modules own their selectors.
-- **Expected engineering value:** Selector ownership follows one consistent rule across all modules, a level of indirection with no shared benefit disappears, and the documented convention matches the code.
-- **Implementation scope:** `js/config.js` (removal), `js/modules/nav.js`, `js/modules/form.js`, and the two README statements plus the structure trees that list `config.js`. Selector values and the `data-nav-toggle`, `data-nav-panel` and `data-contact-form` attribute contracts stay unchanged.
-- **Acceptance criteria:** No module imports `js/config.js` and the file no longer exists. `nav.js` and `form.js` use identical selector strings, declared locally. The README no longer describes a shared selector registry. `npm run build` succeeds, and `tests/mobile-nav.spec.js` and `tests/form-validation.spec.js` pass.
+- **Status:** COMPLETED — implemented and verified.
+- **Result:** `js/modules/nav.js` now declares `[data-nav-toggle]` and `[data-nav-panel]` and `js/modules/form.js` declares `[data-contact-form]` locally, with unchanged values, and `js/config.js` with its `SELECTORS` registry was removed. Both README languages now document module-owned selectors, and both structure trees no longer list `config.js`.
+- **Verification:** Passed `npm run check` (11 pages, 392 local references, 65 ID references), `npm run build`, all 24 Chromium smoke tests including `tests/mobile-nav.spec.js` and `tests/form-validation.spec.js`, and `git diff --check`; no source under `js/` references `config.js` or `SELECTORS`, and the built bundle contains the three selectors unchanged. Limitation: the first smoke run under heavy machine load timed out on three focus assertions, including the unaffected lightbox spec, with closed browser sessions; those specs and the full suite passed on rerun.
 - **Impact:** Low
 - **Effort:** Small
 

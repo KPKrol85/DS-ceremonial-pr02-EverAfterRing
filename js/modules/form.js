@@ -1,5 +1,4 @@
 import { qs, qsa } from '../utils.js';
-import { SELECTORS } from '../config.js';
 
 // The message and the field's invalid state are one transition, so both are set here and cleared
 // in clearError. The attribute is written before the describedby lookup returns, so the state stays
@@ -25,7 +24,7 @@ const clearError = (field) => {
 };
 
 export const initForm = () => {
-  const form = qs(SELECTORS.contactForm);
+  const form = qs('[data-contact-form]');
   if (!form || form.dataset.initialized === 'true') return;
 
   const status = qs('[data-form-status]', form);
