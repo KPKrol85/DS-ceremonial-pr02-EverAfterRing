@@ -39,13 +39,9 @@ Five source-supported opportunities were selected: dedicated reading typography,
 
 ### IMP-UI-04 — Share the package price-placement contract across both presentations
 
-- **Affected area:** Package summaries on the home page and detailed packages on the offer page.
-- **Evidence:** `index.html:185-214`; `oferta.html:119-163`; `css/components/cards.css:194-204`.
-- **Current state:** Both presentations reuse package names, titles, and `.card__price`. Offer cards additionally use `.card--package` as a flex column, allowing the price's auto top margin to absorb spare height. Home-page package cards use ordinary block layout, so the shared price rule does not provide the same alignment behavior there.
-- **Proposed improvement:** Apply one package layout contract to both presentations so prices occupy a consistent lower region within each grid row despite different description lengths. Retain the existing detailed and summary content variants.
-- **Expected value:** Make repeated package information more consistent across pages and keep price placement independent of incidental text wrapping.
-- **Implementation scope:** Reuse `.card--package` in the home-page package section and make only necessary scoped refinements in `css/components/cards.css`. Preserve offer benefits, all prices, typography and colors, the three existing inquiry links and their exact query values, and the home page's shared offer link.
-- **Acceptance criteria:** All six package cards use the shared layout. Within a multi-column row, price baselines align when descriptions wrap to different heights; offer CTAs retain a consistent bottom position. Single-column cards size naturally without fixed heights. Other home-page cards remain unchanged, and package preselection continues to use the existing links.
+- **Status:** COMPLETED — implemented and verified.
+- **Result:** The three home-page package summaries now reuse the existing `.card--package` modifier, so all six package cards share the flex-column `.card__price` placement and prices align within each multi-column row. No CSS change was required; offer-page markup, content, prices, and links are unchanged.
+- **Verification:** `npm run check`, `npm run build`, `git diff --check`, and the focused `preselects its package` Playwright selection (3 of 3 in Chromium) passed. Headless Chromium measurements of the built pages at 320, 390, 600, 768, 1024, and 1280 px in light and dark themes, plus a 300–1440 px sweep, cut home-page row price offsets from up to 21.75 px to 0, including with a lengthened description, with unchanged card heights, other home-page cards, and offer-page geometry, and no clipping or overflow; screenshots, physical devices, and non-Chromium browsers were not checked. A pre-existing 17.92 px offer-page price offset remains at 497–503 and 742–784 px, where the Signature or Full Service CTA label wraps to two lines while CTA bottoms stay aligned; package-scoped fixes were rejected because `white-space: nowrap` pushes labels outside the button at 150% text size and `subgrid` enlarges desktop cards and realigns benefit lists.
 - **Impact:** Medium
 - **Effort:** Small
 

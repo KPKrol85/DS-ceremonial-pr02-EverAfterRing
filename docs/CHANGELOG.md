@@ -36,6 +36,7 @@ For each implementation task, determine `Changelog: yes` or `Changelog: no`. Add
 
 ### Changed
 
+* Aligned home-page package prices within each grid row by applying the offer page's shared package-card layout, independent of description length.
 * Scaled shared section spacing with the viewport, from 3rem on narrow screens to the existing 6rem at desktop widths of 1280 px and above.
 * Highlighted invalid contact-form fields with the theme-aware error border, which clears automatically once the field is corrected.
 * Gave the terms, privacy policy, and cookies policy a dedicated reading layout with a 70ch text measure, 1rem body text, relaxed line height, and consistent section spacing.
