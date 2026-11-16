@@ -31,13 +31,9 @@ Five source-supported opportunities were selected: dedicated reading typography,
 
 ### IMP-UI-03 — Scale section spacing with the existing responsive layouts
 
-- **Affected area:** Shared `.section` regions, especially the repeated sections on the home and services pages.
-- **Evidence:** `css/tokens.css:87-94,117-121`; `css/layout.css:6-8,27-38`; `index.html:119-183`; `uslugi.html:111-162,259-313`.
-- **Current state:** Grids adapt to available width, but every `.section` uses the same 6rem top and bottom padding at all viewport sizes. The section-spacing token has no responsive override.
-- **Proposed improvement:** Give the existing section-spacing token a bounded responsive value, with a smaller narrow-screen spacing drawn from the current spacing scale and the existing 6rem desktop maximum.
-- **Expected value:** Keep section separation proportional to the narrower, often stacked layouts while retaining the spacious desktop presentation.
-- **Implementation scope:** Prefer a change confined to the section-spacing token in `css/tokens.css`, using the existing `.section` consumer. Preserve section order, alternating surfaces, grid rules, component padding, and the separate hero, callout, header, and footer spacing.
-- **Acceptance criteria:** At 320 and 390 px, computed section padding is lower than 6rem and no lower than the existing 3rem spacing step; at 1280 px, it remains 6rem. Intermediate widths follow a bounded, non-decreasing scale. Representative home, services, and contact sections retain readable separation in both themes, with unchanged grid transitions and no content clipping.
+- **Status:** COMPLETED — implemented and verified.
+- **Result:** The shared `--section-space` token in `css/tokens.css` is now `clamp(3rem, 7.5vw, 6rem)`, so `.section` top and bottom padding stays at 3rem up to a 640 px viewport, grows linearly, and reaches the existing 6rem at 1280 px and above. Hero, callout, header, footer, grid, component, and legal-prose spacing are unchanged.
+- **Verification:** `npm run check`, `npm run build`, and `git diff --check` passed. Built-page measurements in the Chromium-based app browser gave equal top and bottom padding of 48, 48, 57.6, 76.8, and 96 px at 320, 390, 768, 1024, and 1280 px on all nine pages with sections in light and dark themes, a non-decreasing 48–96 px range across a 300–2400 px sweep, and no other computed-style, grid-column, content-height, or horizontal-overflow differences from the pre-change build. Screenshots, physical devices, and non-Chromium browsers were not checked.
 - **Impact:** Medium
 - **Effort:** Small
 

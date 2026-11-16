@@ -117,8 +117,8 @@
   /* Container */
   --container-width: 1100px;
 
-  /* Section spacing */
-  --section-space: 6rem;
+  /* Section spacing: 3rem up to a 640px viewport, then 7.5vw up to the 6rem reached at 1280px */
+  --section-space: clamp(3rem, 7.5vw, 6rem);
 
   /* Focus Ring */
   --focus-ring: 0 0 0 3px rgba(198, 167, 122, 0.5);
