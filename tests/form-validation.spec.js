@@ -1,5 +1,34 @@
 import { expect, test } from "@playwright/test";
-import { acceptProjectNotice } from "./support/app.js";
+import { acceptProjectNotice, seedStorage, PROJECT_NOTICE_STORAGE_KEY, THEME_STORAGE_KEY } from "./support/app.js";
+
+// Resolves a token from `css/tokens.css` under the active theme, so border expectations follow
+// the theme instead of repeating its colour values here.
+const resolveToken = (page, property, token) =>
+  page.evaluate(
+    ([cssProperty, name]) => {
+      const probe = document.createElement("span");
+      probe.style.setProperty(cssProperty, `var(${name})`);
+      document.body.append(probe);
+      const value = getComputedStyle(probe).getPropertyValue(cssProperty);
+      probe.remove();
+      return value;
+    },
+    [property, token]
+  );
+
+const borderColors = (field) =>
+  field.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return [style.borderTopColor, style.borderRightColor, style.borderBottomColor, style.borderLeftColor];
+  });
+
+const expectBorderToken = async (field, token) => {
+  const expected = await resolveToken(field.page(), "color", token);
+  await expect.poll(() => borderColors(field)).toEqual([expected, expected, expected, expected]);
+};
+
+const NORMAL_BORDER = "--color-border-subtle";
+const INVALID_BORDER = "--color-error";
 
 // `js/modules/form.js` applies `novalidate` itself, so a submit with a required value missing is
 // handled by the module rather than by the browser's own bubbles, and the state it writes is what
@@ -12,6 +41,8 @@ test("a submit with a required value missing exposes the first invalid field as 
   const name = page.getByRole("textbox", { name: "Imię i nazwisko" });
 
   await expect(name).not.toHaveAttribute("aria-invalid");
+  // An untouched required field is not styled as invalid before the module marks it.
+  await expectBorderToken(name, NORMAL_BORDER);
 
   await page.getByRole("button", { name: "Wyślij zapytanie" }).click();
 
@@ -21,13 +52,73 @@ test("a submit with a required value missing exposes the first invalid field as 
   // Asserted through the computed description rather than through the error element, so the
   // existing `aria-describedby` relationship is part of what passes.
   await expect(name).toHaveAccessibleDescription("To pole jest wymagane.");
+  await expectBorderToken(name, INVALID_BORDER);
 
   await name.fill("Anna Kowalska");
 
   // A field that became valid must not keep the invalid state, and its message is cleared with it.
   await expect(name).not.toHaveAttribute("aria-invalid");
   await expect(name).toHaveAccessibleDescription("");
+  await expectBorderToken(name, NORMAL_BORDER);
 });
+
+for (const theme of ["light", "dark"]) {
+  test(`invalid controls use the ${theme} error token without resizing and keep the focus ring`, async ({ page }) => {
+    await seedStorage(page, { [PROJECT_NOTICE_STORAGE_KEY]: "true", [THEME_STORAGE_KEY]: theme });
+    await page.goto("/kontakt.html");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+
+    // The two tokens must differ, or the colour assertions below would not tell the states apart.
+    expect(await resolveToken(page, "color", INVALID_BORDER)).not.toBe(
+      await resolveToken(page, "color", NORMAL_BORDER)
+    );
+
+    const form = contactForm(page);
+    // One control of each type that the invalid rule covers.
+    const controls = [
+      form.getByRole("textbox", { name: "Imię i nazwisko" }),
+      form.getByRole("combobox", { name: "Budżet" }),
+      form.getByRole("textbox", { name: "Wiadomość" })
+    ];
+    const phone = form.getByRole("textbox", { name: "Telefon (opcjonalnie)" });
+    const sizeOf = (field) =>
+      field.evaluate((element) => {
+        const { width, height } = element.getBoundingClientRect();
+        return { width, height };
+      });
+
+    const sizesBefore = [];
+    for (const control of controls) {
+      await expectBorderToken(control, NORMAL_BORDER);
+      sizesBefore.push(await sizeOf(control));
+    }
+
+    await form.getByRole("button", { name: "Wyślij zapytanie" }).click();
+
+    for (const [index, control] of controls.entries()) {
+      await expect(control).toHaveAttribute("aria-invalid", "true");
+      await expect(control).toHaveAccessibleDescription("To pole jest wymagane.");
+      await expectBorderToken(control, INVALID_BORDER);
+      expect(await sizeOf(control)).toEqual(sizesBefore[index]);
+    }
+
+    // The optional phone field is never validated, so it keeps its normal presentation.
+    await expect(phone).not.toHaveAttribute("aria-invalid");
+    await expectBorderToken(phone, NORMAL_BORDER);
+
+    // Reach the invalid `name` field by keyboard: the error border and the separate focus ring
+    // from `css/base.css` must both be present.
+    const [name] = controls;
+    await expect(name).toBeFocused();
+    await page.keyboard.press("Tab");
+    await page.keyboard.press("Shift+Tab");
+    await expect(name).toBeFocused();
+    expect(await name.evaluate((element) => element.matches(":focus-visible"))).toBe(true);
+    const focusRing = await resolveToken(page, "box-shadow", "--focus-ring");
+    expect(await name.evaluate((element) => getComputedStyle(element).boxShadow)).toBe(focusRing);
+    await expectBorderToken(name, INVALID_BORDER);
+  });
+}
 
 // Fictional values that satisfy every constraint in `kontakt.html`: the `email` type, the
 // 10–400 `guests` range, and an option of each required select chosen by its visible label.
@@ -247,6 +338,13 @@ const fieldCases = [
     makeInvalid: (field) => field.focus(),
     message: "To pole jest wymagane.",
     makeValid: (field) => field.selectOption({ label: VALID_INQUIRY.budget })
+  },
+  {
+    title: "a required message left empty",
+    locate: (form) => form.getByRole("textbox", { name: "Wiadomość" }),
+    makeInvalid: (field) => field.focus(),
+    message: "To pole jest wymagane.",
+    makeValid: (field) => field.fill(VALID_INQUIRY.message)
   }
 ];
 
@@ -262,12 +360,14 @@ for (const { title, locate, makeInvalid, message, makeValid } of fieldCases) {
 
     await expect(field).toHaveAttribute("aria-invalid", "true");
     await expect(field).toHaveAccessibleDescription(message);
+    await expectBorderToken(field, INVALID_BORDER);
 
     // The module clears the state on `input` as soon as the field's validity holds again.
     await makeValid(field);
 
     await expect(field).not.toHaveAttribute("aria-invalid");
     await expect(field).toHaveAccessibleDescription("");
+    await expectBorderToken(field, NORMAL_BORDER);
   });
 }
 

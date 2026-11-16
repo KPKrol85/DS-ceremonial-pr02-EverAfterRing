@@ -36,6 +36,15 @@
   font-size: var(--font-size-base);
 }
 
+/* Keyed to the state js/modules/form.js writes, not to :invalid, so untouched required
+   fields keep their normal border. Only the colour changes: the 1px width is unchanged and
+   the separate :focus-visible ring from css/base.css stays visible outside the border. */
+.form__input[aria-invalid="true"],
+.form__select[aria-invalid="true"],
+.form__textarea[aria-invalid="true"] {
+  border-color: var(--color-error);
+}
+
 .form__textarea {
   min-height: 140px;
   resize: vertical;

@@ -23,13 +23,9 @@ Five source-supported opportunities were selected: dedicated reading typography,
 
 ### IMP-UI-02 — Style invalid form controls from their existing ARIA state
 
-- **Affected area:** Contact-form inputs, selects, and textarea.
-- **Evidence:** `js/modules/form.js:6-24,43-76`; `kontakt.html:125-187`; `css/components/forms.css:28-48`; `css/base.css:49-55`.
-- **Current state:** Validation already sets and clears `aria-invalid` together with descriptive error messages. Error text uses the error token, but control styling keeps the same border and surface in all validation states; no stylesheet selector consumes `aria-invalid`.
-- **Proposed improvement:** Add a consistent invalid border treatment keyed to `[aria-invalid="true"]`, using the existing theme-aware error token while retaining the textual explanation and separate focus ring.
-- **Expected value:** Strengthen the visual association between each validation message and its control when several fields need correction.
-- **Implementation scope:** Limit implementation to `css/components/forms.css`; retain current validation timing, messages, ARIA relationships, reserved error space, package preselection, focus handling, and native Netlify submission. Do not use unconditional `:invalid` styling that marks untouched required fields.
-- **Acceptance criteria:** Inputs, selects, and the textarea receive the same invalid treatment only after the existing attribute is set and return to their normal border when it is removed. Invalid focused controls retain a distinguishable focus ring; error text remains present. Check empty required values, email format, guest limits, and select recovery in both themes without changing field dimensions or layout.
+- **Status:** COMPLETED — implemented and verified.
+- **Result:** Contact-form inputs, selects, and the textarea marked `aria-invalid="true"` now use the theme-aware `--color-error` border and return to the standard border when the attribute is removed. Border width, layout, validation logic, error text, and the `:focus-visible` ring are unchanged.
+- **Verification:** `npm run check` passed, and `npm run test:smoke -- tests/form-validation.spec.js` passed 25 of 25 tests in Chromium, covering empty required values, email format, guest limits, select and textarea recovery, the untouched optional phone field, unchanged control sizes, and a keyboard-focused invalid field in light and dark themes. Control sizes were measured only at the default desktop viewport.
 - **Impact:** Medium
 - **Effort:** Small
 
