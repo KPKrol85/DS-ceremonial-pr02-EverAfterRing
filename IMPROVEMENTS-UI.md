@@ -47,13 +47,9 @@ Five source-supported opportunities were selected: dedicated reading typography,
 
 ### IMP-UI-05 — Tie card emphasis to the controls inside each card
 
-- **Affected area:** Informational cards and portfolio image controls.
-- **Evidence:** `css/components/cards.css:1-15,60-71`; `index.html:126-150`; `o-nas.html:143-158`; `realizacje.html:128-157`; `css/base.css:107-118`.
-- **Current state:** The generic `.card:hover` translates every card upward and changes its shadow, including feature and team articles without controls. Portfolio cards receive that same whole-card hover effect, while their actual image button has its own zoom cursor and keyboard focus outline.
-- **Proposed improvement:** Keep informational card surfaces stable and concentrate hover and keyboard emphasis on existing interactive elements, particularly the portfolio image trigger. Use the existing borders, colors, and shadows rather than adding a new visual style.
-- **Expected value:** Make visual feedback correspond more closely to the actual control boundary while keeping surrounding descriptive content stable.
-- **Implementation scope:** Refine scoped states in `css/components/cards.css`, preserving static card variants and the image's inset focus outline. Keep all existing buttons, links, `data-*` hooks, lightbox gestures, gesture hint, dialog behavior, and focus restoration; do not make entire cards clickable or alter hero effects.
-- **Acceptance criteria:** Hovering feature or team copy leaves its card position and shadow unchanged. Portfolio image controls show localized feedback on hover and keyboard focus, with the inset outline remaining visible. Touch activation remains unchanged, and reduced-motion mode adds no translation or scaling. Package and contact controls retain their existing states in both themes.
+- **Status:** COMPLETED — implemented and verified.
+- **Result:** Removed the generic `.card:hover` lift and shadow transition, keeping all cards stationary. Portfolio image controls now use a theme-aware accent border on hover, preserving keyboard focus, touch activation, lightbox behavior, and reduced-motion support.
+- **Verification:** `npm run check`, `git diff --check`, and focused Playwright tests (1/1) passed. Browser checks at 320, 390, 768, and 1280 px in both themes confirmed unchanged card geometry, localized hover feedback, visible focus indicators, and no unwanted motion or sticky touch states. Screenshots were reviewed at 1280 px only; physical devices and non-Chromium browsers were not tested.
 - **Impact:** Medium
 - **Effort:** Small
 

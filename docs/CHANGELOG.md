@@ -36,6 +36,7 @@ For each implementation task, determine `Changelog: yes` or `Changelog: no`. Add
 
 ### Changed
 
+* Replaced the whole-card hover lift with a theme-aware accent border on portfolio image controls, keeping informational, team, package, and contact cards stationary, including in reduced-motion mode.
 * Aligned home-page package prices within each grid row by applying the offer page's shared package-card layout, independent of description length.
 * Scaled shared section spacing with the viewport, from 3rem on narrow screens to the existing 6rem at desktop widths of 1280 px and above.
 * Highlighted invalid contact-form fields with the theme-aware error border, which clears automatically once the field is corrected.

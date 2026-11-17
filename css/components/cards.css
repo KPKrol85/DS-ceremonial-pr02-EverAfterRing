@@ -4,14 +4,6 @@
   padding: var(--space-5);
   box-shadow: var(--shadow-card);
   border: 1px solid transparent;
-  transition:
-    transform var(--transition-base),
-    box-shadow var(--transition-base);
-}
-
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-soft);
 }
 
 .card__title {
@@ -62,6 +54,15 @@
   width: 100%;
   padding: 0;
   cursor: zoom-in;
+}
+
+/* Cards themselves stay still; hover feedback belongs to the image control. Its clipping frame
+   takes the accent border, which moves and resizes nothing. Only hover-capable pointers get it,
+   so a tap never leaves a sticky highlight; keyboard focus keeps the inset outline below. */
+@media (hover: hover) {
+  .card__image:has(> .card__image-trigger:hover) {
+    border-color: var(--color-accent);
+  }
 }
 
 .card__image-trigger:focus-visible {
