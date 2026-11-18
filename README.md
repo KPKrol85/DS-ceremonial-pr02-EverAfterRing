@@ -227,6 +227,27 @@ npm run test:smoke
 
 Komenda buduje `dist/`, uruchamia podgląd produkcyjny i wykonuje na nim dwadzieścia cztery testy Playwright w przeglądarce Chromium. Testy działają na zbudowanych stronach, więc sprawdzają ten sam rozwiązany shell i wstawiony inline theme bootstrap, które trafiają na hosting. Host i port podglądu są ustalone na stałe, a testy nigdy nie podłączają się do serwera pozostawionego po wcześniejszym buildzie.
 
+**Dobór weryfikacji do zmiany**
+
+| Rodzaj zmiany | Zalecana weryfikacja | Dodatkowo, zależnie od ryzyka |
+| --- | --- | --- |
+| Tylko dokumentacja | Przegląd treści, linków i `git diff --check`. | Bez builda i testów przeglądarkowych, ponieważ działanie strony się nie zmienia. |
+| HTML / treść strony | `npm run check`. | Sprawdź zmienioną stronę w podglądzie; przy zmianach struktury lub transformacji HTML wykonaj `npm run build`, a przy zmianach zachowania uruchom odpowiedni spec. |
+| CSS | `npm run check` oraz oględziny zmienionego widoku przez `npm run dev`. | Sprawdź dotknięte szerokości, motywy i stany fokusa; uruchom odpowiedni spec, jeśli zmiana wpływa na interakcje, lub `npm run build`, jeśli dotyczy przetwarzania CSS. |
+| Moduł JavaScript | `npm run check` oraz odpowiedni spec przez polecenie poniżej. | Sprawdź ręcznie zachowanie nieobjęte testami; rozszerz zestaw speców przy współdzielonym stanie lub zależnościach między modułami. |
+| Wspólne partiale / kontrakty shellu | `npm run check` oraz odpowiednie specy, np. `tests/page-load.spec.js` i `tests/navigation.spec.js`, przez polecenie poniżej. | Sprawdź pozostałe dotknięte strony i zachowania; przy szerokim wpływie uruchom pełne `npm run test:smoke`. |
+| Konfiguracja builda | `npm run check` oraz `npm run test:smoke` (build i pełny zestaw smoke). | Sprawdź dotknięte pliki w `dist/` i wynik przez `npm run preview`; testy smoke nie pokrywają całego artefaktu. |
+
+Dla izolowanej zmiany wystarczą kontrole obejmujące zmieniony kontrakt i jego bezpośrednie zależności. Rozszerz weryfikację, gdy wpływ obejmuje więcej obszarów; pełny zestaw smoke nie jest wymagany dla każdej drobnej zmiany. Oględziny uzupełniają testy, które nie sprawdzają layoutu ani wyglądu.
+
+Wybrany istniejący spec uruchom na świeżym buildzie produkcyjnym:
+
+```bash
+npm run test:smoke -- tests/<spec>.spec.js
+```
+
+Zastąp `<spec>` nazwą pliku z `tests/`, np. `form-validation`; można też podać kilka ścieżek speców. `test:smoke` najpierw buduje `dist/`, a następnie przekazuje wybór speców do Playwrighta, więc osobny `npm run build` przed tą komendą jest zbędny. Bezpośrednie `playwright test` nie wykonuje builda: `webServer` uruchamia tylko podgląd istniejącego `dist/`, więc może sprawdzać nieaktualne pliki lub nie zadziałać, gdy katalogu brakuje. Nowy serwer podglądu nie oznacza świeżego builda.
+
 Zakres testów (`tests/`):
 
 - ładowanie trzech reprezentatywnych stron (główna, oferta, kontakt): `title`, nagłówek `h1`, obecność nagłówka i stopki ze wspólnego shellu, ustawiony motyw oraz brak błędów JavaScriptu,
@@ -553,6 +574,27 @@ npm run test:smoke
 ```
 
 The command builds `dist/`, starts the production preview, and runs twenty-four Playwright tests against it in Chromium. The tests run on the built pages, so they exercise the same resolved shell and inlined theme bootstrap that ship to hosting. The preview host and port are pinned, and the tests never attach to a server left running from an earlier build.
+
+**Choosing verification for a change**
+
+| Change type | Recommended verification | Additional checks based on risk |
+| --- | --- | --- |
+| Documentation only | Review content and links, and run `git diff --check`. | No build or browser tests, because site behavior is unchanged. |
+| HTML / page content | `npm run check`. | Inspect the changed page in preview; run `npm run build` for HTML structure or transformation changes, and the relevant spec for behavior changes. |
+| CSS | `npm run check` and inspect the affected view with `npm run dev`. | Check affected widths, themes, and focus states; run the relevant spec if interactions are affected, or `npm run build` if CSS processing is affected. |
+| JavaScript module | `npm run check` and the relevant spec using the command below. | Manually check behavior not covered by tests; expand the spec selection for shared state or dependencies between modules. |
+| Shared partials / shell contracts | `npm run check` and relevant specs, e.g. `tests/page-load.spec.js` and `tests/navigation.spec.js`, using the command below. | Check other affected pages and behaviors; run the full `npm run test:smoke` for broad impact. |
+| Build configuration | `npm run check` and `npm run test:smoke` (build and full smoke suite). | Inspect affected files in `dist/` and the output with `npm run preview`; smoke tests do not cover the entire artifact. |
+
+For an isolated change, checks covering the changed contract and its direct dependencies are sufficient. Expand verification when more areas are affected; the full smoke suite is not required for every small change. Visual inspection supplements tests, which do not check layout or appearance.
+
+Run a selected existing spec against a fresh production build:
+
+```bash
+npm run test:smoke -- tests/<spec>.spec.js
+```
+
+Replace `<spec>` with a file name from `tests/`, e.g. `form-validation`; multiple spec paths can also be supplied. `test:smoke` builds `dist/` first, then passes the spec selection to Playwright, so a separate `npm run build` beforehand is redundant. Direct `playwright test` does not build: `webServer` only starts a preview of the existing `dist/`, so it may test stale files or fail if the directory is missing. A new preview server does not imply a fresh build.
 
 Test scope (`tests/`):
 

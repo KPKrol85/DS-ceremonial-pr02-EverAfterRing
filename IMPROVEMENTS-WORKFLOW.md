@@ -15,13 +15,9 @@ The main opportunities lie in the processes around this toolchain rather than in
 
 ### IMP-WORKFLOW-01 — Document the focused verification commands per change type
 
-- **Affected workflow:** Verification workflow.
-- **Evidence:** `AGENTS.md:26-34`; `package.json:25-31`; `playwright.config.js:24-30`; `README.md:166-176`, `README.md:222-247`, `README.md:493-502`, `README.md:549-574`; verification fields in `docs/archive/improvements/IMPROVEMENTS-QUALITY-2026-11-14.md`, `IMPROVEMENTS-UX-2026-11-15.md`, and `IMPROVEMENTS-UI-2026-11-17.md`.
-- **Current workflow:** `AGENTS.md` requires focused checks for focused changes but names no project commands. README documents each script individually and the full `npm run test:smoke` run only. Archived records show focused runs performed in several different ways — `npm run test:smoke -- tests/<spec>.spec.js`, a separate `npm run build` followed by a spec run, and unspecified "focused Playwright tests". Because `webServer` serves whatever `dist/` exists, a spec run without a preceding build tests stale or missing output; only the `test:smoke` passthrough guarantees a fresh build.
-- **Proposed improvement:** Add a short verification guide to the README testing section that maps common change types (content/markup, CSS, JavaScript module, partial or shell contract, build configuration, documentation only) to the appropriate existing commands, and documents `npm run test:smoke -- <spec>` as the supported focused browser check.
-- **Expected practical value:** Consistent, reproducible verification across agent and manual tasks; removes the stale-`dist/` risk of running Playwright directly; makes the `AGENTS.md` focused-check rule actionable.
-- **Implementation scope:** README testing section in both language sections, optionally one pointer line in `AGENTS.md` Verification. No script, configuration, or test changes; no new commands.
-- **Acceptance criteria:** The PL and EN testing sections each contain the same change-type-to-command mapping using only existing commands; the guide states that focused browser runs use `npm run test:smoke -- <spec>` and why a direct `playwright test` may test stale output; documentation-only changes are identified as needing no browser run; `package.json` and `playwright.config.js` are unchanged.
+- **Status:** COMPLETED — implemented and verified.
+- **Result:** Added equivalent Polish and English README guides mapping six change types to existing verification commands and additional risk-based checks. Documented focused `test:smoke` runs, the stale-`dist/` risk of direct Playwright execution, and documentation-only verification; linked the guide from `AGENTS.md`.
+- **Verification:** Compared the guides against `package.json`, `playwright.config.js`, and archived focused-run evidence; checked PL/EN command parity, Markdown structure, links, and the diff, with `git diff --check` passing. Confirmed unchanged surrounding README content, scripts, and configuration; no build or browser tests were run for this documentation-only change.
 - **Impact:** High
 - **Effort:** Small
 

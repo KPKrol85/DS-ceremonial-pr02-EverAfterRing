@@ -29,6 +29,7 @@ Use verification appropriate to the scope and risk of the change.
 
 - Prefer focused checks for focused changes.
 - Use existing project commands and current repository tooling.
+- Follow the change-type verification guide in [README.md](README.md#testy) ([English](README.md#testing)).
 - Verify affected behavior directly when practical.
 - Do not weaken checks merely to obtain a passing result.
 - Never claim verification passed unless it was actually performed successfully.
