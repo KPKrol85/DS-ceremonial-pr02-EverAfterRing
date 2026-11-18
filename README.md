@@ -85,15 +85,15 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych stron indeksowanych, w
 ```text
 .
 ├── assets/
-│   ├── favicon/            # favicony, ikony PWA, zrzuty ekranu, site.webmanifest
+│   ├── favicon/            # zasoby ikon i instalacji PWA, w tym site.webmanifest
 │   ├── fonts/              # lokalne subsety WOFF2
 │   ├── img/                # wygenerowane warianty obrazów (JPG, WebP, AVIF)
 │   ├── img-src/            # źródłowe obrazy hero i portfolio
-│   ├── logo/               # logo.svg używane w nagłówku i stopce
-│   └── og-img/             # og-img.jpg używany w metadanych Open Graph i Twitter Card
+│   ├── logo/               # identyfikacja wizualna wspólnego shellu
+│   └── og-img/             # obrazy do metadanych Open Graph i Twitter Card
 ├── css/
-│   ├── components/         # nav, buttons, cards, forms, footer, badges, lists, project-notice, lightbox
-│   ├── sections/           # hero, process, testimonials, callout
+│   ├── components/         # style współdzielonych komponentów interfejsu
+│   ├── sections/           # style sekcji stron
 │   ├── base.css
 │   ├── fonts.css
 │   ├── layout.css
@@ -101,11 +101,12 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych stron indeksowanych, w
 │   └── tokens.css
 ├── docs/
 │   ├── archive/
-│   │   ├── audits/         # zarchiwizowane audyty projektu (AUDIT-2026-08-15.md)
-│   │   └── plans/          # zarchiwizowane ukończone plany projektu (PLAN-2026-08-15.md)
+│   │   ├── audits/         # zarchiwizowane audyty projektu
+│   │   ├── improvements/   # zarchiwizowane raporty usprawnień
+│   │   └── plans/          # zarchiwizowane ukończone plany projektu
 │   └── CHANGELOG.md
 ├── js/
-│   ├── modules/            # nav, theme, form, hero, header-scroll, project-notice, lightbox, dom
+│   ├── modules/            # inicjalizacja interakcji i pomocnicze funkcje DOM
 │   ├── app.js              # punkt wejścia ESM
 │   ├── theme-bootstrap.js  # osobny skrypt (IIFE) wstawiany inline w buildzie
 │   └── utils.js
@@ -115,20 +116,11 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych stron indeksowanych, w
 ├── scripts/
 │   ├── check.mjs           # kontrola spójności źródeł bez builda (npm run check)
 │   ├── html-shell.mjs      # wspólny shell, walidacja nawigacji, inline theme bootstrap
-│   └── optimize-images.mjs
+│   └── optimize-images.mjs # generowanie wariantów obrazów
 ├── tests/
 │   ├── support/            # wspólne klucze localStorage i przygotowanie stanu testów
 │   └── *.spec.js           # smoke testy Playwright (Chromium)
-├── index.html
-├── oferta.html
-├── uslugi.html
-├── realizacje.html
-├── o-nas.html
-├── kontakt.html
-├── dziekujemy.html
-├── polityka-prywatnosci.html
-├── regulamin.html
-├── cookies.html
+├── *.html                 # samodzielne strony serwisu, w tym poniższa strona błędu
 ├── 404.html                # własna strona błędu, wykluczona z sitemap.xml
 ├── robots.txt
 ├── sitemap.xml
@@ -138,6 +130,8 @@ Ten adres jest zadeklarowany jako kanoniczny w metadanych stron indeksowanych, w
 ├── vite.config.js
 └── LICENSE.md
 ```
+
+Źródłem prawdy dla wejść HTML jest `htmlPages` w [`scripts/html-shell.mjs`](scripts/html-shell.mjs), a dla importów CSS — [`css/main.css`](css/main.css).
 
 ### Instalacja
 
@@ -225,7 +219,7 @@ Komenda nie zastępuje pozostałych: `npm run build` wymusza te same kontrakty s
 npm run test:smoke
 ```
 
-Komenda buduje `dist/`, uruchamia podgląd produkcyjny i wykonuje na nim dwadzieścia cztery testy Playwright w przeglądarce Chromium. Testy działają na zbudowanych stronach, więc sprawdzają ten sam rozwiązany shell i wstawiony inline theme bootstrap, które trafiają na hosting. Host i port podglądu są ustalone na stałe, a testy nigdy nie podłączają się do serwera pozostawionego po wcześniejszym buildzie.
+Komenda buduje `dist/`, uruchamia podgląd produkcyjny i wykonuje na nim testy Playwright w przeglądarce Chromium. Testy działają na zbudowanych stronach, więc sprawdzają ten sam rozwiązany shell i wstawiony inline theme bootstrap, które trafiają na hosting. Host i port podglądu są ustalone na stałe, a testy nigdy nie podłączają się do serwera pozostawionego po wcześniejszym buildzie.
 
 **Dobór weryfikacji do zmiany**
 
@@ -248,18 +242,16 @@ npm run test:smoke -- tests/<spec>.spec.js
 
 Zastąp `<spec>` nazwą pliku z `tests/`, np. `form-validation`; można też podać kilka ścieżek speców. `test:smoke` najpierw buduje `dist/`, a następnie przekazuje wybór speców do Playwrighta, więc osobny `npm run build` przed tą komendą jest zbędny. Bezpośrednie `playwright test` nie wykonuje builda: `webServer` uruchamia tylko podgląd istniejącego `dist/`, więc może sprawdzać nieaktualne pliki lub nie zadziałać, gdy katalogu brakuje. Nowy serwer podglądu nie oznacza świeżego builda.
 
-Zakres testów (`tests/`):
+Specyfikacje w [`tests/`](tests/) są źródłem prawdy dla aktualnych scenariuszy. Obejmują:
 
-- ładowanie trzech reprezentatywnych stron (główna, oferta, kontakt): `title`, nagłówek `h1`, obecność nagłówka i stopki ze wspólnego shellu, ustawiony motyw oraz brak błędów JavaScriptu,
-- przejście przez nawigację główną na inną stronę wraz ze statycznym `aria-current="page"` ustawionym przez build,
-- motyw: zapisany wybór ciemny zastosowany przed pierwszym malowaniem, przełączanie i utrwalanie wyboru po przeładowaniu, ciemny schemat systemowy bez zapisanego wyboru, synchronizacja `meta[name="theme-color"]` z aktywnym motywem oraz przeniesienie zmiany motywu do innej otwartej karty przez zdarzenie `storage`,
-- nawigacja mobilna przy szerokości 390 px: otwarcie z przycisku, stan panelu, obsługa fokusa i zamknięcie klawiszem `Escape`,
-- modal informacji o projekcie: otwarcie przy pierwszej wizycie i zamknięcie klawiszem `Escape`, zapisana akceptacja, utrzymanie fokusa w oknie przy `Tab` i `Shift+Tab` wraz z wejściem z kontenera i zawijaniem na obu końcach, zamknięcie kliknięciem tła poza panelem ze zdjęciem blokady przewijania oraz akceptacja przyciskiem `Akceptuję` utrwalona po przeładowaniu strony,
-- formularz kontaktowy: stan `aria-invalid` i dostępny opis błędu oraz ich wyczyszczenie po poprawieniu wartości dla pustego pola wymaganego, niepoprawnego formatu emaila, liczby gości spoza zakresu 10–400 i niewybranego budżetu; zablokowanie niepoprawnej wysyłki z komunikatem w regionie statusu, fokusem na pierwszym niepoprawnym polu i bez żądania POST; poprawna wysyłka jako natywny POST na `/dziekujemy.html` z `form-name`, wartościami wszystkich ośmiu walidowanych pól i pustym `bot-field`; informacja nad formularzem wskazująca autora projektu jako adresata zapytań,
-- lightbox portfolio na `realizacje.html`: otwarcie pierwszego zdjęcia dwuklikiem myszy, tytuł, opis i tekst alternatywny w otwartym oknie, dostępny przycisk zamknięcia z fokusem, zamknięcie klawiszem `Escape` i przyciskiem, powrót fokusa na wyzwalacz, ponowne otwarcie klawiszem `Enter` i `Spacja` oraz brak reakcji na pojedyncze kliknięcie myszą,
-- niedostępny `localStorage` (dostęp do właściwości zgłasza `SecurityError`) przy szerokości 390 px: motyw jasny jako wartość domyślna, przełączanie na ciemny i z powrotem wraz z `aria-pressed` i `meta[name="theme-color"]`, zamknięcie modalu informacji o projekcie przyciskiem `Akceptuję` mimo nieudanego zapisu, otwarcie i zamknięcie nawigacji mobilnej oraz brak nieprzechwyconych błędów JavaScriptu; wybory nie są wtedy utrwalane.
+- ładowanie reprezentatywnych stron i wspólnego shellu oraz nawigację główną i mobilną, w tym wybrane stany ARIA i zachowania fokusa,
+- inicjalizację, przełączanie, utrwalanie i synchronizację motywu,
+- modal informacji o projekcie: obsługę fokusa, zamykanie, utrwalanie akceptacji i dostęp do dokumentów prawnych bez akceptacji,
+- formularz kontaktowy: walidację i stany błędów w obu motywach, wstępny wybór pakietu z oferty, żądanie wysyłki i informację o adresacie,
+- wybrane interakcje myszy i klawiatury z lightboxem portfolio oraz powrót fokusa,
+- działanie motywu, modalu informacji o projekcie i nawigacji mobilnej przy niedostępnym `localStorage`.
 
-Jest to celowo wąski zestaw smoke testów, a nie pełne pokrycie E2E. Wysyłka formularza jest przechwytywana lokalnie przez `page.route()`, więc test sprawdza żądanie wysłane przez przeglądarkę, a nie faktyczne dostarczenie zgłoszenia przez Netlify Forms. Z lightboxa obejmuje wyłącznie pierwszą kartę portfolio i wskazane wyżej ścieżki otwarcia oraz zamknięcia. Niedostępny `localStorage` jest symulowany skryptem inicjującym, a nie rzeczywistymi ustawieniami prywatności przeglądarki. Nie obejmuje też pozostałych stron, strony `404.html`, layoutu responsywnego, testów wizualnych, audytu dostępności ani silników przeglądarek innych niż Chromium.
+Jest to celowo wąski zestaw smoke testów, a nie pełne pokrycie E2E. Wysyłka formularza jest przechwytywana lokalnie przez `page.route()`, więc test sprawdza żądanie wysłane przez przeglądarkę, a nie faktyczne dostarczenie zgłoszenia przez Netlify Forms. Test lightboxa obejmuje wyłącznie pierwszą kartę portfolio i wybrane ścieżki otwarcia oraz zamknięcia. Niedostępny `localStorage` jest symulowany skryptem inicjującym zgłaszającym `SecurityError`, a nie rzeczywistymi ustawieniami prywatności przeglądarki; wybory nie są wtedy utrwalane. Zestaw nie sprawdza wszystkich stron ani strony `404.html`, nie zapewnia kompleksowej weryfikacji layoutu responsywnego, regresji wizualnej ani audytu dostępności i działa wyłącznie w Chromium.
 
 Playwright wymaga jednorazowego pobrania przeglądarki — `npm install` nie robi tego automatycznie:
 
@@ -433,15 +425,15 @@ This address is declared as canonical in the metadata of the indexable pages, in
 ```text
 .
 ├── assets/
-│   ├── favicon/            # favicons, PWA icons, screenshots, site.webmanifest
+│   ├── favicon/            # icon and PWA installation assets, including site.webmanifest
 │   ├── fonts/              # local WOFF2 subsets
 │   ├── img/                # generated image variants (JPG, WebP, AVIF)
 │   ├── img-src/            # hero and portfolio image sources
-│   ├── logo/               # logo.svg used in the header and the footer
-│   └── og-img/             # og-img.jpg used in the Open Graph and Twitter Card metadata
+│   ├── logo/               # shared-shell branding
+│   └── og-img/             # images for Open Graph and Twitter Card metadata
 ├── css/
-│   ├── components/         # nav, buttons, cards, forms, footer, badges, lists, project-notice, lightbox
-│   ├── sections/           # hero, process, testimonials, callout
+│   ├── components/         # shared UI component styles
+│   ├── sections/           # page section styles
 │   ├── base.css
 │   ├── fonts.css
 │   ├── layout.css
@@ -449,11 +441,12 @@ This address is declared as canonical in the metadata of the indexable pages, in
 │   └── tokens.css
 ├── docs/
 │   ├── archive/
-│   │   ├── audits/         # archived project audits (AUDIT-2026-08-15.md)
-│   │   └── plans/          # archived completed project plans (PLAN-2026-08-15.md)
+│   │   ├── audits/         # archived project audits
+│   │   ├── improvements/   # archived improvement reports
+│   │   └── plans/          # archived completed project plans
 │   └── CHANGELOG.md
 ├── js/
-│   ├── modules/            # nav, theme, form, hero, header-scroll, project-notice, lightbox, dom
+│   ├── modules/            # interaction initialization and DOM helpers
 │   ├── app.js              # ESM entry point
 │   ├── theme-bootstrap.js  # separate script (IIFE) inlined by the build
 │   └── utils.js
@@ -463,20 +456,11 @@ This address is declared as canonical in the metadata of the indexable pages, in
 ├── scripts/
 │   ├── check.mjs           # source consistency check without a build (npm run check)
 │   ├── html-shell.mjs      # shared shell, navigation validation, theme bootstrap inlining
-│   └── optimize-images.mjs
+│   └── optimize-images.mjs # image variant generation
 ├── tests/
 │   ├── support/            # shared localStorage keys and test state setup
 │   └── *.spec.js           # Playwright smoke tests (Chromium)
-├── index.html
-├── oferta.html
-├── uslugi.html
-├── realizacje.html
-├── o-nas.html
-├── kontakt.html
-├── dziekujemy.html
-├── polityka-prywatnosci.html
-├── regulamin.html
-├── cookies.html
+├── *.html                 # standalone site pages, including the error page below
 ├── 404.html                # custom error page, excluded from sitemap.xml
 ├── robots.txt
 ├── sitemap.xml
@@ -486,6 +470,8 @@ This address is declared as canonical in the metadata of the indexable pages, in
 ├── vite.config.js
 └── LICENSE.md
 ```
+
+The source of truth for HTML entries is `htmlPages` in [`scripts/html-shell.mjs`](scripts/html-shell.mjs), and for CSS imports — [`css/main.css`](css/main.css).
 
 ### Installation
 
@@ -573,7 +559,7 @@ The command does not replace the others: `npm run build` enforces the same shell
 npm run test:smoke
 ```
 
-The command builds `dist/`, starts the production preview, and runs twenty-four Playwright tests against it in Chromium. The tests run on the built pages, so they exercise the same resolved shell and inlined theme bootstrap that ship to hosting. The preview host and port are pinned, and the tests never attach to a server left running from an earlier build.
+The command builds `dist/`, starts the production preview, and runs Playwright tests against it in Chromium. The tests run on the built pages, so they exercise the same resolved shell and inlined theme bootstrap that ship to hosting. The preview host and port are pinned, and the tests never attach to a server left running from an earlier build.
 
 **Choosing verification for a change**
 
@@ -596,18 +582,16 @@ npm run test:smoke -- tests/<spec>.spec.js
 
 Replace `<spec>` with a file name from `tests/`, e.g. `form-validation`; multiple spec paths can also be supplied. `test:smoke` builds `dist/` first, then passes the spec selection to Playwright, so a separate `npm run build` beforehand is redundant. Direct `playwright test` does not build: `webServer` only starts a preview of the existing `dist/`, so it may test stale files or fail if the directory is missing. A new preview server does not imply a fresh build.
 
-Test scope (`tests/`):
+The specifications in [`tests/`](tests/) are the source of truth for current scenarios. They cover:
 
-- loading three representative pages (home, offer, contact): `title`, the `h1` heading, the header and footer from the shared shell, the applied theme, and the absence of JavaScript errors,
-- a transition through the primary navigation to another page, including the static `aria-current="page"` set by the build,
-- the theme: a stored dark choice applied before the first paint, toggling and persisting the choice across a reload, the dark system scheme without a stored choice, `meta[name="theme-color"]` synchronized with the active theme, and a theme change reaching another open tab through the `storage` event,
-- the mobile navigation at a width of 390 px: opening from the button, the panel state, focus handling, and closing with `Escape`,
-- the project notice modal: opening on a first visit and closing with `Escape`, a stored acceptance, focus kept inside the dialog with `Tab` and `Shift+Tab`, including entry from the container and wraparound at both ends, closing with a backdrop click outside the panel that removes the scroll lock, and acceptance with the `Akceptuję` button persisted across a page reload,
-- the contact form: the `aria-invalid` state and accessible error description, both cleared once the value is corrected, for an empty required field, an invalid email format, a guest count outside the 10–400 range, and an unselected budget; an invalid submit prevented with a message in the status region, focus on the first invalid field, and no POST request; a valid submit sent as a native POST to `/dziekujemy.html` with `form-name`, the values of all eight validated fields, and an empty `bot-field`; the note above the form naming the project author as the recipient of inquiries,
-- the portfolio lightbox on `realizacje.html`: opening the first image with a mouse double-click, the title, description, and alternative text in the open dialog, the focused and accessible close button, closing with `Escape` and with the button, focus returning to the trigger, reopening with `Enter` and `Space`, and a single mouse click leaving it closed,
-- unavailable `localStorage` (property access throws a `SecurityError`) at a width of 390 px: the light theme as the fallback, switching to dark and back with `aria-pressed` and `meta[name="theme-color"]`, dismissing the project notice modal with the `Akceptuję` button despite the failed write, opening and closing the mobile navigation, and the absence of uncaught JavaScript errors; choices are not persisted in that case.
+- representative page and shared-shell loading, plus primary and mobile navigation, including selected ARIA states and focus behavior,
+- theme initialization, switching, persistence, and synchronization,
+- the project notice modal: focus handling, dismissal, acceptance persistence, and access to legal documents without acceptance,
+- the contact form: validation and error states in both themes, package preselection from the offer, the submission request, and the recipient disclosure,
+- selected mouse and keyboard interactions with the portfolio lightbox and focus restoration,
+- theme, project notice modal, and mobile navigation operation when `localStorage` is unavailable.
 
-This is a deliberately narrow smoke suite, not full E2E coverage. The form submission is intercepted locally with `page.route()`, so the test checks the request sent by the browser, not actual delivery through Netlify Forms. Of the lightbox it covers only the first portfolio card and the open and close paths listed above. Unavailable `localStorage` is simulated with an init script, not through actual browser privacy settings. It also does not cover the remaining pages, the `404.html` page, responsive layout, visual regression, accessibility auditing, or any browser engine other than Chromium.
+This is a deliberately narrow smoke suite, not full E2E coverage. The form submission is intercepted locally with `page.route()`, so the test checks the request sent by the browser, not actual delivery through Netlify Forms. The lightbox test covers only the first portfolio card and selected open and close paths. Unavailable `localStorage` is simulated with an init script throwing a `SecurityError`, not through actual browser privacy settings; choices are not persisted in that case. The suite does not check every page or the `404.html` page, does not provide comprehensive responsive-layout verification, visual regression, or accessibility auditing, and runs only in Chromium.
 
 Playwright requires a one-time browser download — `npm install` does not perform it:
 

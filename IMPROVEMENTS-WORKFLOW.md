@@ -23,13 +23,9 @@ The main opportunities lie in the processes around this toolchain rather than in
 
 ### IMP-WORKFLOW-02 — Stop duplicating volatile counts and file inventories in the bilingual README
 
-- **Affected workflow:** Project documentation maintenance.
-- **Evidence:** `README.md:95`, `README.md:101-105`, `README.md:228`, `README.md:230-239` (PL); `README.md:422`, `README.md:429-433`, `README.md:555`, `README.md:557-568` (EN); `tests/*.spec.js`; `css/components/`; `docs/archive/improvements/`; commit `27f9050` ("Update README test coverage documentation").
-- **Current workflow:** README mirrors every section in Polish and English and hand-maintains exact facts owned by other files: the Playwright test count, a per-scenario test inventory, and per-file lists in the structure trees. Each improvement cycle that adds tests or files requires two manual README edits. The duplicates have drifted: README states twenty-four tests, while the current specs define 47 (counted statically, including parameterized cases); the test inventory omits the package-preselection, legal-page notice, and error-token cases added in the UX and UI cycles; the `css/components/` comment omits `author-note`, `legal`, and `table`; the `docs/archive/` tree omits `improvements/`.
-- **Proposed improvement:** Replace volatile counts and exhaustive per-file or per-scenario enumerations with stable descriptions of ownership and scope that point to the canonical location (`tests/`, `css/main.css`, `docs/archive/`), and resynchronize both language sections in the same change.
-- **Expected practical value:** Fewer README edits per improvement cycle, no recurring PL/EN drift on facts that change with each task, and a README that stays accurate between cycles.
-- **Implementation scope:** `README.md` only — the structure trees, the testing section, and any other numeric statements that duplicate executable sources. Stable contracts (page count tied to `htmlPages`, commands, deployment notes, accessibility mechanisms) stay documented. No source, test, or configuration changes.
-- **Acceptance criteria:** README contains no hard-coded total test count; the structure trees list directories with their role rather than file inventories that require per-file updates; `docs/archive/improvements/` is listed; every remaining statement in the testing and structure sections matches the current repository; PL and EN sections state the same facts.
+- **Status:** COMPLETED — implemented and verified.
+- **Result:** Removed the fixed Playwright test total and replaced bilingual README file and scenario inventories with responsibility and coverage summaries linked to canonical sources. Included the improvement archive and preserved the existing verification guidance and testing limitations.
+- **Verification:** Compared PL/EN content with current directories, CSS imports, test specifications, and Playwright configuration; checked Markdown structure, local links, and unchanged surrounding README content and IMP-WORKFLOW-01 guides. `git diff --check` passed; no build or browser tests were run for this documentation-only change.
 - **Impact:** Medium
 - **Effort:** Small
 
