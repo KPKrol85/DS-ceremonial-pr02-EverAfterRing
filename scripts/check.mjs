@@ -10,7 +10,7 @@ import {
 } from "./html-shell.mjs";
 
 // Source-consistency check. It runs the production shell contracts from `scripts/html-shell.mjs`
-// in memory and resolves the local references the maintained source declares. Nothing here writes:
+// in memory, resolves local references and checks public URL registration. Nothing here writes:
 // the build stays the only command that produces `dist/`.
 
 const __filename = fileURLToPath(import.meta.url);
@@ -20,6 +20,8 @@ const projectRoot = path.resolve(__dirname, "..");
 const partialFiles = ["partials/header.html", "partials/footer.html"];
 const styleRoot = "css";
 const webManifestFile = "assets/favicon/site.webmanifest";
+const errorPage = "404.html";
+const sitemapExclusions = new Set([errorPage, "dziekujemy.html"]);
 
 const failures = [];
 const counts = { pages: 0, partials: 0, stylesheets: 0, manifests: 0, references: 0, idDocuments: 0, idReferences: 0 };
@@ -111,9 +113,10 @@ const checkReference = (sourceFile, reference, baseDirectory) => {
 };
 
 const htmlCommentPattern = /<!--[\s\S]*?-->/g;
-const scriptBodyPattern = /(<script\b[^>]*>)[\s\S]*?(<\/script>)/gi;
+const scriptBodyPattern = /(<script\b[^>]*>)([\s\S]*?)(<\/script>)/gi;
 const htmlTagPattern = /<([a-zA-Z][^\s/>]*)((?:"[^"]*"|'[^']*'|[^>"'])*)>/g;
 const htmlAttributePattern = /([a-zA-Z][a-zA-Z0-9-]*)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/g;
+const htmlWhitespacePattern = /[\t\n\f\r ]+/;
 
 // The reference-bearing attributes this repository actually uses. `<base href>` declares the
 // document base rather than a file, and `action` is a reference only on a form.
@@ -144,7 +147,7 @@ const splitAttributeReferences = (attributeName, value) => {
 // Yields every tag of the markup with its lowercased name and its valued attributes. Comments and
 // script bodies are stripped first, so neither contributes tags, references nor IDs.
 function* scanHtmlTags(html) {
-  const markup = html.replace(htmlCommentPattern, "").replace(scriptBodyPattern, "$1$2");
+  const markup = html.replace(htmlCommentPattern, "").replace(scriptBodyPattern, "$1$3");
 
   for (const [, tagName, attributes] of markup.matchAll(htmlTagPattern)) {
     const attributeEntries = [...attributes.matchAll(htmlAttributePattern)].map(
@@ -171,9 +174,205 @@ const checkHtmlReferences = (sourceFile, html, baseDirectory) => {
   }
 };
 
+const parseAbsoluteWebUrl = (value) => {
+  if (typeof value !== "string" || !/^https?:\/\/[^/\\\s][^\\\s]*$/i.test(value)) {
+    return null;
+  }
+
+  try {
+    const url = new URL(value);
+    return url.username || url.password ? null : url;
+  } catch {
+    return null;
+  }
+};
+
+const readProductionOrigin = () => {
+  const sourceFile = "package.json";
+  const source = readMaintainedFile(sourceFile);
+
+  if (source === null) {
+    return null;
+  }
+
+  let homepage;
+
+  try {
+    homepage = JSON.parse(source)?.homepage;
+  } catch (error) {
+    fail(sourceFile, `invalid JSON (${error.message})`);
+    return null;
+  }
+
+  const url = parseAbsoluteWebUrl(typeof homepage === "string" ? homepage.trim() : homepage);
+
+  if (url === null) {
+    fail(sourceFile, `homepage must be an absolute HTTP(S) URL, found ${JSON.stringify(homepage) ?? "no value"}`);
+  }
+
+  return url?.origin ?? null;
+};
+
+const checkUrlOrigin = (sourceFile, field, value, expectedOrigin) => {
+  const url = parseAbsoluteWebUrl(value);
+
+  if (url === null) {
+    fail(sourceFile, `${field} must be an absolute HTTP(S) URL on ${expectedOrigin}, found ${JSON.stringify(value) ?? "no value"}`);
+  } else if (url.origin !== expectedOrigin) {
+    fail(sourceFile, `${field} expected origin ${expectedOrigin}, found ${url.origin} in "${value}"`);
+  }
+};
+
+const checkSitemap = (pageUrls, origin) => {
+  const sourceFile = "sitemap.xml";
+  const source = readMaintainedFile(sourceFile);
+
+  if (source === null) {
+    return;
+  }
+
+  const markup = source.replace(htmlCommentPattern, "").trim();
+  const urlset = markup.match(/^(?:<\?xml\s+[^?]*\?>\s*)?<urlset(?:\s[^>]*)?>([\s\S]*)<\/urlset>$/);
+
+  if (urlset === null) {
+    fail(sourceFile, "expected a <urlset> containing page <url> entries");
+    return;
+  }
+
+  const expectedUrls = new Set([...pageUrls].filter(([page]) => !sitemapExclusions.has(page)).map(([, url]) => url));
+  const occurrences = new Map();
+  const entryPattern = /<url(?:\s[^>]*)?>([\s\S]*?)<\/url>/g;
+  const entries = urlset[1];
+
+  if (entries.replace(entryPattern, "").trim() !== "") {
+    fail(sourceFile, "expected only <url> entries inside <urlset>");
+  }
+
+  for (const [index, [, entry]] of [...entries.matchAll(entryPattern)].entries()) {
+    const locations = [...entry.matchAll(/<loc\s*>([^<]*)<\/loc\s*>/g)];
+    const field = `<url> entry ${index + 1}`;
+
+    if (locations.length !== 1) {
+      fail(sourceFile, `${field} expected one <loc>, found ${locations.length}`);
+    } else if (locations[0].index !== entry.search(/\S/)) {
+      fail(sourceFile, `${field} expected <loc> as its first child`);
+    }
+
+    for (const [, location] of locations) {
+      const value = location.trim();
+      checkUrlOrigin(sourceFile, `${field} <loc>`, value, origin);
+      occurrences.set(value, (occurrences.get(value) ?? 0) + 1);
+    }
+  }
+
+  for (const [value, count] of occurrences) {
+    if (!expectedUrls.has(value)) {
+      fail(sourceFile, `unexpected sitemap URL "${value}" (expected an indexable page URL)`);
+    }
+
+    if (count > 1) {
+      fail(sourceFile, `duplicate sitemap URL "${value}" (expected one entry, found ${count})`);
+    }
+  }
+
+  for (const url of expectedUrls) {
+    if (!occurrences.has(url)) {
+      fail(sourceFile, `missing sitemap URL "${url}"`);
+    }
+  }
+};
+
+const checkRobots = (origin) => {
+  const sourceFile = "robots.txt";
+  const source = readMaintainedFile(sourceFile);
+
+  if (source === null) {
+    return;
+  }
+
+  const directives = [...source.matchAll(/^[ \t]*Sitemap[ \t]*:([^#\r\n]*)/gim)];
+
+  if (directives.length === 0) {
+    fail(sourceFile, `missing Sitemap directive (expected an absolute URL on ${origin})`);
+  }
+
+  for (const [, value] of directives) {
+    checkUrlOrigin(sourceFile, "Sitemap directive", value.trim(), origin);
+  }
+};
+
+const siteMetadataFields = new Set(["og:url", "og:image", "twitter:image"]);
+
+const checkHtmlMetadata = (page, html, expectedUrl, origin) => {
+  const canonicals = [];
+  const markup = html.replace(htmlCommentPattern, "");
+
+  for (const [tag, attributes] of scanHtmlTags(markup)) {
+    const values = new Map(attributes);
+    const rel = values.get("rel")?.toLowerCase().split(htmlWhitespacePattern);
+
+    if (tag === "link" && rel?.includes("canonical")) {
+      canonicals.push(values.get("href")?.trim());
+    }
+
+    const field = (values.get("property") ?? values.get("name"))?.trim().toLowerCase();
+
+    if (tag === "meta" && siteMetadataFields.has(field)) {
+      checkUrlOrigin(page, field, values.get("content")?.trim(), origin);
+    }
+  }
+
+  if (page === errorPage) {
+    if (canonicals.length > 0) {
+      fail(page, `expected no canonical declaration, found ${JSON.stringify(canonicals)}`);
+    }
+  } else if (canonicals.length !== 1 || canonicals[0] !== expectedUrl) {
+    const actual = canonicals.length === 0 ? "none" : JSON.stringify(canonicals.map((value) => value ?? "(missing href)"));
+    fail(page, `expected exactly one canonical URL "${expectedUrl}", found ${canonicals.length}: ${actual}`);
+  }
+
+  for (const [, openingTag, body] of markup.matchAll(scriptBodyPattern)) {
+    const [[, attributes]] = scanHtmlTags(openingTag);
+
+    if (new Map(attributes).get("type")?.trim().toLowerCase() !== "application/ld+json") {
+      continue;
+    }
+
+    let data;
+
+    try {
+      data = JSON.parse(body);
+    } catch (error) {
+      fail(page, `invalid JSON-LD (${error.message})`);
+      continue;
+    }
+
+    // These nodes describe this site. Other schema links, including @context, may be external.
+    const type = data?.["@type"];
+
+    if (type !== "WebPage" && type !== "WebSite") {
+      continue;
+    }
+
+    checkUrlOrigin(page, `JSON-LD ${type}.@id`, data["@id"], origin);
+    checkUrlOrigin(page, `JSON-LD ${type}.url`, data.url, origin);
+
+    if (type === "WebPage") {
+      checkUrlOrigin(page, "JSON-LD WebPage.isPartOf.@id", data.isPartOf?.["@id"], origin);
+    }
+  }
+
+  if (page === "regulamin.html") {
+    const address = markup.match(/<li>Serwis\s+–[^<]*?dostępna pod adresem\s+([^\s<]+)\.\s*<\/li>/u);
+
+    if (address) {
+      checkUrlOrigin(page, "site address in the terms", address[1], origin);
+    }
+  }
+};
+
 // Attributes whose value is a whitespace-separated list of IDs in the same document.
 const idReferenceListAttributes = ["aria-labelledby", "aria-describedby", "aria-controls"];
-const htmlWhitespacePattern = /[\t\n\f\r ]+/;
 
 // Returns the ID a fragment-only `href` addresses, or null when the value is not one. `#` alone
 // (and `#top` without a matching element) addresses the top of the document, not an element.
@@ -353,6 +552,7 @@ const report = () => {
   console.log(
     `- ID references: ${counts.idReferences} checked (aria-labelledby, aria-describedby, aria-controls, label[for], fragment-only href) and IDs checked for uniqueness across ${counts.idDocuments} pages with the shared shell resolved`
   );
+  console.log("- public URLs: sitemap registration, canonical URLs and production origin");
 
   if (failures.length === 0) {
     console.log("All checks passed. No files were written.");
@@ -412,6 +612,15 @@ const main = () => {
   });
 
   checkWebManifest();
+
+  const origin = readProductionOrigin();
+
+  if (origin !== null) {
+    const pageUrls = new Map(htmlPages.map((page) => [page, `${origin}/${page === "index.html" ? "" : page}`]));
+    checkSitemap(pageUrls, origin);
+    checkRobots(origin);
+    pageSources.forEach((html, page) => checkHtmlMetadata(page, html, pageUrls.get(page), origin));
+  }
 
   report();
 };

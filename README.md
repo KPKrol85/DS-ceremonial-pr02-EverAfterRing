@@ -164,7 +164,7 @@ W trybie deweloperskim Vite wstawia aktualną treść partiali przed wysłaniem 
 | `npm run dev` | Uruchamia serwer deweloperski Vite na porcie 8181. |
 | `npm run build` | Buduje wersję produkcyjną do `dist/`. Nie generuje obrazów. |
 | `npm run preview` | Serwuje zbudowany katalog `dist/` na porcie 8182. |
-| `npm run check` | Sprawdza spójność źródeł bez budowania: kontrakty wspólnego shellu, rozwiązywanie lokalnych referencji oraz unikalność ID i referencje do ID w obrębie dokumentu. Nie zapisuje plików. |
+| `npm run check` | Sprawdza kontrakty wspólnego shellu, lokalne referencje, integralność ID, rejestrację stron w sitemapie, adresy kanoniczne i origin produkcyjny. Działa bez budowania i zapisu plików. |
 | `npm run test:smoke` | Buduje `dist/` i uruchamia smoke testy Playwright (Chromium) na podglądzie produkcyjnym. |
 | `npm run optimize:images` | Generuje warianty obrazów z `assets/img-src/` do `assets/img/`. |
 
@@ -205,7 +205,9 @@ Zakres kontroli (`scripts/check.mjs`):
 
 - kontrakty wspólnego shellu dla wszystkich jedenastu stron, wykonywane w pamięci na tych samych funkcjach z `scripts/html-shell.mjs`, których używa build: obecność hostów partiali `header` i `footer`, dokładnie jeden link `nav__link` z `aria-current="page"` na stronie należącej do nawigacji głównej oraz obecność tagu synchronicznego theme bootstrapu,
 - rozwiązywanie lokalnych referencji: `src`, `href`, `srcset` (każdy kandydat osobno), `data-partial-src` i `action` formularza w stronach oraz partialach, `url()` i `@import` w plikach CSS, a także wpisy `src` ikon, skrótów i zrzutów ekranu w `assets/favicon/site.webmanifest`,
-- integralność ID w obrębie dokumentu dla każdej z jedenastu stron po rozwiązaniu w pamięci wspólnego nagłówka i stopki przez `resolveSharedShell()`: unikalność wartości `id` (także między stroną a wstawionym partialem) oraz istnienie celu każdego ID wskazanego w `aria-labelledby`, `aria-describedby` i `aria-controls` (każde ID z listy osobno), w `for` elementu `<label>` oraz w linkach zawierających wyłącznie fragment, np. `href="#main"`. Ten sam ID na dwóch różnych stronach jest poprawny. Komentarze HTML i treść skryptów są pomijane.
+- integralność ID w obrębie dokumentu dla każdej z jedenastu stron po rozwiązaniu w pamięci wspólnego nagłówka i stopki przez `resolveSharedShell()`: unikalność wartości `id` (także między stroną a wstawionym partialem) oraz istnienie celu każdego ID wskazanego w `aria-labelledby`, `aria-describedby` i `aria-controls` (każde ID z listy osobno), w `for` elementu `<label>` oraz w linkach zawierających wyłącznie fragment, np. `href="#main"`. Ten sam ID na dwóch różnych stronach jest poprawny. Kontrola ID pomija komentarze HTML i treść skryptów,
+- kompletność i unikalność wpisów `sitemap.xml` względem `htmlPages` oraz zgodność adresów kanonicznych z adresami publicznymi stron. `index.html` używa adresu `/`. `dziekujemy.html` ma adres kanoniczny. Sitemapa pomija `dziekujemy.html` i `404.html`. Dla `404.html` checker wymaga braku deklaracji kanonicznej,
+- zgodność originu deklaracji `Sitemap` w `robots.txt`, wpisów sitemapy oraz własnych adresów w metadanych HTML (canonical, Open Graph, Twitter i JSON-LD) i definicji serwisu w regulaminie z polem `homepage` w `package.json`.
 
 Referencje są rozwiązywane względem pliku, który je deklaruje: strony i partiale względem katalogu głównego projektu — partiale są wstawiane do stron leżących w katalogu głównym — pliki CSS względem własnej lokalizacji, a ścieżki zaczynające się od `/` względem katalogu głównego. Ciągi zapytań i fragmenty nie wpływają na wyszukiwanie pliku. Adresy zewnętrzne (`http:`, `https:`, `mailto:`, `tel:`, `data:`), linki zawierające wyłącznie fragment oraz deklaracja `<base href="/">` nie są traktowane jako referencje do plików. Linki zawierające wyłącznie fragment są natomiast sprawdzane jako referencje do ID w tym samym dokumencie.
 
@@ -504,7 +506,7 @@ In development, Vite inserts the current partial content before sending HTML and
 | `npm run dev` | Starts the Vite development server on port 8181. |
 | `npm run build` | Builds the production version into `dist/`. Does not generate images. |
 | `npm run preview` | Serves the built `dist/` directory on port 8182. |
-| `npm run check` | Checks source consistency without building: the shared-shell contracts, local-reference resolution, and in-document ID uniqueness and ID references. Writes no files. |
+| `npm run check` | Checks shared-shell contracts, local references, ID integrity, sitemap registration, canonical URLs, and the production origin. Runs without building or writing files. |
 | `npm run test:smoke` | Builds `dist/` and runs the Playwright smoke tests (Chromium) against the production preview. |
 | `npm run optimize:images` | Generates image variants from `assets/img-src/` into `assets/img/`. |
 
@@ -545,7 +547,9 @@ Check scope (`scripts/check.mjs`):
 
 - the shared-shell contracts for all eleven pages, run in memory through the same functions from `scripts/html-shell.mjs` that the build uses: the presence of the `header` and `footer` partial hosts, exactly one `nav__link` carrying `aria-current="page"` on a page belonging to the primary navigation, and the presence of the synchronous theme bootstrap tag,
 - local reference resolution: `src`, `href`, `srcset` (each candidate separately), `data-partial-src`, and the form `action` in the pages and the partials, `url()` and `@import` in the CSS files, plus the icon, shortcut-icon, and screenshot `src` entries in `assets/favicon/site.webmanifest`,
-- in-document ID integrity for each of the eleven pages after the shared header and footer are resolved in memory through `resolveSharedShell()`: unique `id` values (including between a page and an inserted partial) and an existing target for every ID referenced by `aria-labelledby`, `aria-describedby`, and `aria-controls` (each ID in the list separately), by `for` on a `<label>` element, and by fragment-only links such as `href="#main"`. The same ID on two different pages is valid. HTML comments and script contents are ignored.
+- in-document ID integrity for each of the eleven pages after the shared header and footer are resolved in memory through `resolveSharedShell()`: unique `id` values (including between a page and an inserted partial) and an existing target for every ID referenced by `aria-labelledby`, `aria-describedby`, and `aria-controls` (each ID in the list separately), by `for` on a `<label>` element, and by fragment-only links such as `href="#main"`. The same ID on two different pages is valid. The ID check skips HTML comments and script contents,
+- completeness and uniqueness of `sitemap.xml` entries against `htmlPages`, and matching canonical URLs to public page addresses. `index.html` uses `/`. `dziekujemy.html` has a canonical URL. The sitemap excludes `dziekujemy.html` and `404.html`. The check requires zero canonical declarations on `404.html`,
+- production-origin consistency with `homepage` in `package.json` for the `Sitemap` directive in `robots.txt`, sitemap entries, and site-owned URLs in HTML metadata (canonical, Open Graph, Twitter, and JSON-LD) and the site definition in the terms.
 
 References are resolved relative to the file that declares them: pages and partials against the project root — the partials are injected into pages that live in the root — CSS files against their own location, and paths starting with `/` against the project root. Query strings and fragments do not affect the filesystem lookup. External addresses (`http:`, `https:`, `mailto:`, `tel:`, `data:`), fragment-only links, and the `<base href="/">` declaration are not treated as file references. Fragment-only links are instead checked as same-document ID references.
 

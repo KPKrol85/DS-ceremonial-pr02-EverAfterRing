@@ -40,13 +40,9 @@ The main opportunities lie in the processes around this toolchain rather than in
 
 ### IMP-WORKFLOW-04 — Make the page-registration and origin procedures verifiable through `npm run check`
 
-- **Affected workflow:** Page addition and site-origin maintenance.
-- **Evidence:** `README.md:313` (PL), `README.md:640` (EN); `scripts/html-shell.mjs:11-33`; `scripts/check.mjs:20-22`, `scripts/check.mjs:367-419`; `sitemap.xml`; `robots.txt`; `package.json` (`homepage`); commit `44cb9cd`.
-- **Current workflow:** README documents adding a page as a manual update across `htmlPages`, `primaryNavPages`, `partials/header.html`, and `sitemap.xml`. `npm run check` validates `htmlPages`, the navigation state, and local references, but does not read `sitemap.xml`, canonical URLs, or absolute self-URLs. The production origin occurs 101 times across the pages, `robots.txt`, and `sitemap.xml`; the last origin change (`44cb9cd`) was a manual 14-file edit. All of these are currently consistent (sitemap lists the nine indexable pages; every canonical matches its file), so this is a process gap, not a defect.
-- **Proposed improvement:** Extend the existing source check so that the sitemap entries match the indexable subset of `htmlPages`, each page's canonical URL matches its own filename, and absolute self-URLs in pages, `robots.txt`, and `sitemap.xml` use the origin declared in `package.json` `homepage`.
-- **Expected practical value:** The documented add-a-page procedure and any future origin change receive immediate, file-specific feedback instead of relying on manual review across many files.
-- **Implementation scope:** `scripts/check.mjs` and the README check-scope description. Reuse `htmlPages`; keep the explicit indexable-page exceptions (`dziekujemy.html`, `404.html`) visible in one place. No build, page, or metadata changes; no new dependency; the command still writes nothing.
-- **Acceptance criteria:** `npm run check` passes on the current repository; it fails with a named file and reason when a sitemap entry is missing or extra, when a canonical URL does not match its page, or when an absolute self-URL uses a different origin; `dist/` and tracked files remain unchanged after the run; README describes the added scope in both languages.
+- **Status:** COMPLETED — implemented and verified.
+- **Result:** Extended `npm run check` to verify sitemap registration against `htmlPages`, canonical URLs, and the production origin from `homepage`. Documented the checks in both README languages.
+- **Verification:** `npm run check` passed on the maintained sources. All 18 isolated cases returned the expected exit codes and diagnostics, including indexing exceptions, external URLs, and invalid sitemap, canonical, and origin values. File snapshots confirmed read-only operation and `dist/` remained absent.
 - **Impact:** Medium
 - **Effort:** Medium
 
