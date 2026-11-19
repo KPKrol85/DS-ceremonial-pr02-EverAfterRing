@@ -31,13 +31,10 @@ The main opportunities lie in the processes around this toolchain rather than in
 
 ### IMP-WORKFLOW-03 — Codify the improvement-cycle lifecycle in AGENTS.md
 
-- **Affected workflow:** Improvement-report tracking and archiving.
-- **Evidence:** `AGENTS.md:52-69`, `AGENTS.md:71-95`, `AGENTS.md:145-158`; `docs/archive/improvements/` (four reports); commits `f5c2867`, `76be3bb`, `e9b43ca`, `59fb9b9`; no root `PLAN.md`.
-- **Current workflow:** `AGENTS.md` defines the per-improvement completion record and names `docs/archive/plans/` for plans, but does not define where improvement reports are archived, how archived files are named, what wrapper structure an archived report uses, or whether approved improvements must be entered in `PLAN.md`. In practice, four cycles ran without a root `PLAN.md`, archived to `docs/archive/improvements/IMPROVEMENTS-<CATEGORY>-<archive date>.md`, with differing wrappers: titles ("Completion Record" vs. "Improvements"), opening sections ("Scope" vs. "Improvement overview"), and closing sections ("Completion" vs. "Completion summary"; "Limitations and outstanding observations" vs. "Verification limitations").
-- **Proposed improvement:** Add a short lifecycle subsection to the existing "Completed improvement records" section stating the tracking document for an active cycle (the active `IMPROVEMENTS-*.md` report unless a `PLAN.md` is explicitly opened), the archive directory, the filename pattern, and the archived report structure already used in practice.
-- **Expected practical value:** Each cycle closure follows one defined procedure instead of being re-derived; archived reports become uniform and comparable; removes the recurring ambiguity between `PLAN.md` and improvement reports.
-- **Implementation scope:** `AGENTS.md` only, a few lines within the existing section. Existing archived reports are not rewritten; the global KP_Code standards are not changed.
-- **Acceptance criteria:** `AGENTS.md` names `docs/archive/improvements/` and the `IMPROVEMENTS-<CATEGORY>-YYYY-MM-DD.md` pattern; it lists the archived report sections in order; it states when `PLAN.md` is and is not required for improvement work; the four existing archive filenames conform to the documented pattern; no archived report is modified.
+- **Status:** REJECTED — not implemented.
+- **Decision:** Retain the existing KP_Code documentation workflow, project instructions, and archive structure without modification.
+- **Reason:** The proposed project-specific lifecycle rules would duplicate established KP_Code conventions and could introduce inconsistencies between repositories. The existing `docs/archive/` structure already separates audits, improvements, and plans. Differences in historical report headings do not justify introducing additional local requirements.
+- **Verification:** Reviewed the current `AGENTS.md`, improvement records, and four archived improvement reports. Confirmed the existing archive organization and completion-record conventions. No implementation changes were made.
 - **Impact:** Medium
 - **Effort:** Small
 
