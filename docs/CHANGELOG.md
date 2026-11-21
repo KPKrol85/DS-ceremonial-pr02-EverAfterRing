@@ -74,6 +74,7 @@ For each implementation task, determine `Changelog: yes` or `Changelog: no`. Add
 * Added worktree environment configuration using `npm ci`.
 * Added a repository-wide LF line-ending policy while excluding binary assets from text conversion.
 * Separated image generation from the production build so `npm run build` no longer rewrites version-controlled image assets.
+* Added stale image variant reporting to `npm run optimize:images` while leaving reported files untouched.
 * Migrated the production build from the custom Node pipeline to Vite while preserving the static HTML, CSS, and Vanilla JavaScript multi-page architecture.
 * Kept the synchronous theme bootstrap outside the main JavaScript bundle and inline it during production builds before first paint.
 * Preserved authored asset paths, excluded image sources from `dist/`, and emitted bundled CSS and JavaScript with content hashes.

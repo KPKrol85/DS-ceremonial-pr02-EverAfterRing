@@ -26,7 +26,7 @@ const formats = [
   }
 ];
 
-const readImageSources = async (directory) => {
+const readFiles = async (directory, matchesName) => {
   let entries;
 
   try {
@@ -44,14 +44,14 @@ const readImageSources = async (directory) => {
       const entryPath = path.join(directory, entry.name);
 
       if (entry.isDirectory()) {
-        return readImageSources(entryPath);
+        return readFiles(entryPath, matchesName);
       }
 
       if (!entry.isFile()) {
         return [];
       }
 
-      return supportedExtensions.has(path.extname(entry.name).toLowerCase()) ? [entryPath] : [];
+      return matchesName(entry.name) ? [entryPath] : [];
     })
   );
 
@@ -83,7 +83,7 @@ const optimizeImage = async (sourcePath) => {
 
   const widths = getOutputWidths(metadata.width);
 
-  await Promise.all(
+  const outputPaths = await Promise.all(
     widths.flatMap((width) =>
       formats.map(({ extension, save }) => {
         const outputPath = path.join(outputDirectory, `${parsedPath.name}-${width}.${extension}`);
@@ -91,25 +91,53 @@ const optimizeImage = async (sourcePath) => {
           .rotate()
           .resize({ width, withoutEnlargement: true });
 
-        return save(image).toFile(outputPath);
+        return save(image).toFile(outputPath).then(() => outputPath);
       })
     )
   );
 
-  return `${relativePath}: ${widths.join(", ")}px`;
+  return { summary: `${relativePath}: ${widths.join(", ")}px`, outputPaths };
 };
 
-const main = async () => {
-  const imageSources = await readImageSources(sourceRoot);
+const isGeneratedVariant = (filename) => {
+  const { name, ext } = path.parse(filename);
+  return /^.+-[1-9]\d*$/s.test(name) && formats.some(({ extension }) => ext === `.${extension}`);
+};
 
-  if (imageSources.length === 0) {
-    console.log("No source images found in assets/img-src. Skipping image optimization.");
+const outputPathKey = (filePath) => process.platform === "win32" ? filePath.toLowerCase() : filePath;
+
+const reportStaleVariants = async (outputPaths) => {
+  const expectedPaths = new Set(outputPaths.map(outputPathKey));
+  const variants = await readFiles(outputRoot, isGeneratedVariant);
+  const stalePaths = variants
+    .filter((filePath) => !expectedPaths.has(outputPathKey(filePath)))
+    .map((filePath) => path.relative(projectRoot, filePath).split(path.sep).join("/"))
+    .sort();
+
+  if (stalePaths.length === 0) {
+    console.log("No stale generated image variants found.");
     return;
   }
 
+  const label = stalePaths.length === 1 ? "variant" : "variants";
+  console.warn(`Found ${stalePaths.length} stale generated image ${label}. These files were left untouched:`);
+  stalePaths.forEach((filePath) => console.warn(`- ${filePath}`));
+};
+
+const main = async () => {
+  const imageSources = await readFiles(sourceRoot, (filename) =>
+    supportedExtensions.has(path.extname(filename).toLowerCase())
+  );
   const results = await Promise.all(imageSources.map(optimizeImage));
-  console.log(`Optimized ${results.length} image source${results.length === 1 ? "" : "s"}:`);
-  results.forEach((result) => console.log(`- ${result}`));
+
+  if (results.length === 0) {
+    console.log("No source images found in assets/img-src. Skipping image optimization.");
+  } else {
+    console.log(`Optimized ${results.length} image source${results.length === 1 ? "" : "s"}:`);
+    results.forEach(({ summary }) => console.log(`- ${summary}`));
+  }
+
+  await reportStaleVariants(results.flatMap(({ outputPaths }) => outputPaths));
 };
 
 main().catch((error) => {
