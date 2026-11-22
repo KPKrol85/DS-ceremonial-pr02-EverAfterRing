@@ -1,17 +1,19 @@
 # EverAfterRing — Workflow Improvements
 
 **Analysis date:** 2026-11-17
+**Completion date:** 2026-11-22
+**Status:** CLOSED — 4 improvements implemented and verified, 1 rejected; no unresolved findings.
 **Project type:** Static multi-page website in Polish (HTML, CSS, Vanilla JavaScript ES modules) with a Vite development, build, and preview toolchain; Node-based source check, image-generation script, and Chromium Playwright smoke suite; no CI configuration in the repository
 **Analysis mode:** Evidence-based workflow improvement review
 **Focus:** Project-wide workflow
 
 ## Improvement overview
 
-The project has a compact, well-separated toolchain: `npm run check` validates source contracts without writing files, `npm run build` produces the ignored `dist/` directory, `npm run test:smoke` rebuilds before running Playwright against the production preview, and `npm run optimize:images` is an explicit, separate asset step. Git history shows a repeated maintenance cycle — document an improvement report, implement five items, condense completion records, archive under `docs/archive/improvements/` — run four times between 2026-11-14 and 2026-11-17.
+The review documented focused verification by change type and reduced duplicated maintenance-sensitive information in the bilingual README. It also extended source validation for sitemap registration, canonical URLs, and production-origin consistency, and added reporting for stale generated image variants without deleting them.
 
-The main opportunities lie in the processes around this toolchain rather than in the toolchain itself: focused verification is practised but not documented, the bilingual README duplicates volatile facts that have already drifted from the source, the improvement-cycle lifecycle is followed by convention only, and two documented manual maintenance procedures (page registration and image regeneration) have no automated feedback.
+The review rejected project-specific improvement-cycle rules and retained the existing KP_Code workflow.
 
-## Proposed improvements
+## Resolved improvements
 
 ### IMP-WORKFLOW-01 — Document the focused verification commands per change type
 
@@ -54,16 +56,25 @@ The main opportunities lie in the processes around this toolchain rather than in
 - **Impact:** Low
 - **Effort:** Small
 
-## Selection summary
+## Completion summary
 
-The proposals target the processes repeated most often in this repository: verifying a change (01), keeping the README synchronized after each cycle (02), and closing improvement cycles (03). Two further proposals add automated feedback to manual maintenance procedures that README already documents but nothing currently checks: page registration and origin changes (04), and image regeneration (05).
+Of five findings, four were implemented and verified (IMP-WORKFLOW-01, -02, -04, and -05), and one was explicitly rejected (IMP-WORKFLOW-03). No findings remain unresolved.
 
-01, 02, and 03 are documentation-only and independent, although 01 and 02 both edit the README testing section and are best applied in one sequence. 04 and 05 are independent of each other and of the documentation items; 04 should update the README check-scope text after 02 if both are approved. All five preserve the existing Vite toolchain, command set, generated-file ownership, and manual deployment model. Four are Small and one is Medium, which fits a focused development session.
+The implemented changes improved verification guidance, clarified where maintainers should look for current information, and added feedback for page registration and image maintenance. The existing Vite toolchain, command set, ownership of source and generated files, and manual deployment conventions were preserved. Image generation remained independent of the production build.
 
-Not selected: CI or deployment automation (deployment settings are intentionally kept outside the repository and no evidence shows a need), Node-version pinning beyond the existing `engines` field (no observed mismatch), and local branch or worktree cleanup (local state, not a repository contract).
+## Verification limitations and observations
 
-## Analysis limitations
+- **Original analysis.** The review was static. No project commands were run, and `node_modules/` was absent from the analysis worktree. The figure of 47 tests came from source inspection of `test()` calls, including loop-generated cases. Playwright `--list` was not run.
+- **Implementation verification.** The individual records document the historical checks and their limits. Archival closure covered document structure, record preservation, repository references, and the Git diff. No source checks, builds, image generation, or browser tests were rerun for closure.
+- **Deployment.** Netlify build and publish settings are maintained outside the repository and were not verified.
+- **Out-of-scope observations.** The changelog names the project “EverAfterRing Hotels & Travel” and records a worktree environment configuration that commit `18fa4b0` later removed. Both observations remained outside the approved improvement scope.
 
-- The analysis was static. No project command was run; `node_modules/` is absent in this worktree. The 47-test figure is a static count of `test()` calls, including loop-generated cases, not a Playwright `--list` result.
-- Netlify build and publish settings are not tracked in the repository and were not inspected.
-- Two documentation defects observed outside this report's scope: `docs/CHANGELOG.md:3` names the project "EverAfterRing Hotels & Travel", and `docs/CHANGELOG.md:74` records a worktree environment configuration that commit `18fa4b0` later removed.
+## References
+
+- `AGENTS.md` — Project instructions and completed-improvement documentation standards.
+- `README.md` — Development workflow and focused verification guidance.
+- `docs/CHANGELOG.md` — Changelog policy and recorded tooling changes.
+- `scripts/check.mjs` — Source validation.
+- `scripts/html-shell.mjs` — Canonical list of maintained HTML pages.
+- `scripts/optimize-images.mjs` — Image generation and stale variant reporting.
+- `vite.config.js` — Vite configuration and production build entries.
