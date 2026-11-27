@@ -76,12 +76,12 @@
     <!-- Main -->
     <main id="main">
       <!-- Hero -->
-      <section class="hero">
+      <section class="hero hero--cover">
         <div class="container hero__layout">
           <div class="hero__content">
             <span class="badge badge--animate">Premium wedding planning</span>
-            <h1 class="hero__title">EverAfter Ring – tworzymy śluby, które zostają w pamięci na zawsze.</h1>
-            <p class="hero__tagline">Prowadzimy Was od pierwszej wizji po ostatni toast: spokojnie, z klasą i pełną kontrolą nad detalem.</p>
+            <h1 class="hero__title">EverAfter Ring – tworzymy śluby, które zostają w&nbsp;pamięci na zawsze.</h1>
+            <p class="hero__tagline">Prowadzimy Was od pierwszej wizji po ostatni toast: spokojnie, z&nbsp;klasą i&nbsp;pełną kontrolą nad detalem.</p>
             <div class="hero__actions">
               <a class="button button--primary" href="oferta.html">Poznaj pakiety</a>
               <a class="button button--ghost" href="kontakt.html">Umów konsultację</a>
@@ -92,24 +92,24 @@
               <span>Selekcja topowych dostawców</span>
             </div>
           </div>
-          <!-- Media -->
+          <!-- Media: from 900px the column is 0.475 of the container width after the 4rem gap (492px from a 1132px viewport), and its 4:5 crop draws on 1.875 times that width of the 3:2 source -->
           <div class="hero__media" data-hero-image>
             <picture>
               <source
                 type="image/avif"
                 srcset="assets/img/hero/hero-400.avif 400w, assets/img/hero/hero-800.avif 800w, assets/img/hero/hero-1080.avif 1080w"
-                sizes="(min-width: 900px) 45vw, calc(100vw - 2rem)" />
+                sizes="(min-width: 1132px) 923px, (min-width: 900px) calc((100vw - 6rem) * 0.89), calc(100vw - 2rem)" />
               <source
                 type="image/webp"
                 srcset="assets/img/hero/hero-400.webp 400w, assets/img/hero/hero-800.webp 800w, assets/img/hero/hero-1080.webp 1080w"
-                sizes="(min-width: 900px) 45vw, calc(100vw - 2rem)" />
+                sizes="(min-width: 1132px) 923px, (min-width: 900px) calc((100vw - 6rem) * 0.89), calc(100vw - 2rem)" />
               <img
                 src="assets/img/hero/hero-800.jpg"
                 srcset="assets/img/hero/hero-400.jpg 400w, assets/img/hero/hero-800.jpg 800w, assets/img/hero/hero-1080.jpg 1080w"
-                sizes="(min-width: 900px) 45vw, calc(100vw - 2rem)"
+                sizes="(min-width: 1132px) 923px, (min-width: 900px) calc((100vw - 6rem) * 0.89), calc(100vw - 2rem)"
                 width="1080"
                 height="720"
-                alt="Elegancka scena ślubna z łukiem i światłem"
+                alt="Dwie złote obrączki ślubne na lnianej tkaninie wśród oszronionych gałązek"
                 decoding="async" />
             </picture>
           </div>

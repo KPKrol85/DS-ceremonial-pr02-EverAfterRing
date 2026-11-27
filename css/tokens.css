@@ -41,6 +41,7 @@
   --color-hero-glow: rgba(245, 225, 230, 0.4);
   --color-hero-sheen: rgba(255, 255, 255, 0.3);
   --color-hero-border: rgba(198, 167, 122, 0.2);
+  --color-hero-frame: rgba(198, 167, 122, 0.85);
   --color-backdrop-rgb: 12, 10, 9;
   --color-lightbox-backdrop: rgba(var(--color-backdrop-rgb), 0.72);
   --color-project-notice-backdrop: rgba(var(--color-backdrop-rgb), 0.58);
@@ -153,6 +154,7 @@
   --color-hero-glow: rgba(217, 189, 143, 0.14);
   --color-hero-sheen: rgba(248, 239, 230, 0.08);
   --color-hero-border: rgba(217, 189, 143, 0.28);
+  --color-hero-frame: rgba(234, 210, 165, 0.8);
   --color-success: #72b692;
   --color-error: #e08a8a;
 

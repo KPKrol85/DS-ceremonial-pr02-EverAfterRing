@@ -78,17 +78,9 @@ P1 establishes the direction or shapes a principal page. P2 extends that directi
 
 ### IMP-DESIGN-01 — Make the rings photograph the home cover
 
-- **Status:** Proposed
-- **Priority:** P1
-- **Affected area:** Home hero, hero composition styles and the contact hero as a functional counterpart.
-- **Evidence:** **Source and Runtime** — Both pages share the same frame and responsive grid. At 390 × 844 the home image starts near 650 px and the contact image frame occupies roughly 250 px before subsequent section spacing. **Visual** — The mobile home photograph is visibly cut by the first fold, and the contact portrait takes almost the full reading width on tablet. [Home](index.html#L79) · [Contact](kontakt.html#L80) · [Hero CSS](css/sections/hero.css)
-- **Current state:** Home places a badge, headline, tagline, two links and metadata before the framed rings. The contact introduction uses the same glazed frame and layout for a portrait.
-- **Design judgment:** Home has a clear subject that can hold its own beside a serif headline. Contact benefits from a smaller supporting image and a closer visual connection to the form.
-- **Proposed improvement:** Treat home as a cover, with a single fine photographic edge, deliberate headline measure, a quieter metadata line and a crop centred on the rings. On tablet cap the image depth before the two-column transition. Give contact a compact variation that keeps the original portrait available and gives the heading and form precedence.
-- **Expected value:** Establishes a recognisable opening and gives the visual system a functional counterpart at the end of the main journey.
-- **Implementation scope:** Keep the shared hero and add opt-in composition variants for home and contact. Preserve both home destinations, contact field and map contracts, image alternatives, responsive sources and reduced-motion behavior. Extend the photographic treatment to other pages only through separately approved proposals.
-- **Dependencies:** Direction approval. Confirm permission for a new rings or portrait crop if the selected treatment changes the existing image presentation.
-- **Acceptance criteria:** At 1440, 820 and 390 px in both themes, the rings remain identifiable, the home heading precedes its actions and image in reading order, and the primary package action and ring motif are both within the 390 × 844 opening at default zoom. The tablet/contact composition introduces the form within the same viewport in which the compact image ends. Check the 899/900 and 1023/1024 transitions, visible focus, responsive image selection, 200% zoom and reduced motion. Verify final crops with approved imagery.
+- **Status:** COMPLETED — implemented and verified.
+- **Result:** Home uses an opt-in `hero--cover` variant with an arched rings photograph, a fine inner frame line, a single reveal entrance, larger hero actions, a quieter metadata line and an accurate image description. Contact uses a compact `hero--compact` variant with a smaller supporting portrait; other pages keep the shared hero.
+- **Verification:** Playwright renders at 1440, 1024/1023, 900/899, 820, 390 and 320 px in both themes kept both pages free of horizontal overflow, with the primary action and rings visible within 390 × 844 and the contact form heading in the viewport where the image ends. Reduced motion, focus, pointer parallax, responsive sources and baseline-identical `o-nas.html` hero geometry were confirmed; `npm run check`, `git diff --check`, the build and the page-load, theme and navigation specs passed. The crop uses existing assets through CSS only, with no new image files.
 - **Impact:** High
 - **Effort:** Medium
 
